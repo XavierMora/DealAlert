@@ -1,4 +1,4 @@
-package com.game_price_tracker.api;
+package com.games_price_tracker.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
