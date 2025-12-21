@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 @RequestMapping("/games")
 public class GameController {
@@ -17,9 +16,7 @@ public class GameController {
 
     @GetMapping
     public String getGames(@RequestParam(required = false) String title) {
-        if(title != null){
-            gameService.getGamesByTitle(title);
-        }
+        
         return new String();
     }
     

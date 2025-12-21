@@ -7,6 +7,8 @@ public class AppSteam{
     private Long steamId;
     private String name;
 
+    AppSteam(){}
+
     AppSteam(Long steamId, String name){
         this.steamId = steamId;
         this.name = name;
