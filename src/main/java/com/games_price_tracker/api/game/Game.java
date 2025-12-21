@@ -22,9 +22,25 @@ public class Game {
     public Long getId() {
         return id;
     }
+    
+    public Long getSteamId() {
+        return steamId;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setSteamId(Long steamId) {
+        this.steamId = steamId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
