@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.games_price_tracker.api.steam.AppSteam;
+
 @SpringBootTest
 public class GameMapperTest {
     @Autowired

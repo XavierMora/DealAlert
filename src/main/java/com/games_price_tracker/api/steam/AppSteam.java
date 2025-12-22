@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.game;
+package com.games_price_tracker.api.steam;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

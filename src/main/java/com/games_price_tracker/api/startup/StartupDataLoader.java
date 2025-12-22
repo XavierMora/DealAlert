@@ -1,24 +1,19 @@
 package com.games_price_tracker.api.startup;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
-import com.games_price_tracker.api.game.AppSteam;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameMapper;
 import com.games_price_tracker.api.game.GameRepository;
+import com.games_price_tracker.api.steam.AppSteam;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
