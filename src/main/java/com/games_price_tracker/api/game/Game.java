@@ -1,6 +1,5 @@
 package com.games_price_tracker.api.game;
 
-import java.util.List;
 import java.util.Objects;
 
 import com.games_price_tracker.api.price.Price;
@@ -8,7 +7,7 @@ import com.games_price_tracker.api.price.Price;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Game {
@@ -18,8 +17,8 @@ public class Game {
     private Long steamId;
     private String name;
 
-    @OneToMany(mappedBy = "gameId")
-    private List<Price> priceHistory;
+    @OneToOne(mappedBy = "game")
+    private Price price;
     
     Game(){}
 
@@ -40,6 +39,10 @@ public class Game {
         return name;
     }
 
+    public Price getPrice() {
+        return price;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -50,6 +53,10 @@ public class Game {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setPriceHistory(Price price) {
+        this.price = price;
     }
 
     @Override
