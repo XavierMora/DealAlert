@@ -55,7 +55,7 @@ public class Game {
         this.name = name;
     }
 
-    public void setPriceHistory(Price price) {
+    public void setPrice(Price price) {
         this.price = price;
     }
 
