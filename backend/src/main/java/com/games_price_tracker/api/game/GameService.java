@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.price.Price;
-import com.games_price_tracker.api.price.PriceService;
 import com.games_price_tracker.api.steam.AppDetailsSteam;
 
 import jakarta.persistence.EntityManager;
