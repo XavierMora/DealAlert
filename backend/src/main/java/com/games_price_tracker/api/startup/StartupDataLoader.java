@@ -1,52 +1,29 @@
 package com.games_price_tracker.api.startup;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import com.games_price_tracker.api.game.Game;
-import com.games_price_tracker.api.game.GameMapper;
 import com.games_price_tracker.api.game.GameRepository;
-import com.games_price_tracker.api.steam.AppSteam;
-
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
+@Profile("dev")
 public class StartupDataLoader implements ApplicationRunner {
-    @Value("${some.steam.data.path}")
-    private String steamMockData;
-    private final ResourceLoader resourceLoader;
-    private final GameMapper gameMapper;
+    @Value("${startup.DB}")
+    private boolean startupDB;
     private final GameRepository gameRepository;
-    private final ObjectMapper objectMapper;
+    private final SteamAppListClient steamAppListClient;
 
-    StartupDataLoader(ResourceLoader resourceLoader, GameMapper gameMapper, GameRepository gameRepository, ObjectMapper objectMapper){
-        this.resourceLoader = resourceLoader;
-        this.gameMapper = gameMapper;
+    StartupDataLoader(GameRepository gameRepository, SteamAppListClient steamAppListClient){
         this.gameRepository = gameRepository;
-        this.objectMapper = objectMapper;
-    }
-    
-    private List<AppSteam> getSteamApps() throws IOException, JacksonException{
-        JsonNode jsonNode = objectMapper
-            .readTree(resourceLoader.getResource(steamMockData).getInputStream())
-            .get("apps"); 
-    
-        return objectMapper.convertValue(jsonNode, new TypeReference<List<AppSteam>>(){});    
+        this.steamAppListClient = steamAppListClient;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        List<Game> games = getSteamApps().stream().map((steamApp) -> gameMapper.fromAppSteam(steamApp)).toList();
-
-        gameRepository.saveAll(games);
+        if(startupDB && gameRepository.count() == 0){
+            gameRepository.saveAll(steamAppListClient.getGamesFromAppListApi());
+        }
     }
 }
