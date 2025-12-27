@@ -6,13 +6,14 @@ import com.games_price_tracker.api.price.Price;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 
 @Entity
 public class Game {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long steamId;
     private String name;
