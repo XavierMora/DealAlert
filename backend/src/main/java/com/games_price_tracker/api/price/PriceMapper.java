@@ -11,8 +11,8 @@ public class PriceMapper {
         int finalPrice = price.getFinalPrice();
         int discount = 0;
         
-        if(initialPrice != finalPrice) discount = (price.getInitialPrice()-price.getFinalPrice())*100/price.getInitialPrice();
+        if(initialPrice != finalPrice) discount = (initialPrice-finalPrice)*100/initialPrice;
 
-        return new PriceInfo(price.getInitialPrice(), price.getFinalPrice(), discount);
+        return new PriceInfo(price.getId(), initialPrice, finalPrice, discount);
     }
 }
