@@ -21,9 +21,9 @@ public class Game {
     @OneToOne(mappedBy = "game")
     private Price price;
     
-    Game(){}
+    public Game(){}
 
-    Game(Long steamId, String name){
+    public Game(Long steamId, String name){
         this.steamId = steamId;
         this.name = name;
     }

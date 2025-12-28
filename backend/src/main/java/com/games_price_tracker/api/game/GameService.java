@@ -3,15 +3,7 @@ package com.games_price_tracker.api.game;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.NoSuchElementException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.games_price_tracker.api.price.Price;
-import com.games_price_tracker.api.steam.AppDetailsSteam;
-
-import jakarta.persistence.EntityManager;
 
 @Service
 public class GameService {

@@ -22,6 +22,11 @@ public class PriceService {
     }
 
     @Transactional
+    boolean refreshLastUpdate(Long id){
+        return priceRepository.updateLastUpdate(id, Instant.now()) == 1;
+    }
+
+    @Transactional
     Price createPrice(int initialPrice, int finalPrice, Game game){
         return priceRepository.save(new Price(initialPrice, finalPrice, game));
     }
