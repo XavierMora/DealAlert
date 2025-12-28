@@ -31,7 +31,7 @@ public class PriceService {
         return priceRepository.save(new Price(initialPrice, finalPrice, game));
     }
 
-    Price getPrice(Long id) throws NoSuchElementException{
+    Price getPriceById(Long id) throws NoSuchElementException{
         return priceRepository.findById(id).orElseThrow();
     }
 }

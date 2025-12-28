@@ -14,10 +14,8 @@ import com.games_price_tracker.api.steam.AppSteam;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 public class GameTest {
-    
     @Autowired
     private GameService gameService;
-
 
     @Test
     void gameShouldNotNeedPriceUpdate(){
