@@ -1,8 +1,12 @@
 package com.games_price_tracker.api.game;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.games_price_tracker.api.game.dtos.GameInfo;
+import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.price.PriceMapper;
 import com.games_price_tracker.api.price.dtos.PriceInfo;
 import com.games_price_tracker.api.steam.AppSteam;
@@ -38,5 +42,20 @@ public class GameMapper {
 
     private String builderUrlImg(Long steamId){
         return String.format("https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/%d/header.jpg", steamId);
+    }
+
+    public PageDto<GameInfo> fromGamePagetoGameInfoPage(Page<Game> gamePage){
+        List<GameInfo> gameInfoContent = gamePage.getContent().stream().map((game) -> toGameInfo(game)).toList();  
+        
+        return new PageDto<GameInfo>(
+            gameInfoContent, 
+            gamePage.isEmpty(), 
+            gamePage.isFirst(), 
+            gamePage.isLast(),
+            gamePage.getNumberOfElements(),
+            gamePage.getTotalPages(),
+            gamePage.getNumber(),
+            gamePage.getSize()
+        );
     }
 }

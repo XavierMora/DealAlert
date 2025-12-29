@@ -22,7 +22,7 @@ public class StartupDataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if(startupDB && gameRepository.count() == 0){
+        if(startupDB){
             gameRepository.saveAll(steamAppListClient.getGamesFromAppListApi());
         }
     }

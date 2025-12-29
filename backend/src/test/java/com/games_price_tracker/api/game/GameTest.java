@@ -70,6 +70,5 @@ public class GameTest {
         assertNotNull(gameInfo.id());
         assertEquals(1L, gameInfo.SteamId());
         assertEquals("test", gameInfo.name());
-        
     }
 }
