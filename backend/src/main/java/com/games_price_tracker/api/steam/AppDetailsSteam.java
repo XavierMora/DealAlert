@@ -15,11 +15,12 @@ public class AppDetailsSteam{
     public void parseData(Map<String, Object> data){
         boolean isFree = (boolean) data.get("is_free");
         
-        if(isFree) return;
-
-        Map<String, Object> priceOverview = (Map<String, Object>) data.get("price_overview");
-        initialPrice = (int) priceOverview.get("initial");
-        finalPrice = (int) priceOverview.get("final");
+        // Si esta gratis, el price overview no esta
+        if(!isFree){
+            Map<String, Object> priceOverview = (Map<String, Object>) data.get("price_overview");
+            initialPrice = (int) priceOverview.get("initial");
+            finalPrice = (int) priceOverview.get("final");
+        }
     }
 
     public int getFinalPrice() {
