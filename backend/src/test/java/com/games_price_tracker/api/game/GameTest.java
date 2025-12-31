@@ -33,18 +33,20 @@ public class GameTest {
     }
 
     @Test
-    void gameShouldNotNeedPriceUpdate(){
+    void gamePriceShouldNotNeedUpdate(){
         game.setPrice(new Price(6,4,game));
 
-        assertEquals(false, gameService.gameNeedsPriceUpdate(game));
+        assertEquals(false, gameService.gamePriceNeedsUpdate(game));
     }
 
     @Test
-    void gameShouldNeedPriceUpdate(){
+    void gamePriceShouldNeedUpdate(){
+        assertEquals(true, gameService.gamePriceNeedsUpdate(game)); // sin precio
+
         Price price = new Price(6,4,game);
         game.setPrice(price);
         price.setLastUpdate(Instant.now().minus(13L, ChronoUnit.HOURS));
-        assertEquals(true, gameService.gameNeedsPriceUpdate(game));
+        assertEquals(true, gameService.gamePriceNeedsUpdate(game));
     }
 
     @Test

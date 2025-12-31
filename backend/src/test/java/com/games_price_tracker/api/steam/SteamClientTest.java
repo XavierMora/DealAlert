@@ -19,11 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ResourceLoader;
 
-import com.games_price_tracker.api.game.Game;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @WireMockTest(httpPort = 8081)

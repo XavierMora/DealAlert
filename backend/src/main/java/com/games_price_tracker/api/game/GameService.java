@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class GameService {
     private final GameRepository gameRepository;
+
     GameService(GameRepository gameRepository){
         this.gameRepository = gameRepository;
     }
@@ -21,7 +22,9 @@ public class GameService {
         return gameRepository.findById(id).orElseThrow();
     }
 
-    public boolean gameNeedsPriceUpdate(Game game){
+    public boolean gamePriceNeedsUpdate(Game game){
+        if(game.getPrice() == null) return true;
+
         Instant lastUpdate = game.getPrice().getLastUpdate();
         Instant limit = lastUpdate.plus(12L, ChronoUnit.HOURS);
 
