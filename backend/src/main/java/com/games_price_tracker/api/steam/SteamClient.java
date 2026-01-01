@@ -1,10 +1,15 @@
 package com.games_price_tracker.api.steam;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpTimeoutException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import tools.jackson.core.type.TypeReference;
@@ -19,10 +24,16 @@ public class SteamClient {
 
     SteamClient(ObjectMapper objectMapper, @Value("${steam.applist.api.url}") String steamAppListUrl, @Value("${steam.appdetails.api.url}") String steamAppDetailsUrl){
         this.objectMapper = objectMapper;
-        restAppListClient = RestClient.create(steamAppListUrl);
+        
+        JdkClientHttpRequestFactory clientHttpRequestFactory = new JdkClientHttpRequestFactory(
+            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build()
+        );
+        clientHttpRequestFactory.setReadTimeout(Duration.ofSeconds(8));
 
-        JdkClientHttpRequestFactory clientHttpRequestFactory = new JdkClientHttpRequestFactory();
-        clientHttpRequestFactory.setReadTimeout(10000);
+        restAppListClient = RestClient.builder()
+            .requestFactory(clientHttpRequestFactory)
+            .baseUrl(steamAppListUrl)
+            .build();
 
         restAppDetailsClient = RestClient.builder()
             .requestFactory(clientHttpRequestFactory)
@@ -45,22 +56,28 @@ public class SteamClient {
         return parseSteamApps(response);
     }
 
-    private AppDetailsSteam parseAppDetails(String response, Long steamId){
-        JsonNode data = objectMapper
-            .readTree(response)
-            .get(steamId.toString());
-
-        return objectMapper.treeToValue(data, AppDetailsSteam.class);
+    private List<AppDetailsSteam> parseAppDetails(String response, List<Long> steamIds){
+        return steamIds.stream().map(steamId -> {
+            JsonNode data = objectMapper
+                .readTree(response)
+                .get(steamId.toString());
+                
+            return objectMapper.treeToValue(data, AppDetailsSteam.class);
+        }).toList();
     }
 
-    public AppDetailsSteam getAppDetails(Long steamId){
+    public List<AppDetailsSteam> getMultipleAppDetails(List<Long> steamIds) throws ResourceAccessException{
         String response = restAppDetailsClient.get()
-            .uri(uriBuilder -> uriBuilder
+            .uri(uriBuilder -> {
+                List<String> steamIdsStr = steamIds.stream().map(steamId -> steamId.toString()).toList(); 
+                
+                return uriBuilder
                 .queryParam("cc", "AR")
-                .queryParam("appids", "{id}")
-                .build(steamId)
-            ).retrieve().body(String.class);
+                .queryParam("appids", String.join(",", steamIdsStr))
+                .queryParam("filters", "price_overview")
+                .build();
+            }).retrieve().body(String.class);
 
-        return parseAppDetails(response, steamId);
+        return parseAppDetails(response, steamIds);
     }
 }

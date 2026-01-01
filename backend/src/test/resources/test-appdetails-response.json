@@ -1,7 +1,6 @@
 {
     "0": {
         "data": {
-            "is_free": false,
             "price_overview": {
                 "currency": "USD",
                 "initial": 1799,
@@ -13,16 +12,6 @@
         }
     },
     "1": {
-        "data": {
-            "is_free": true,
-            "price_overview": {
-                "currency": "USD",
-                "initial": 1799,
-                "final": 1439,
-                "discount_percent": 20,
-                "initial_formatted": "$17.99",
-                "final_formatted": "$14.39 USD"
-            }
-        }
+        "data": []
     }
 }

@@ -1,25 +1,22 @@
 package com.games_price_tracker.api.steam;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import tools.jackson.databind.JsonNode;
 
 public class AppDetailsSteam{
     private int initialPrice=0;
     private int finalPrice=0;
-    
+
     AppDetailsSteam(){}
 
-    @SuppressWarnings("unchecked")
     @JsonProperty("data")
-    public void parseData(Map<String, Object> data){
-        boolean isFree = (boolean) data.get("is_free");
-        
-        // Si esta gratis, el price overview no esta
-        if(!isFree){
-            Map<String, Object> priceOverview = (Map<String, Object>) data.get("price_overview");
-            initialPrice = (int) priceOverview.get("initial");
-            finalPrice = (int) priceOverview.get("final");
+    void parseData(JsonNode data){
+        JsonNode priceOverview = data.get("price_overview");
+
+        if(priceOverview != null && !priceOverview.isNull()){
+            initialPrice = priceOverview.get("initial").asInt();
+            finalPrice = priceOverview.get("final").asInt();
         }
     }
 
