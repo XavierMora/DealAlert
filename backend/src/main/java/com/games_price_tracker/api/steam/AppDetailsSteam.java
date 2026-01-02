@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.JsonNode;
 
 public class AppDetailsSteam{
+    private Long steamId;
     private int initialPrice=0;
     private int finalPrice=0;
 
@@ -18,6 +19,14 @@ public class AppDetailsSteam{
             initialPrice = priceOverview.get("initial").asInt();
             finalPrice = priceOverview.get("final").asInt();
         }
+    }
+
+    public Long getSteamId() {
+        return steamId;
+    }
+
+    public void setSteamId(Long steamId) {
+        this.steamId = steamId;
     }
 
     public int getFinalPrice() {
@@ -38,6 +47,6 @@ public class AppDetailsSteam{
 
     @Override
     public String toString() {
-        return String.format("[initialPrice=%s, finalPrice=%s]", initialPrice, finalPrice);
+        return String.format("[steamId=%d, initialPrice=%s, finalPrice=%s]", steamId, initialPrice, finalPrice);
     }
 }

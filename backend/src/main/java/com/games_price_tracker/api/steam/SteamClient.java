@@ -1,9 +1,7 @@
 package com.games_price_tracker.api.steam;
 
 import java.net.http.HttpClient;
-import java.net.http.HttpTimeoutException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +60,12 @@ public class SteamClient {
                 .readTree(response)
                 .get(steamId.toString());
                 
-            return objectMapper.treeToValue(data, AppDetailsSteam.class);
+            if(!data.get("success").asBoolean()) return null;
+
+            AppDetailsSteam appDetailsSteam = objectMapper.treeToValue(data, AppDetailsSteam.class);
+            appDetailsSteam.setSteamId(steamId);
+
+            return appDetailsSteam;
         }).toList();
     }
 
