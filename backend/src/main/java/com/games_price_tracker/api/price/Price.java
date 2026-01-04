@@ -22,7 +22,7 @@ public class Price {
     private Instant lastUpdate;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "game_id", nullable = false)
+    @JoinColumn(name = "game_id", nullable = false, unique = true)
     private Game game;
 
     public Price(){}

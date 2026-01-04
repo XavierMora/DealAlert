@@ -3,6 +3,7 @@ package com.games_price_tracker.api.price;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.NoSuchElementException;
@@ -29,19 +30,41 @@ public class PriceTest {
 
     @BeforeEach
     void loadGameForTest(){
-        game = gameRepository.save(new Game(0L, "test"));
+        game = gameRepository.saveAndFlush(new Game(0L, "test"));
     }
 
     @Test
-    void shouldRefreshLastUpdate() throws NoSuchElementException{
-        Price price = priceService.createPrice(2, 2, game);
-        Long id = price.getId();
-        Instant oldLastUpdate = price.getLastUpdate();
-        
-        priceService.refreshLastUpdate(id);
-        Instant newLastUpdate = priceService.getPriceById(id).getLastUpdate();
+    void changePriceShouldCreatePrice() throws NoSuchElementException{
+        priceService.changePrice(2, 1, game);
 
-        assertFalse(oldLastUpdate.equals(newLastUpdate));
+        game = gameRepository.findById(game.getId()).orElseThrow();
+
+        assertNotNull(game.getPrice());
+        assertEquals(2, game.getPrice().getInitialPrice());
+        assertEquals(1, game.getPrice().getFinalPrice());
+    }
+
+    @Test
+    void changePriceShouldJustRefreshLastUpdate(){
+        priceService.changePrice(2, 1, game);
+        game = gameRepository.findById(game.getId()).orElseThrow();
+        Price firstPrice = game.getPrice();
+
+        priceService.changePrice(2, 1, game);
+        game = gameRepository.findById(game.getId()).orElseThrow();
+        Price priceLastUpdateChanged = game.getPrice();
+
+        assertTrue(firstPrice.getLastUpdate().isBefore(priceLastUpdateChanged.getLastUpdate()));
+        assertEquals(2, priceLastUpdateChanged.getInitialPrice());
+        assertEquals(1, priceLastUpdateChanged.getFinalPrice());
+
+        priceService.changePrice(1, 1, game);
+        game = gameRepository.findById(game.getId()).orElseThrow();
+        Price priceChanged = game.getPrice();
+
+        assertTrue(priceLastUpdateChanged.getLastUpdate().isBefore(priceChanged.getLastUpdate()));
+        assertEquals(1, priceChanged.getInitialPrice());
+        assertEquals(1, priceChanged.getFinalPrice());
     }
 
     @Test
