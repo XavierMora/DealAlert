@@ -8,6 +8,8 @@ public class AppDetailsSteam{
     private Long steamId;
     private int initialPrice=0;
     private int finalPrice=0;
+    @JsonProperty("success")
+    private boolean success;
 
     AppDetailsSteam(){}
 
@@ -37,12 +39,20 @@ public class AppDetailsSteam{
         return initialPrice;
     }
 
+    public boolean getSuccess(){
+        return success;
+    }
+
     public void setFinalPrice(int finalPrice) {
         this.finalPrice = finalPrice;
     }
 
     public void setInitialPrice(int initialPrice) {
         this.initialPrice = initialPrice;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     @Override

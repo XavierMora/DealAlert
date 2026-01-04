@@ -4,9 +4,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -63,6 +66,7 @@ public class SteamClientTest {
 
         assertNotNull(appsDetails);
         assertEquals(2, appsDetails.size());
-        assertNull(appsDetails.get(1));
+        assertTrue(appsDetails.get(0).getSuccess());
+        assertFalse(appsDetails.get(1).getSuccess());
     }
 }

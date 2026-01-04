@@ -59,8 +59,6 @@ public class SteamClient {
             JsonNode data = objectMapper
                 .readTree(response)
                 .get(steamId.toString());
-                
-            if(!data.get("success").asBoolean()) return null;
 
             AppDetailsSteam appDetailsSteam = objectMapper.treeToValue(data, AppDetailsSteam.class);
             appDetailsSteam.setSteamId(steamId);
