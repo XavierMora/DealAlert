@@ -4,7 +4,6 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -20,9 +19,9 @@ public class SteamClient {
     private final RestClient restAppListClient;
     private final RestClient restAppDetailsClient;
 
-    SteamClient(ObjectMapper objectMapper, @Value("${steam.applist.api.url}") String steamAppListUrl, @Value("${steam.appdetails.api.url}") String steamAppDetailsUrl){
+    public SteamClient(ObjectMapper objectMapper, SteamApiProperties steamApiProperties){
         this.objectMapper = objectMapper;
-        
+
         JdkClientHttpRequestFactory clientHttpRequestFactory = new JdkClientHttpRequestFactory(
             HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build()
         );
@@ -30,12 +29,12 @@ public class SteamClient {
 
         restAppListClient = RestClient.builder()
             .requestFactory(clientHttpRequestFactory)
-            .baseUrl(steamAppListUrl)
+            .baseUrl(steamApiProperties.getApplist().getUrl())
             .build();
 
         restAppDetailsClient = RestClient.builder()
             .requestFactory(clientHttpRequestFactory)
-            .baseUrl(steamAppDetailsUrl)
+            .baseUrl(steamApiProperties.getAppdetails().getUrl())
             .build();
     }
 

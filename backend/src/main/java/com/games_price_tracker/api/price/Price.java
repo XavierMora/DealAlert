@@ -18,7 +18,7 @@ public class Price {
     private Long id;
     private int initialPrice;
     private int finalPrice;
-    private Instant timestamp;
+    private Instant createdAt;
     private Instant lastUpdate;
 
     @OneToOne(optional = false)
@@ -30,7 +30,7 @@ public class Price {
     public Price(int initialPrice, int finalPrice, Game game){
         this.initialPrice = initialPrice;
         this.finalPrice = finalPrice;
-        this.timestamp = Instant.now();
+        this.createdAt = Instant.now();
         this.lastUpdate = Instant.now();
         this.game = game;
     }
@@ -51,8 +51,8 @@ public class Price {
         return initialPrice;
     }
 
-    public Instant getTimestamp() {
-        return timestamp;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public Instant getLastUpdate() {
@@ -75,8 +75,8 @@ public class Price {
         this.initialPrice = initialPrice;
     }
 
-    public void setTimestamp(Instant timestamp) {
-        this.timestamp = timestamp;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setLastUpdate(Instant lastUpdate) {
@@ -96,11 +96,11 @@ public class Price {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, initialPrice, finalPrice, timestamp);
+        return Objects.hash(id, initialPrice, finalPrice, createdAt);
     }
 
     @Override
     public String toString() {
-        return String.format("[id=%d, initialPrice=%d, finalPrice=%d, timestamp=%s]", id, initialPrice, finalPrice, timestamp.toString());
+        return String.format("[id=%d, initialPrice=%d, finalPrice=%d, createdAt=%s]", id, initialPrice, finalPrice, createdAt.toString());
     }
 }

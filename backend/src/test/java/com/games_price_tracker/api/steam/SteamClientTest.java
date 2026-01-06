@@ -4,11 +4,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -22,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 
@@ -60,7 +59,7 @@ public class SteamClientTest {
     }
 
     @Test
-    void shouldGetAndParseMultipleAppDetails(){
+    void shouldGetAndParseMultipleAppDetails() throws ResourceAccessException{
         List<Long> steamIds = List.of(0L,1L);
         List<AppDetailsSteam> appsDetails = steamClient.getMultipleAppDetails(steamIds);            
 
