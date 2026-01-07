@@ -1,5 +1,6 @@
 package com.games_price_tracker.api.startup;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameMapper;
 import com.games_price_tracker.api.game.GameRepository;
 import com.games_price_tracker.api.steam.SteamClient;
+import com.games_price_tracker.api.tracking.enqueue_games.EnqueueGamesTaskHandler;
 
 @Component
 @Profile("dev")
@@ -21,11 +23,13 @@ public class StartupDataLoader implements ApplicationRunner {
     private final GameRepository gameRepository;
     private final SteamClient steamClient;
     private final GameMapper gameMapper;
+    private final EnqueueGamesTaskHandler gamePriceCheckScheduler;
 
-    StartupDataLoader(GameRepository gameRepository, SteamClient steamClient, GameMapper gameMapper){
+    StartupDataLoader(GameRepository gameRepository, SteamClient steamClient, GameMapper gameMapper, EnqueueGamesTaskHandler gamePriceCheckScheduler){
         this.gameRepository = gameRepository;
         this.steamClient = steamClient;
         this.gameMapper = gameMapper;
+        this.gamePriceCheckScheduler = gamePriceCheckScheduler;
     }
 
     @Override
@@ -35,5 +39,7 @@ public class StartupDataLoader implements ApplicationRunner {
             
             gameRepository.saveAll(games);
         }
+
+        gamePriceCheckScheduler.nextExecution(Instant.now());
     }
 }

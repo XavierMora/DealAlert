@@ -1,10 +1,12 @@
 package com.games_price_tracker.api.game;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class GameService {
     private final GameRepository gameRepository;
+    @Value("${price.min-interval-update}") 
+    private Duration priceMinIntervalUpdate;
 
     GameService(GameRepository gameRepository){
         this.gameRepository = gameRepository;
@@ -26,7 +30,7 @@ public class GameService {
         if(game.getPrice() == null) return true;
 
         Instant lastUpdate = game.getPrice().getLastUpdate();
-        Instant limit = lastUpdate.plus(12L, ChronoUnit.HOURS);
+        Instant limit = lastUpdate.plus(priceMinIntervalUpdate);
 
         return limit.isBefore(Instant.now());
     }
