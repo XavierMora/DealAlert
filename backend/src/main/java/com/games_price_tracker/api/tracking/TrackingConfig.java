@@ -20,7 +20,7 @@ import com.games_price_tracker.api.tracking.fetch_appdetails.FetchAppDetailsTask
 @Configuration
 @EnableScheduling
 @Profile("!test")
-public class Config {
+public class TrackingConfig {
     @Bean
     TaskScheduler taskScheduler(){
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();

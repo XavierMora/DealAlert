@@ -1,11 +1,9 @@
 package com.games_price_tracker.api.price;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Instant;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;

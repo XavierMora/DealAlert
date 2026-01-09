@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -39,13 +40,16 @@ public class GameTest {
         assertEquals(false, gameService.gamePriceNeedsUpdate(game));
     }
 
+    @Value("${price.min-interval-update}") 
+    private Duration priceMinIntervalUpdate;
+
     @Test
     void gamePriceShouldNeedUpdate(){
         assertEquals(true, gameService.gamePriceNeedsUpdate(game)); // sin precio
 
         Price price = new Price(6,4,game);
         game.setPrice(price);
-        price.setLastUpdate(Instant.now().minus(13L, ChronoUnit.HOURS));
+        price.setLastUpdate(Instant.now().minus(priceMinIntervalUpdate.plusHours(1)));
         assertEquals(true, gameService.gamePriceNeedsUpdate(game));
     }
 
