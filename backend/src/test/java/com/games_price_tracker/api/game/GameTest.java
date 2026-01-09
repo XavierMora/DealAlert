@@ -21,12 +21,15 @@ import com.games_price_tracker.api.steam.AppSteam;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 public class GameTest {
-    @Autowired
-    private GameService gameService;
-    @Autowired
-    private GameMapper gameMapper;
-
+    private final GameService gameService;
+    private final GameMapper gameMapper;
     private Game game;
+    
+    @Autowired
+    GameTest(GameService gameService, GameMapper gameMapper){
+        this.gameService=gameService;
+        this.gameMapper=gameMapper;
+    }
 
     @BeforeEach
     void setup(){

@@ -15,10 +15,14 @@ import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 public class AppDetailsSteamTest {
+	private final ObjectMapper objectMapper;
+    private final ResourceLoader resourceLoader;
+
     @Autowired
-	ObjectMapper objectMapper;
-	@Autowired
-    ResourceLoader resourceLoader;
+    AppDetailsSteamTest(ObjectMapper objectMapper, ResourceLoader resourceLoader){
+        this.objectMapper=objectMapper;
+        this.resourceLoader=resourceLoader;
+    }
 
 	@Test
 	void shouldParseAppDetailsWithPrice() throws IOException {

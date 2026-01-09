@@ -17,14 +17,17 @@ import com.games_price_tracker.api.price.dtos.PriceInfo;
 
 @SpringBootTest
 public class PriceTest {
-    @Autowired
-    private PriceMapper priceMapper;
-    @Autowired
-    private PriceService priceService;
-    @Autowired
-    private GameRepository gameRepository;
-
+    private final PriceMapper priceMapper;
+    private final PriceService priceService;
+    private final GameRepository gameRepository;
     private Game game;
+
+    @Autowired
+    PriceTest(PriceMapper priceMapper, PriceService priceService, GameRepository gameRepository){
+        this.priceMapper=priceMapper;
+        this.priceService=priceService;
+        this.gameRepository=gameRepository;
+    }
 
     @BeforeEach
     void loadGameForTest(){
