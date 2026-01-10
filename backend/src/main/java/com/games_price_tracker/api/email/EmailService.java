@@ -7,6 +7,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.games_price_tracker.api.email.SendEmailService;
+import com.games_price_tracker.api.email.email_verification_enums.EmailVerificationResult;
+import com.games_price_tracker.api.email.email_verification_enums.EmailVerificationStatus;
+
 import jakarta.transaction.Transactional;
 
 @Service
@@ -57,5 +61,27 @@ public class EmailService {
         email.setLastVerificationEmailSentAt(Instant.now());
         emailRepository.save(email);
         return EmailVerificationStatus.VERIFICATION_EMAIL_SENT_NOW;
+    }
+
+    @Transactional
+    public EmailVerificationResult verifyEmail(String token){
+        Optional<Email> optionalEmail = emailRepository.findByVerificationToken(token);
+
+        if(optionalEmail.isEmpty()) return EmailVerificationResult.TOKEN_NOT_FOUND;
+
+        Email email = optionalEmail.get();
+        
+        Instant tokenExpiration = email.getVerificationTokenExpiration();
+
+        if(tokenExpiration.isBefore(Instant.now())) return EmailVerificationResult.TOKEN_EXPIRED;
+
+        email.setVerified(true);
+        // Se limpia el token de verificación
+        email.setVerificationToken(null);
+        email.setVerificationTokenExpiration(null);
+
+        emailRepository.save(email);
+        
+        return EmailVerificationResult.VERIFIED;
     }
 }

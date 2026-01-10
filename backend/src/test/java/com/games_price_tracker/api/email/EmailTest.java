@@ -4,13 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import com.games_price_tracker.api.email.email_verification_enums.EmailVerificationResult;
+import com.games_price_tracker.api.email.email_verification_enums.EmailVerificationStatus;
 
 import jakarta.transaction.Transactional;
 
@@ -57,7 +61,7 @@ public class EmailTest {
     void emailVerificationWithTokenExpired(){
         Email email = new Email("test@email");
         email.setVerificationToken("test_token");
-        email.setVerificationTokenExpiration(Instant.now().minus(1L, ChronoUnit.DAYS));
+        email.setVerificationTokenExpiration(Instant.now().minus(Duration.ofDays(1)));
         email = emailRepository.save(email);
 
         EmailVerificationStatus status = emailService.emailVerification(email.getAddress());
@@ -65,5 +69,37 @@ public class EmailTest {
 
         assertEquals(EmailVerificationStatus.VERIFICATION_EMAIL_SENT_NOW, status);
         assertNotEquals("test_token", email.getVerificationToken());
+    }
+
+    @Test
+    void verifyEmailShouldReturnTokenNotFound(){
+        EmailVerificationResult result = emailService.verifyEmail("test");
+        assertEquals(EmailVerificationResult.TOKEN_NOT_FOUND, result);
+    }
+
+    @Test
+    void verifyEmailShouldReturnTokenExpired(){
+        Email email = new Email("test");
+        email.setVerificationToken("test_token");
+        email.setVerificationTokenExpiration(Instant.now().minus(Duration.ofDays(1)));
+        emailRepository.save(email);
+
+        EmailVerificationResult result = emailService.verifyEmail("test_token");
+        assertEquals(EmailVerificationResult.TOKEN_EXPIRED, result);
+    }
+
+    @Test
+    void verifyEmailShouldReturnVerified(){
+        Email email = new Email("test");
+        email.setVerificationToken("test_token");
+        email.setVerificationTokenExpiration(Instant.now().plus(Duration.ofDays(1)));
+        emailRepository.save(email);
+
+        EmailVerificationResult result = emailService.verifyEmail("test_token");
+        assertEquals(EmailVerificationResult.VERIFIED, result);
+
+        email = emailRepository.findByAddress(email.getAddress()).get();
+        assertNull(email.getVerificationToken());
+        assertNull(email.getVerificationTokenExpiration());
     }
 }

@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.email;
+package com.games_price_tracker.api.email.email_verification_enums;
 
 public enum EmailVerificationStatus {
     EMAIL_VERIFIED,
