@@ -10,12 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameRepository;
 import com.games_price_tracker.api.price.dtos.PriceInfo;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class PriceTest {
     private final PriceMapper priceMapper;
     private final PriceService priceService;

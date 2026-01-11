@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.games_price_tracker.api.account.email_verification_enums.EmailVerificationResult;
-import com.games_price_tracker.api.account.email_verification_enums.EmailVerificationStatus;
+import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationResult;
+import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationStatus;
 import com.games_price_tracker.api.email.SendEmailService;
 
 import jakarta.transaction.Transactional;

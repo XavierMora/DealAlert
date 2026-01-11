@@ -36,8 +36,10 @@ public class GameController {
     
     @GetMapping()
     public ResponseEntity<PageDto<GameInfo>> getGames(@RequestParam(required = false) String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        // Se toma un valor válido por si se envia, por ejemplo, page con un número negativo
         page = Math.max(0, page);
         size = Math.max(1, Math.min(size, 30));
+        
         Page<Game> games = gameService.getGames(name, PageRequest.of(page, size));
         
         PageDto<GameInfo> gameInfoPage = gameMapper.fromGamePagetoGameInfoPage(games);

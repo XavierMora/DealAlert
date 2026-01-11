@@ -12,13 +12,15 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import com.games_price_tracker.api.account.email_verification_enums.EmailVerificationResult;
-import com.games_price_tracker.api.account.email_verification_enums.EmailVerificationStatus;
+import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationResult;
+import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationStatus;
 
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 public class AccountTest {
     private final AccountService accountService;
