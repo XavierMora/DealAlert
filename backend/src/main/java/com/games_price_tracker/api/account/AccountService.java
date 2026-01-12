@@ -1,88 +1,63 @@
 package com.games_price_tracker.api.account;
 
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationResult;
-import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationStatus;
+import com.games_price_tracker.api.account.dtos.SignInBody;
+import com.games_price_tracker.api.account.enums.SignInCodeResult;
 import com.games_price_tracker.api.email.SendEmailService;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class AccountService {
-    private final AccountRepository emailRepository;
-    private final Duration tokenValidTime = Duration.ofDays(1);
-    private final Duration intervalSendEmail = Duration.ofHours(1);
+    private final AccountRepository accountRepository;
     private final SendEmailService sendEmailService;
+    private final SecureRandom secureRandom = new SecureRandom();
+    private final Duration signInCodeValidDuration = Duration.ofMinutes(10);
+    private final Duration intervalSendEmail = Duration.ofMinutes(1);
 
-    public AccountService(AccountRepository emailRepository, SendEmailService sendEmailService){
-        this.emailRepository = emailRepository;
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService){
+        this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
     }
 
-    private String generateVerificationToken(){
-        return UUID.randomUUID().toString();
-    }
-
-    private void assignVerificationToken(Account email){
-        String token = generateVerificationToken();
-
-        email.setEmailVerificationToken(token);
-        email.setEmailVerificationTokenExpiration(Instant.now().plus(tokenValidTime));
+    private String generateSignInCode(){
+        return String.valueOf(secureRandom.nextInt(100000, 1000000));
     }
 
     @Transactional
-    public EmailVerificationStatus emailVerification(String emailAddress){
-        Optional<Account> optionalEmail = emailRepository.findByEmail(emailAddress);
-        Account email;
+    public SignInCodeResult signInCode(SignInBody signInBody, String deviceId){
+        Optional<Account> optionalAccount = accountRepository.findByEmail(signInBody.email());
+        Account account;
+        String code=null;
 
-        if(optionalEmail.isEmpty()) email = new Account(emailAddress);
-        else email = optionalEmail.get();
+        if(optionalAccount.isEmpty()) account = new Account(signInBody.email());
+        else account = optionalAccount.get();
+            
+        String lastDeviceId = account.getDeviceIdLastCodeAssign();
+         
+        if(lastDeviceId != null && lastDeviceId.equals(deviceId)){
+            if(account.getLastSignInCodeSentAt().plus(intervalSendEmail).isAfter(Instant.now())) return SignInCodeResult.TOO_MANY_REQUESTS; // Se ejecuta si el dispositivo es el mismo y no paso el tiempo para reenviar el codigo
 
-        if(email.getEmailVerified()) return EmailVerificationStatus.EMAIL_ALREADY_VERIFIED;
-
-        Instant tokenExpiration = email.getEmailVerificationTokenExpiration();
-        
-        if(tokenExpiration != null && tokenExpiration.isAfter(Instant.now())){ // El token no expiró 
-            Instant lastEmailSentAt = email.getLastVerificationEmailSentAt();
-
-            if(lastEmailSentAt.plus(intervalSendEmail).isAfter(Instant.now())) return EmailVerificationStatus.VERIFICATION_EMAIL_ALREADY_SENT;  // El tiempo para reenviar email todavia no paso
-        }else{
-            // Se genera el token
-            assignVerificationToken(email);
-            email = emailRepository.save(email);
+            Instant codeExpiration = account.getSignInCodeExpiration();
+            // Se recupera el codigo si no expiro
+            if(codeExpiration != null && codeExpiration.isAfter(Instant.now())) code = account.getSignInCode();
         }
 
-        sendEmailService.verificationEmail(emailAddress, email.getEmailVerificationToken());
-        email.setLastVerificationEmailSentAt(Instant.now());
-        emailRepository.save(email);
-        return EmailVerificationStatus.VERIFICATION_EMAIL_SENT_NOW;
-    }
+        if(code == null){
+            code = generateSignInCode();
+            account.assignSignInCode(code, signInCodeValidDuration, deviceId);
+        }
 
-    @Transactional
-    public EmailVerificationResult verifyEmail(String token){
-        Optional<Account> optionalEmail = emailRepository.findByEmailVerificationToken(token);
+        sendEmailService.verificationEmail(account.getEmail(), code);
+        account.setLastSignInCodeSentAt(Instant.now());
 
-        if(optionalEmail.isEmpty()) return EmailVerificationResult.TOKEN_NOT_FOUND;
-
-        Account email = optionalEmail.get();
-        
-        Instant tokenExpiration = email.getEmailVerificationTokenExpiration();
-
-        if(tokenExpiration.isBefore(Instant.now())) return EmailVerificationResult.TOKEN_EXPIRED;
-
-        email.setEmailVerified(true);
-        // Se limpia el token de verificación
-        email.setEmailVerificationToken(null);
-        email.setEmailVerificationTokenExpiration(null);
-
-        emailRepository.save(email);
-        
-        return EmailVerificationResult.VERIFIED;
+        accountRepository.save(account);
+        return SignInCodeResult.SUCCESS;
     }
 }

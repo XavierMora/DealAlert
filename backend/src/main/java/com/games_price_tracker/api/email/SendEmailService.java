@@ -17,7 +17,7 @@ public class SendEmailService {
         this.appEmailConfig = appEmailConfig;
     }
 
-    public boolean verificationEmail(String emailTo, String token){
+    public boolean verificationEmail(String emailTo, String code){
         MimeMessage msg = mailSender.createMimeMessage();
         MimeMessageHelper msgHelper = new MimeMessageHelper(msg);
         boolean emailSent = true;
@@ -25,9 +25,8 @@ public class SendEmailService {
         try {
             msgHelper.setFrom(appEmailConfig.getFrom());
             msgHelper.setTo(emailTo);
-            msgHelper.setSubject("Verificación de email");
-
-            msgHelper.setText("<a href="+appEmailConfig.getClientVerificationUrl()+"?token="+token+">Confirmar email</a>", true);
+            msgHelper.setSubject("Tu código de acceso es "+code);
+            msgHelper.setText("Si no solicitaste este código podés ignorar este email.");
 
             mailSender.send(msg);
         } catch (MessagingException e) {
