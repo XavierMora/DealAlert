@@ -8,10 +8,12 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -50,8 +52,23 @@ public class AccountController {
         HttpHeaders headers = new HttpHeaders();
 
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
-        headers.set("Set-Cookie", String.format("session=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/", sessionToken.getToken().toString(), maxAge.intValue()));
+        headers.set("Set-Cookie", sessionCookie(sessionToken.getToken().toString(), maxAge.intValue()));
 
         return ResponseEntity.ok().headers(headers).build();
     }    
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue String session) {
+        accountService.logout(UUID.fromString(session));
+        
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.set("Set-Cookie", sessionCookie(null, 0));
+
+        return ResponseEntity.noContent().headers(headers).build();
+    }
+    
+    private String sessionCookie(String sessionValue, int maxAge){
+        return String.format("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/", sessionValue, maxAge);
+    }
 }

@@ -1,13 +1,18 @@
 package com.games_price_tracker.api;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 
@@ -27,13 +32,29 @@ public class ExceptionsHandlerController{
         return ResponseEntity.badRequest().body(errors);
     }
 
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<Map<String, List<String>>> methodArgumentNotValid(HandlerMethodValidationException e){
+        List<String> errors = new LinkedList<String>();
+
+        for (MessageSourceResolvable msgSourceResolvable : e.getAllErrors()) {
+            errors.add(msgSourceResolvable.getDefaultMessage());
+        }
+
+        return ResponseEntity.badRequest().body(Map.of("error", errors));
+    }
+
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<Map<String, String>> missingRequestHeader(MissingRequestHeaderException e){
-        return ResponseEntity.badRequest().body(Map.of("Error", String.format("Se requiere el header %s", e.getHeaderName())));
+        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere el header %s", e.getHeaderName())));
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<Map<String, String>> missingRequestCookie(MissingRequestCookieException e){
+        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere la cookie %s", e.getCookieName())));
     }
 
     @ExceptionHandler(AccountAuthErrorException.class)
     public ResponseEntity<Map<String,String>> accountAuthError(AccountAuthErrorException e){
-        return ResponseEntity.badRequest().body(Map.of("Error", e.getMessage()));
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     }
 }

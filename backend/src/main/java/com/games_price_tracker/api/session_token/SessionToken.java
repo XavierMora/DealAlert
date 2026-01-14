@@ -21,7 +21,6 @@ public class SessionToken {
 
     private UUID token;
     private Instant expiration;
-    private String deviceId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
@@ -29,8 +28,7 @@ public class SessionToken {
 
     public SessionToken(){}
 
-    public SessionToken(String deviceId, Account account){
-        this.deviceId = deviceId;
+    public SessionToken(Account account){
         this.account = account;
     }
 
@@ -51,20 +49,12 @@ public class SessionToken {
         return id;
     }
 
-    public String getDeviceId() {
-        return deviceId;
-    }
-
     public Account getAccount() {
         return account;
     }
 
     public void setAccount(Account account) {
         this.account = account;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
     }
 
     public void setExpiration(Instant expiration) {
@@ -97,6 +87,6 @@ public class SessionToken {
 
     @Override
     public String toString() {
-        return String.format("[id=%d, token=%s, deviceId=%s]", id, token, deviceId);
+        return String.format("[id=%d, token=%s]", id, token);
     }
 }

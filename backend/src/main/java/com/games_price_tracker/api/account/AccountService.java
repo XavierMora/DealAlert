@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountService {
@@ -80,7 +81,7 @@ public class AccountService {
 
         if(account.signInCodeExpired()) throw new AccountAuthErrorException("Código expirado.");
         
-        SessionToken token = sessionTokenService.createSessionToken(deviceId, account);
+        SessionToken token = sessionTokenService.createSessionToken(account);
         account.addToken(token, maxTokens);
 
         account.setSignInCode(null);
@@ -88,5 +89,9 @@ public class AccountService {
         account.setLastSignInCodeSentAt(null);
         // Se tiene cascade persist en el onetomany entonces cuando se persiste account, que es la entidad padre, tambien se persiste/guarda el token en la bd
         return token;
+    }
+
+    public void logout(UUID sessionToken){
+        sessionTokenService.invalidateToken(sessionToken);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.game.Game;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PriceService {

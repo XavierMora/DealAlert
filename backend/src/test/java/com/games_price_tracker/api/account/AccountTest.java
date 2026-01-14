@@ -1,8 +1,6 @@
 package com.games_price_tracker.api.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -54,7 +53,7 @@ public class AccountTest {
         account.setLastDeviceIdAssignedCode("10");
     
         for (int i = 0; i < accountService.getMaxTokens(); i++) {
-            SessionToken token = sessionTokenService.createSessionToken(String.valueOf(i), account);
+            SessionToken token = sessionTokenService.createSessionToken(account);
             token.setExpiration(Instant.now().plus(Duration.ofMinutes(i+1)));
             account.getSessionTokens().add(token);
         }
@@ -67,16 +66,10 @@ public class AccountTest {
         
         account = accountRepository.findByEmail("test@test").get();
 
-        assertEquals(3, account.getSessionTokens().size());
         assertNull(account.getSignInCode());
         assertNull(account.getSignInCodeExpiration());
-
         assertEquals(accountService.getMaxTokens(), account.getSessionTokens().size());
-
-        List<String> deviceIds = account.getSessionTokens().stream().map(tokens -> tokens.getDeviceId()).toList();
-        System.out.println(deviceIds);
-        assertTrue(deviceIds.contains("1"));
-        assertTrue(deviceIds.contains("2"));
-        assertTrue(deviceIds.contains("10"));
+        List<UUID> tokens = account.getSessionTokens().stream().map(t -> t.getToken()).toList();
+        assertTrue(tokens.contains(token.getToken()));
     }
 }
