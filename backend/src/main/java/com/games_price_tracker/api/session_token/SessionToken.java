@@ -19,7 +19,7 @@ public class SessionToken {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String token;
+    private UUID token;
     private Instant expiration;
     private String deviceId;
 
@@ -31,18 +31,15 @@ public class SessionToken {
 
     public SessionToken(String deviceId, Account account){
         this.deviceId = deviceId;
-        assignToken();
         this.account = account;
     }
 
-    public void assignToken(){
-        final Duration durationValidToken = Duration.ofDays(15);
-
-        this.token = UUID.randomUUID().toString();
+    public void assignToken(UUID token, Duration durationValidToken){
+        this.token = token;
         this.expiration = Instant.now().plus(durationValidToken);
     }
 
-    public String getToken() {
+    public UUID getToken() {
         return token;
     }
 
@@ -78,7 +75,7 @@ public class SessionToken {
         this.id = id;
     }
 
-    public void setToken(String token) {
+    public void setToken(UUID token) {
         this.token = token;
     }
 
@@ -100,6 +97,6 @@ public class SessionToken {
 
     @Override
     public String toString() {
-        return String.format("[id=%d, token=%s]", id, token);
+        return String.format("[id=%d, token=%s, deviceId=%s]", id, token, deviceId);
     }
 }

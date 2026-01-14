@@ -8,27 +8,32 @@ import java.util.Objects;
 
 import com.games_price_tracker.api.session_token.SessionToken;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 
 @Entity
 public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String email;
 
     private String signInCode;
     private Instant signInCodeExpiration;
     private Instant lastSignInCodeSentAt;
-    private String deviceIdLastCodeAssign;
 
-    @OneToMany(mappedBy = "account")
-    private List<SessionToken> sessionTokens=new ArrayList<SessionToken>();
+    private String lastDeviceIdAssignedCode;
+
+    @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
+    @OrderBy("expiration DESC")
+    private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
 
     public Account(){}
 
@@ -39,7 +44,19 @@ public class Account {
     public void assignSignInCode(String code, Duration validDuration, String deviceId){
         this.signInCode = code;
         this.signInCodeExpiration = Instant.now().plus(validDuration);
-        this.deviceIdLastCodeAssign = deviceId;
+        this.lastDeviceIdAssignedCode = deviceId;
+    }
+
+    public void addToken(SessionToken token, int maxTokens){
+        if(sessionTokens.size() >= maxTokens){
+            sessionTokens.removeLast();
+        };
+
+        sessionTokens.add(token);
+    }
+
+    public boolean signInCodeExpired(){
+        return signInCodeExpiration == null || signInCodeExpiration.isBefore(Instant.now());
     }
 
     public String getEmail() {
@@ -62,16 +79,16 @@ public class Account {
         return lastSignInCodeSentAt;
     }
 
-    public String getDeviceIdLastCodeAssign() {
-        return deviceIdLastCodeAssign;
+    public String getLastDeviceIdAssignedCode() {
+        return lastDeviceIdAssignedCode;
     }
 
     public List<SessionToken> getSessionTokens() {
         return sessionTokens;
     }
 
-    public void setDeviceIdLastCodeAssign(String deviceIdLastCodeAssign) {
-        this.deviceIdLastCodeAssign = deviceIdLastCodeAssign;
+    public void setLastDeviceIdAssignedCode(String lastDeviceIdAssignedCode) {
+        this.lastDeviceIdAssignedCode = lastDeviceIdAssignedCode;
     }
 
     public void setSessionTokens(List<SessionToken> sessionTokens) {

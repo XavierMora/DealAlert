@@ -8,6 +8,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestControllerAdvice
@@ -27,5 +30,10 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<Map<String, String>> missingRequestHeader(MissingRequestHeaderException e){
         return ResponseEntity.badRequest().body(Map.of("Error", String.format("Se requiere el header %s", e.getHeaderName())));
+    }
+
+    @ExceptionHandler(AccountAuthErrorException.class)
+    public ResponseEntity<Map<String,String>> accountAuthError(AccountAuthErrorException e){
+        return ResponseEntity.badRequest().body(Map.of("Error", e.getMessage()));
     }
 }

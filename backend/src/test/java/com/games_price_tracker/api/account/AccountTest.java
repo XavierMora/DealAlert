@@ -5,103 +5,78 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationResult;
-import com.games_price_tracker.api.account.email_verification_enum.EmailVerificationStatus;
+import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
+import com.games_price_tracker.api.session_token.SessionToken;
+import com.games_price_tracker.api.session_token.SessionTokenService;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
+@Transactional // Hace que para cada método que modifica la bd se haga rollback y asi no quedan los datos
 public class AccountTest {
     private final AccountService accountService;
     private final AccountRepository accountRepository;
+    private final SessionTokenService sessionTokenService;
+    private final EntityManager entityManager;
 
     @Autowired
-    AccountTest(AccountService accountService, AccountRepository accountRepository){
+    AccountTest(AccountService accountService, AccountRepository accountRepository, SessionTokenService sessionTokenService, EntityManager entityManager){
         this.accountService = accountService;
         this.accountRepository = accountRepository;
+        this.sessionTokenService = sessionTokenService;
+        this.entityManager = entityManager;
     }
 
-    @Test
-    void emailVerificationWithoutToken(){
-        String testEmail = "test@account";
-
-        EmailVerificationStatus status = accountService.emailVerification(testEmail);
-
-        assertEquals(EmailVerificationStatus.VERIFICATION_EMAIL_SENT_NOW, status);
-
-        Account account = accountRepository.findByEmail(testEmail).get();
-
-        assertNotNull(account.getEmailVerificationToken());
-        assertNotNull(account.getEmailVerificationTokenExpiration());
-        assertNotNull(account.getLastVerificationEmailSentAt());
-        assertFalse(account.getEmailVerified());
+    @BeforeEach
+    void setup(){
     }
-
+    
     @Test
-    void emailVerificationWithEmailSent(){
-        Account account = new Account("test@account");
-        accountRepository.save(account);
-        accountService.emailVerification(account.getEmail());
-        account = accountRepository.findByEmail(account.getEmail()).get();
+    void verifyCodeShouldReturnToken(){
+        // Carga de account
+        Account account = new Account("test@test");
+        account.setSignInCode("1");
+        account.setSignInCodeExpiration(Instant.now().plus(Duration.ofMinutes(5)));
+        account.setLastDeviceIdAssignedCode("10");
+    
+        for (int i = 0; i < accountService.getMaxTokens(); i++) {
+            SessionToken token = sessionTokenService.createSessionToken(String.valueOf(i), account);
+            token.setExpiration(Instant.now().plus(Duration.ofMinutes(i+1)));
+            account.getSessionTokens().add(token);
+        }
+        accountRepository.saveAndFlush(account);
+        entityManager.clear(); // Limpia lo que esta en memoria entonces si se accede a la lista de tokens permite que se consulte a la bd y venga ordenado
 
-        EmailVerificationStatus status = accountService.emailVerification(account.getEmail());
-        assertEquals(EmailVerificationStatus.VERIFICATION_EMAIL_ALREADY_SENT, status);
-    }
+        SessionToken token = accountService.verifyCode(new VerifyCodeBody("test@test", "1"), "10");
 
-    @Test
-    void emailVerificationWithTokenExpired(){
-        Account account = new Account("test@account");
-        account.setEmailVerificationToken("test_token");
-        account.setEmailVerificationTokenExpiration(Instant.now().minus(Duration.ofDays(1)));
-        account = accountRepository.save(account);
+        assertNotNull(token);
+        
+        account = accountRepository.findByEmail("test@test").get();
 
-        EmailVerificationStatus status = accountService.emailVerification(account.getEmail());
-        account = accountRepository.findByEmail(account.getEmail()).get();
+        assertEquals(3, account.getSessionTokens().size());
+        assertNull(account.getSignInCode());
+        assertNull(account.getSignInCodeExpiration());
 
-        assertEquals(EmailVerificationStatus.VERIFICATION_EMAIL_SENT_NOW, status);
-        assertNotEquals("test_token", account.getEmailVerificationToken());
-    }
+        assertEquals(accountService.getMaxTokens(), account.getSessionTokens().size());
 
-    @Test
-    void verifyEmailShouldReturnTokenNotFound(){
-        EmailVerificationResult result = accountService.verifyEmail("test");
-        assertEquals(EmailVerificationResult.TOKEN_NOT_FOUND, result);
-    }
-
-    @Test
-    void verifyEmailShouldReturnTokenExpired(){
-        Account account = new Account("test");
-        account.setEmailVerificationToken("test_token");
-        account.setEmailVerificationTokenExpiration(Instant.now().minus(Duration.ofDays(1)));
-        accountRepository.save(account);
-
-        EmailVerificationResult result = accountService.verifyEmail("test_token");
-        assertEquals(EmailVerificationResult.TOKEN_EXPIRED, result);
-    }
-
-    @Test
-    void verifyEmailShouldReturnVerified(){
-        Account account = new Account("test");
-        account.setEmailVerificationToken("test_token");
-        account.setEmailVerificationTokenExpiration(Instant.now().plus(Duration.ofDays(1)));
-        accountRepository.save(account);
-
-        EmailVerificationResult result = accountService.verifyEmail("test_token");
-        assertEquals(EmailVerificationResult.VERIFIED, result);
-
-        account = accountRepository.findByEmail(account.getEmail()).get();
-        assertNull(account.getEmailVerificationToken());
-        assertNull(account.getEmailVerificationTokenExpiration());
+        List<String> deviceIds = account.getSessionTokens().stream().map(tokens -> tokens.getDeviceId()).toList();
+        System.out.println(deviceIds);
+        assertTrue(deviceIds.contains("1"));
+        assertTrue(deviceIds.contains("2"));
+        assertTrue(deviceIds.contains("10"));
     }
 }
