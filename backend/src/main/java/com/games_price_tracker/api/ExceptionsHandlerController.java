@@ -47,12 +47,12 @@ public class ExceptionsHandlerController{
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<Map<String, String>> missingRequestHeader(MissingRequestHeaderException e){
-        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere el header %s", e.getHeaderName())));
+        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere el header %s.", e.getHeaderName())));
     }
 
     @ExceptionHandler(MissingRequestCookieException.class)
     public ResponseEntity<Map<String, String>> missingRequestCookie(MissingRequestCookieException e){
-        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere la cookie %s", e.getCookieName())));
+        return ResponseEntity.badRequest().body(Map.of("error", String.format("Se requiere la cookie %s.", e.getCookieName())));
     }
 
     @ExceptionHandler(AccountAuthErrorException.class)
@@ -62,6 +62,6 @@ public class ExceptionsHandlerController{
 
     @ExceptionHandler(GameNotFoundException.class)
     public ResponseEntity<Map<String,String>> gameNotFound(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Juego no encontrado"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Juego no encontrado."));
     }
 }

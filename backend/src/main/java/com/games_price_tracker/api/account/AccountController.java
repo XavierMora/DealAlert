@@ -33,8 +33,8 @@ public class AccountController {
     }
 
     @PostMapping("/sign-in-code")
-    public ResponseEntity<Map<String, String>> signInCode(@Valid @RequestBody SignInBody account, @RequestHeader("Device-ID") String deviceId) {
-        SignInCodeResult codeResult = accountService.signInCode(account, deviceId);
+    public ResponseEntity<Map<String, String>> signInCode(@Valid @RequestBody SignInBody body, @RequestHeader("Device-ID") String deviceId) {
+        SignInCodeResult codeResult = accountService.signInCode(body.email(), deviceId);
 
         if(codeResult == SignInCodeResult.TOO_MANY_REQUESTS){
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of(
@@ -46,8 +46,8 @@ public class AccountController {
     }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<Void> verifyCode(@RequestBody @Valid VerifyCodeBody verifyCodeBody, @RequestHeader("Device-ID") String deviceId) {
-        SessionToken sessionToken =  accountService.verifyCode(verifyCodeBody, deviceId);        
+    public ResponseEntity<Void> verifyCode(@RequestBody @Valid VerifyCodeBody body, @RequestHeader("Device-ID") String deviceId) {
+        SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code(), deviceId);        
 
         HttpHeaders headers = new HttpHeaders();
 

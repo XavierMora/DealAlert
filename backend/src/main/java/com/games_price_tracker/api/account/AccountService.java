@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.games_price_tracker.api.account.dtos.SignInBody;
-import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
 import com.games_price_tracker.api.account.enums.SignInCodeResult;
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.email.SendEmailService;
@@ -39,12 +37,12 @@ public class AccountService {
     }
 
     @Transactional
-    public SignInCodeResult signInCode(SignInBody signInBody, String deviceId){
-        Optional<Account> optionalAccount = accountRepository.findByEmail(signInBody.email());
+    public SignInCodeResult signInCode(String email, String deviceId){
+        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Account account;
         String code=null;
 
-        if(optionalAccount.isEmpty()) account = new Account(signInBody.email());
+        if(optionalAccount.isEmpty()) account = new Account(email);
         else account = optionalAccount.get();
             
         String lastDeviceId = account.getLastDeviceIdAssignedCode();
@@ -74,8 +72,8 @@ public class AccountService {
     }
 
     @Transactional
-    public SessionToken verifyCode(VerifyCodeBody verifyCodeBody, String deviceId){
-        Account account = accountRepository.findByEmailAndSignInCodeAndLastDeviceIdAssignedCode(verifyCodeBody.email(), verifyCodeBody.code(), deviceId).orElseThrow(
+    public SessionToken verifyCode(String email, String code, String deviceId){
+        Account account = accountRepository.findByEmailAndSignInCodeAndLastDeviceIdAssignedCode(email, code, deviceId).orElseThrow(
             () -> new AccountAuthErrorException("Código incorrecto.")
         );
 

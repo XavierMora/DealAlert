@@ -60,7 +60,7 @@ public class AuthFilter extends OncePerRequestFilter {
         if(cookies == null) return null;
 
         for (Cookie cookie : cookies) {
-            if(cookie.getName().equals("session")) return cookie;
+            if(cookie.getName().equals("SESSION")) return cookie;
         }
         
         return null;

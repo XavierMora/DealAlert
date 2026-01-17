@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,7 +55,8 @@ public class AccountTest {
         accountRepository.saveAndFlush(account);
         entityManager.clear(); // Limpia lo que esta en memoria entonces si se accede a la lista de tokens permite que se consulte a la bd y venga ordenado
 
-        SessionToken token = accountService.verifyCode(new VerifyCodeBody("test@test", "1"), "10");
+        VerifyCodeBody verifyCodeBody = new VerifyCodeBody("test@test", "1");
+        SessionToken token = accountService.verifyCode(verifyCodeBody.email(), verifyCodeBody.code(), "10");
 
         assertNotNull(token);
         
