@@ -37,6 +37,10 @@ public class SessionToken {
         this.expiration = Instant.now().plus(durationValidToken);
     }
 
+    public boolean expired(){
+        return expiration == null || expiration.isBefore(Instant.now());
+    }
+
     public UUID getToken() {
         return token;
     }
