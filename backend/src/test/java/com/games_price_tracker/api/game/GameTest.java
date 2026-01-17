@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.price.Price;
@@ -22,6 +23,7 @@ import com.games_price_tracker.api.steam.AppSteam;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 @ActiveProfiles("test")
+@Transactional
 public class GameTest {
     private final GameService gameService;
     private final GameMapper gameMapper;

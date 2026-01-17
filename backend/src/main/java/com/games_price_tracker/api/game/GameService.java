@@ -2,7 +2,6 @@ package com.games_price_tracker.api.game;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
 
 @Service
 public class GameService {
@@ -21,8 +22,8 @@ public class GameService {
         this.gameRepository = gameRepository;
     }
 
-    public Game getGameById(Long id) throws NoSuchElementException{
-        return gameRepository.findById(id).orElseThrow();
+    public Game getGameById(Long id) throws GameNotFoundException{
+        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
     }
 
     public boolean gamePriceNeedsUpdate(Game game){

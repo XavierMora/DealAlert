@@ -6,15 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.page_dto.PageDto;
 
-import java.util.NoSuchElementException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/games")
@@ -28,7 +25,7 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameInfo> getGameInfo(@PathVariable(required = true) Long id) throws NoSuchElementException {
+    public ResponseEntity<GameInfo> getGameInfo(@PathVariable Long id) {
         Game game = gameService.getGameById(id);
 
         return ResponseEntity.ok(gameMapper.toGameInfo(game));

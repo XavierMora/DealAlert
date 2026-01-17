@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -56,5 +58,10 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(AccountAuthErrorException.class)
     public ResponseEntity<Map<String,String>> accountAuthError(AccountAuthErrorException e){
         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<Map<String,String>> gameNotFound(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Juego no encontrado"));
     }
 }

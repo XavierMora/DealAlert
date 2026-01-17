@@ -39,10 +39,6 @@ public class AccountTest {
         this.sessionTokenService = sessionTokenService;
         this.entityManager = entityManager;
     }
-
-    @BeforeEach
-    void setup(){
-    }
     
     @Test
     void verifyCodeShouldReturnToken(){
