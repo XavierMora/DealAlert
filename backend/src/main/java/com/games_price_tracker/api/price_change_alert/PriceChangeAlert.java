@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.price_alert;
+package com.games_price_tracker.api.price_change_alert;
 
 import java.util.Objects;
 
@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class PriceAlert {
+public class PriceChangeAlert {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,9 +25,9 @@ public class PriceAlert {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    public PriceAlert(){}
+    public PriceChangeAlert(){}
 
-    public PriceAlert(Account account, Game game){;
+    public PriceChangeAlert(Account account, Game game){;
         this.account = account;
         this.game = game;
     }
@@ -62,7 +62,7 @@ public class PriceAlert {
 
         if(obj == null || !getClass().equals(obj.getClass())) return false;
 
-        PriceAlert priceNotification = (PriceAlert) obj;
+        PriceChangeAlert priceNotification = (PriceChangeAlert) obj;
         
         return id != null && priceNotification.id.equals(this.id);
     }

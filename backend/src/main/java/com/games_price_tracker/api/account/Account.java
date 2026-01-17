@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.games_price_tracker.api.price_alert.PriceAlert;
+import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.persistence.CascadeType;
@@ -37,7 +37,7 @@ public class Account {
     private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
 
     @OneToMany(mappedBy = "account")
-    private List<PriceAlert> priceAlerts = new ArrayList<PriceAlert>();
+    private List<PriceChangeAlert> priceAlerts = new ArrayList<PriceChangeAlert>();
 
     public Account(){}
 

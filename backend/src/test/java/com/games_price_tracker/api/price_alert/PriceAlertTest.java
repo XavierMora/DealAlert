@@ -16,6 +16,9 @@ import com.games_price_tracker.api.account.AccountRepository;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameRepository;
 import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
+import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
+import com.games_price_tracker.api.price_change_alert.PriceChangeAlertRepository;
+import com.games_price_tracker.api.price_change_alert.PriceChangeAlertService;
 
 import jakarta.persistence.EntityManager;
 
@@ -23,15 +26,15 @@ import jakarta.persistence.EntityManager;
 @ActiveProfiles("test")
 @Transactional
 public class PriceAlertTest {
-    private final PriceAlertService priceAlertService;
-    private final PriceAlertRepository priceAlertRepository;
+    private final PriceChangeAlertService priceAlertService;
+    private final PriceChangeAlertRepository priceAlertRepository;
     private final GameRepository gameRepository;
     private final AccountRepository accountRepository;
     private Game gameTest;
     private Account accountTest;
 
     @Autowired
-    PriceAlertTest(PriceAlertService priceAlertService, PriceAlertRepository priceAlertRepository, EntityManager entityManager, GameRepository gameRepository, AccountRepository accountRepository){
+    PriceAlertTest(PriceChangeAlertService priceAlertService, PriceChangeAlertRepository priceAlertRepository, EntityManager entityManager, GameRepository gameRepository, AccountRepository accountRepository){
         this.priceAlertService = priceAlertService;
         this.priceAlertRepository = priceAlertRepository;
         this.gameRepository = gameRepository;
@@ -48,7 +51,7 @@ public class PriceAlertTest {
     void shouldCreatePriceAlert(){
         priceAlertService.createPriceAlert(accountTest, gameTest.getId());
 
-        PriceAlert priceAlert = priceAlertRepository.findByAccountIdAndGameId(accountTest.getId(), gameTest.getId()).get();
+        PriceChangeAlert priceAlert = priceAlertRepository.findByAccountIdAndGameId(accountTest.getId(), gameTest.getId()).get();
         
         assertNotNull(priceAlert);
         assertNotNull(priceAlert.getAccount());

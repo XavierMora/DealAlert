@@ -1,10 +1,10 @@
-package com.games_price_tracker.api.price_alert;
+package com.games_price_tracker.api.price_change_alert;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.games_price_tracker.api.account.Account;
-import com.games_price_tracker.api.price_alert.dtos.CreatePriceAlertBody;
+import com.games_price_tracker.api.price_change_alert.dtos.CreatePriceChangeAlertBody;
 
 import jakarta.validation.Valid;
 
@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/price-alerts")
-public class PriceAlertController {
-    private final PriceAlertService priceAlertService;
+public class PriceChangeAlertController {
+    private final PriceChangeAlertService priceAlertService;
 
-    PriceAlertController(PriceAlertService priceAlertService){
+    PriceChangeAlertController(PriceChangeAlertService priceAlertService){
         this.priceAlertService = priceAlertService;
     }
 
     @PostMapping()
-    public ResponseEntity<Map<String, String>> createPriceAlert(@AuthenticationPrincipal Account account, @RequestBody @Valid CreatePriceAlertBody body) {
+    public ResponseEntity<Map<String, String>> createPriceAlert(@AuthenticationPrincipal Account account, @RequestBody @Valid CreatePriceChangeAlertBody body) {
         boolean success = priceAlertService.createPriceAlert(account, body.gameId());
         
         if(success) return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(

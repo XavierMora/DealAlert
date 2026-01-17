@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.games_price_tracker.api.price.Price;
-import com.games_price_tracker.api.price_alert.PriceAlert;
+import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +26,7 @@ public class Game {
     private Price price;
 
     @OneToMany(mappedBy = "game")
-    private List<PriceAlert> priceAlerts = new ArrayList<PriceAlert>();
+    private List<PriceChangeAlert> priceAlerts = new ArrayList<PriceChangeAlert>();
     
     public Game(){}
 
@@ -51,11 +51,11 @@ public class Game {
         return price;
     }
 
-    public List<PriceAlert> getPriceAlerts() {
+    public List<PriceChangeAlert> getPriceAlerts() {
         return priceAlerts;
     }
 
-    public void setPriceAlerts(List<PriceAlert> priceAlerts) {
+    public void setPriceAlerts(List<PriceChangeAlert> priceAlerts) {
         this.priceAlerts = priceAlerts;
     }
 
