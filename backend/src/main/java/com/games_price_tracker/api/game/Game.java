@@ -1,13 +1,17 @@
 package com.games_price_tracker.api.game;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.games_price_tracker.api.price.Price;
+import com.games_price_tracker.api.price_alert.PriceAlert;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -20,6 +24,9 @@ public class Game {
 
     @OneToOne(mappedBy = "game")
     private Price price;
+
+    @OneToMany(mappedBy = "game")
+    private List<PriceAlert> priceAlerts = new ArrayList<PriceAlert>();
     
     public Game(){}
 
@@ -42,6 +49,14 @@ public class Game {
 
     public Price getPrice() {
         return price;
+    }
+
+    public List<PriceAlert> getPriceAlerts() {
+        return priceAlerts;
+    }
+
+    public void setPriceAlerts(List<PriceAlert> priceAlerts) {
+        this.priceAlerts = priceAlerts;
     }
 
     public void setId(Long id) {

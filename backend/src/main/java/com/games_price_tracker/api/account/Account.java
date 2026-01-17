@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.games_price_tracker.api.price_alert.PriceAlert;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.persistence.CascadeType;
@@ -34,6 +35,9 @@ public class Account {
     @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
     @OrderBy("expiration DESC")
     private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
+
+    @OneToMany(mappedBy = "account")
+    private List<PriceAlert> priceAlerts = new ArrayList<PriceAlert>();
 
     public Account(){}
 
