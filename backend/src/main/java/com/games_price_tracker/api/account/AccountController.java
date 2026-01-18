@@ -58,7 +58,7 @@ public class AccountController {
     }    
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue String session) {
+    public ResponseEntity<Void> logout(@CookieValue(name = "SESSION") String session) {
         accountService.logout(UUID.fromString(session));
         
         HttpHeaders headers = new HttpHeaders();

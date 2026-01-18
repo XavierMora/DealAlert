@@ -15,12 +15,12 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain priceAlert(HttpSecurity http, AuthFilter authFilter){
-        http.securityMatcher("/price-alert")
+    SecurityFilterChain priceChangeAlert(HttpSecurity http, AuthFilter authFilter){
+        http.securityMatcher("/price-alerts/**")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
-            .authorizeHttpRequests(a -> a.anyRequest().authenticated())
+            .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
             .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(formLogin -> formLogin.disable())
             .exceptionHandling(e -> 
@@ -31,12 +31,32 @@ public class SecurityConfig {
     }
 
     @Bean
+    SecurityFilterChain account(HttpSecurity http, AuthFilter authFilter){
+        http
+        .securityMatcher("/account/**")
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/account/logout").authenticated()
+            .requestMatchers("/account/sign-in-code", "/account/verify-code").not().authenticated()
+        )
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .formLogin(formLogin -> formLogin.disable())
+        .exceptionHandling(e -> 
+            e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        );
+
+        return http.build();
+    }
+
+    @Bean
     SecurityFilterChain security(HttpSecurity http){
         http
         .securityMatcher("/**")
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(a -> a.anyRequest().permitAll())
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
         .httpBasic(h -> h.disable())
         .formLogin(f -> f.disable());
 
