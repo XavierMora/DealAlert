@@ -22,9 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/price-alerts")
@@ -53,8 +54,8 @@ public class PriceChangeAlertController {
     @GetMapping()
     public ResponseEntity<PageDto<PriceChangeAlertInfo>> getAlerts(
         @AuthenticationPrincipal Account account, 
-        @RequestParam(defaultValue = "10") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50") int size, 
-        @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0") int page
+        @RequestParam(defaultValue = "10") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50.") int size, 
+        @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0.") int page
     ) {
         Page<PriceChangeAlert> pageAlerts = priceChangeAlertService.getAlerts(account, PageRequest.of(page, size));
 
@@ -63,5 +64,14 @@ public class PriceChangeAlertController {
         PageDto<PriceChangeAlertInfo> pageDto = pageDtoMapper.fromPage(pageAlertInfo);
 
         return ResponseEntity.ok(pageDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long id){
+        boolean success = priceChangeAlertService.deleteAlert(id, account);
+        
+        if(!success) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "La alerta no existe."));
+
+        return ResponseEntity.noContent().build();
     }
 }

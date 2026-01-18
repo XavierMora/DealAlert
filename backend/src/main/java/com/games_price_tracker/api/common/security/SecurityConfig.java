@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.security;
+package com.games_price_tracker.api.common.security;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

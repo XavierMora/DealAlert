@@ -37,4 +37,9 @@ public class PriceChangeAlertService {
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
         return priceChangeAlertRepository.findAllByAccountId(account.getId(), pageable);
     }
+
+    @Transactional
+    public boolean deleteAlert(Long alertId, Account account){
+        return priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
+    }
 }

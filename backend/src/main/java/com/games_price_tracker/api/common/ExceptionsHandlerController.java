@@ -1,4 +1,4 @@
-package com.games_price_tracker.api;
+package com.games_price_tracker.api.common;
 
 import java.util.HashMap;
 import java.util.LinkedList;
