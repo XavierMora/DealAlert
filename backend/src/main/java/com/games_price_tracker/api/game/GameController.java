@@ -5,7 +5,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.page_dto.PageDto;
+import com.games_price_tracker.api.page_dto.PageDtoMapper;
 
+import jakarta.validation.constraints.Min;
+
+import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class GameController {
     private final GameService gameService;
     private final GameMapper gameMapper;
-    
-    GameController(GameService gameService, GameMapper gameMapper){
+    private final PageDtoMapper pageDtoMapper;
+
+    GameController(GameService gameService, GameMapper gameMapper, PageDtoMapper pageDtoMapper){
         this.gameService = gameService;
         this.gameMapper = gameMapper;
+        this.pageDtoMapper = pageDtoMapper;
     }
 
     @GetMapping("/{id}")
@@ -32,14 +38,16 @@ public class GameController {
     }  
     
     @GetMapping()
-    public ResponseEntity<PageDto<GameInfo>> getGames(@RequestParam(required = false) String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        // Se toma un valor válido por si se envia, por ejemplo, page con un número negativo
-        page = Math.max(0, page);
-        size = Math.max(1, Math.min(size, 30));
-        
+    public ResponseEntity<PageDto<GameInfo>> getGames(
+        @RequestParam(required = false) String name, 
+        @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0") int page, 
+        @RequestParam(defaultValue = "10") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50") int size
+    ) { 
         Page<Game> games = gameService.getGames(name, PageRequest.of(page, size));
         
-        PageDto<GameInfo> gameInfoPage = gameMapper.fromGamePagetoGameInfoPage(games);
+        Page<GameInfo> gamesInfo = games.map(game -> gameMapper.toGameInfo(game));
+
+        PageDto<GameInfo> gameInfoPage = pageDtoMapper.fromPage(gamesInfo);
 
         return ResponseEntity.ok(gameInfoPage);
     }

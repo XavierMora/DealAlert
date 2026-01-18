@@ -1,5 +1,6 @@
 package com.games_price_tracker.api.price_change_alert;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import com.games_price_tracker.api.account.Account;
@@ -17,6 +18,8 @@ public class PriceChangeAlert {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Instant createdAt;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
     private Account account;
@@ -30,6 +33,7 @@ public class PriceChangeAlert {
     public PriceChangeAlert(Account account, Game game){;
         this.account = account;
         this.game = game;
+        this.createdAt = Instant.now();
     }
 
     public Long getId() {
@@ -42,6 +46,14 @@ public class PriceChangeAlert {
 
     public Game getGame() {
         return game;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setAccount(Account account) {

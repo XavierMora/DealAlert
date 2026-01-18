@@ -49,7 +49,7 @@ public class PriceAlertTest {
 
     @Test
     void shouldCreatePriceAlert(){
-        priceAlertService.createPriceAlert(accountTest, gameTest.getId());
+        priceAlertService.createAlert(accountTest, gameTest.getId());
 
         PriceChangeAlert priceAlert = priceAlertRepository.findByAccountIdAndGameId(accountTest.getId(), gameTest.getId()).get();
         
@@ -60,7 +60,7 @@ public class PriceAlertTest {
     
     @Test
     void shouldNotCreatePriceAlert(){
-        assertThrows(GameNotFoundException.class, () -> priceAlertService.createPriceAlert(accountTest, 10L));
+        assertThrows(GameNotFoundException.class, () -> priceAlertService.createAlert(accountTest, 10L));
 
         assertTrue(priceAlertRepository.findByAccountIdAndGameId(accountTest.getId(), 10L).isEmpty());
     }
