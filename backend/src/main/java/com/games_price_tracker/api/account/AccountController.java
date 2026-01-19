@@ -7,12 +7,12 @@ import jakarta.validation.Valid;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.UUID;
 
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
 import com.games_price_tracker.api.account.enums.SignInCodeResult;
+import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 @RestController
@@ -33,20 +34,25 @@ public class AccountController {
     }
 
     @PostMapping("/sign-in-code")
-    public ResponseEntity<Map<String, String>> signInCode(@Valid @RequestBody SignInBody body, @RequestHeader("Device-ID") String deviceId) {
+    public ResponseEntity<ApiResponseBody> signInCode(
+        @Valid @RequestBody SignInBody body, 
+        @RequestHeader(name = "Device-ID") @UUID(message = "Header Device-ID no tiene formato válido.") String deviceId
+    ) {
         SignInCodeResult codeResult = accountService.signInCode(body.email(), deviceId);
+        BodyBuilder responseWithStatus = ResponseEntity.status(HttpStatus.OK);
 
         if(codeResult == SignInCodeResult.TOO_MANY_REQUESTS){
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of(
-                "message", codeResult.getMsg()
-            ));
+            responseWithStatus = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS);
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", codeResult.getMsg()));
+        
+        return responseWithStatus.body(new ApiResponseBody(codeResult.getMessage(), null));
     }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<Void> verifyCode(@RequestBody @Valid VerifyCodeBody body, @RequestHeader("Device-ID") String deviceId) {
+    public ResponseEntity<Void> verifyCode(
+        @RequestBody @Valid VerifyCodeBody body, 
+        @RequestHeader("Device-ID") @UUID(message = "Header Device-ID no tiene formato válido.") String deviceId
+    ) {
         SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code(), deviceId);        
 
         HttpHeaders headers = new HttpHeaders();
@@ -58,8 +64,8 @@ public class AccountController {
     }    
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "SESSION") String session) {
-        accountService.logout(UUID.fromString(session));
+    public ResponseEntity<Void> logout(@CookieValue(name = "SESSION") String sessionToken) {
+        accountService.logout(sessionToken);
         
         HttpHeaders headers = new HttpHeaders();
 

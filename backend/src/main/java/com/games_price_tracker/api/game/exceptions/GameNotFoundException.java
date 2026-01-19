@@ -10,9 +10,4 @@ public class GameNotFoundException extends RuntimeException {
     public Long getId() {
         return id;
     }
-
-    @Override
-    public String getMessage() {
-        return String.format("Game with id %d not found", id);
-    }
 }

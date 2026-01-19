@@ -22,16 +22,15 @@ public class PriceChangeAlertService {
     }
 
     @Transactional
-    public boolean createAlert(Account account, Long gameId){
+    public Optional<PriceChangeAlert> createAlert(Account account, Long gameId){
         Optional<PriceChangeAlert> optionalPriceAlert = priceChangeAlertRepository.findByAccountIdAndGameId(account.getId(), gameId);
 
-        if(optionalPriceAlert.isPresent()) return false;
+        if(optionalPriceAlert.isPresent()) return Optional.empty();
 
         Game game = gameService.getGameById(gameId);
 
         PriceChangeAlert priceAlert = new PriceChangeAlert(account, game);
-        priceChangeAlertRepository.save(priceAlert);
-        return true;
+        return Optional.of(priceChangeAlertRepository.save(priceAlert));
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){

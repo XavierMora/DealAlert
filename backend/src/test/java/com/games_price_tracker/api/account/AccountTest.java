@@ -45,7 +45,9 @@ public class AccountTest {
         Account account = new Account("test@test");
         account.setSignInCode("1");
         account.setSignInCodeExpiration(Instant.now().plus(Duration.ofMinutes(5)));
-        account.setLastDeviceIdAssignedCode("10");
+
+        UUID testUUID = UUID.randomUUID();
+        account.setLastDeviceIdAssignedCode(testUUID);
     
         for (int i = 0; i < accountService.getMaxTokens(); i++) {
             SessionToken token = sessionTokenService.createSessionToken(account);
@@ -56,7 +58,7 @@ public class AccountTest {
         entityManager.clear(); // Limpia lo que esta en memoria entonces si se accede a la lista de tokens permite que se consulte a la bd y venga ordenado
 
         VerifyCodeBody verifyCodeBody = new VerifyCodeBody("test@test", "1");
-        SessionToken token = accountService.verifyCode(verifyCodeBody.email(), verifyCodeBody.code(), "10");
+        SessionToken token = accountService.verifyCode(verifyCodeBody.email(), verifyCodeBody.code(), testUUID.toString());
 
         assertNotNull(token);
         

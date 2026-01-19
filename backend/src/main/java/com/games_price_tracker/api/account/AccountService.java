@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.enums.SignInCodeResult;
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
@@ -37,18 +38,20 @@ public class AccountService {
     }
 
     @Transactional
-    public SignInCodeResult signInCode(String email, String deviceId){
+    public SignInCodeResult signInCode(String email, String deviceIdStr) throws SendEmailException{
         Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Account account;
         String code=null;
-
+        
         if(optionalAccount.isEmpty()) account = new Account(email);
         else account = optionalAccount.get();
-            
-        String lastDeviceId = account.getLastDeviceIdAssignedCode();
-         
+        
+        UUID deviceId = UUID.fromString(deviceIdStr);
+        UUID lastDeviceId = account.getLastDeviceIdAssignedCode();
+
+        // Se verifica si se puede enviar otro codigo o hay que asignar uno nuevo en caso que el device id coincida
         if(lastDeviceId != null && lastDeviceId.equals(deviceId)){
-            if(account.getLastSignInCodeSentAt() != null && account.getLastSignInCodeSentAt().plus(intervalSendEmail).isAfter(Instant.now())) return SignInCodeResult.TOO_MANY_REQUESTS; // Se ejecuta si el dispositivo es el mismo y no paso el tiempo para reenviar el codigo
+            if(account.getLastSignInCodeSentAt() != null && account.getLastSignInCodeSentAt().plus(intervalSendEmail).isAfter(Instant.now())) return SignInCodeResult.TOO_MANY_REQUESTS; // No paso el tiempo para reenviar el codigo
 
             // Se recupera el codigo si no expiro
             if(!account.signInCodeExpired()) code = account.getSignInCode();
@@ -61,9 +64,10 @@ public class AccountService {
         }
 
         sendEmailService.verificationEmail(account.getEmail(), code);
-        account.setLastSignInCodeSentAt(Instant.now());
 
+        account.setLastSignInCodeSentAt(Instant.now());
         accountRepository.save(account);
+
         return SignInCodeResult.SUCCESS;
     }
 
@@ -72,7 +76,8 @@ public class AccountService {
     }
 
     @Transactional
-    public SessionToken verifyCode(String email, String code, String deviceId){
+    public SessionToken verifyCode(String email, String code, String deviceIdStr){
+        UUID deviceId = UUID.fromString(deviceIdStr); 
         Account account = accountRepository.findByEmailAndSignInCodeAndLastDeviceIdAssignedCode(email, code, deviceId).orElseThrow(
             () -> new AccountAuthErrorException("Código incorrecto.")
         );
@@ -89,7 +94,7 @@ public class AccountService {
         return token;
     }
 
-    public void logout(UUID sessionToken){
-        sessionTokenService.invalidateToken(sessionToken);
+    public void logout(String sessionToken){
+        sessionTokenService.invalidateToken(UUID.fromString(sessionToken));
     }
 }

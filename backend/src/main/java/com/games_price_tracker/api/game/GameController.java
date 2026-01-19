@@ -3,6 +3,7 @@ package com.games_price_tracker.api.game;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.page_dto.PageDtoMapper;
@@ -31,14 +32,17 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameInfo> getGameInfo(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseBody> getGameInfo(@PathVariable Long id) {
         Game game = gameService.getGameById(id);
 
-        return ResponseEntity.ok(gameMapper.toGameInfo(game));
+        return ResponseEntity.ok(new ApiResponseBody(
+            null,
+            gameMapper.toGameInfo(game)
+        ));
     }  
     
     @GetMapping()
-    public ResponseEntity<PageDto<GameInfo>> getGames(
+    public ResponseEntity<ApiResponseBody> getGames(
         @RequestParam(required = false) String name, 
         @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0") int page, 
         @RequestParam(defaultValue = "10") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50") int size
@@ -49,6 +53,9 @@ public class GameController {
 
         PageDto<GameInfo> gameInfoPage = pageDtoMapper.fromPage(gamesInfo);
 
-        return ResponseEntity.ok(gameInfoPage);
+        return ResponseEntity.ok(new ApiResponseBody(
+            null,
+            gameInfoPage
+        ));
     }
 }
