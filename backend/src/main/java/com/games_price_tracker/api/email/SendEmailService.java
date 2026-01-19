@@ -17,10 +17,9 @@ public class SendEmailService {
         this.appEmailConfig = appEmailConfig;
     }
 
-    public boolean verificationEmail(String emailTo, String code){
+    public void verificationEmail(String emailTo, String code) throws SendEmailException{
         MimeMessage msg = mailSender.createMimeMessage();
         MimeMessageHelper msgHelper = new MimeMessageHelper(msg);
-        boolean emailSent = true;
 
         try {
             msgHelper.setFrom(appEmailConfig.getFrom());
@@ -30,9 +29,7 @@ public class SendEmailService {
 
             mailSender.send(msg);
         } catch (MessagingException e) {
-            emailSent = false;
+            throw new SendEmailException();
         }
-
-        return emailSent;
     }
 }
