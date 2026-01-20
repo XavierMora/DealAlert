@@ -7,6 +7,7 @@ import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -45,10 +46,21 @@ public class ExceptionsHandlerController{
     public ResponseEntity<ApiResponseBody> handlerMethodValidation(HandlerMethodValidationException e){
         Map<String, String> errors = new HashMap<String, String>();
         
-        for (ParameterValidationResult err : e.getValueResults()) {            
+        // Errores de parametros que tienen constraints
+        for (ParameterValidationResult err : e.getValueResults()) {    
             for (MessageSourceResolvable msg : err.getResolvableErrors()) {
                 errors.putIfAbsent(err.getMethodParameter().getParameter().getName(), msg.getDefaultMessage());
                 break;
+            }
+        }
+
+        // Errores de parametros con @valid, es decir, son objetos que sus atributos tienen constraints
+        for (ParameterErrors err : e.getBeanResults()) {
+            for (FieldError fieldErr : err.getFieldErrors()) {
+                errors.put(
+                    fieldErr.getField(),
+                    fieldErr.getDefaultMessage()
+                );
             }
         }
         

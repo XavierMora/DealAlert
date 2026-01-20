@@ -35,8 +35,8 @@ public class AccountController {
 
     @PostMapping("/sign-in-code")
     public ResponseEntity<ApiResponseBody> signInCode(
-        @Valid @RequestBody SignInBody body, 
-        @RequestHeader(name = "Device-ID") @UUID(message = "Header Device-ID no tiene formato válido.") String deviceId
+        @RequestBody @Valid SignInBody body, 
+        @RequestHeader(name = "Device-ID") @UUID(message = "Formato inválido.") String deviceId
     ) {
         SignInCodeResult codeResult = accountService.signInCode(body.email(), deviceId);
         BodyBuilder responseWithStatus = ResponseEntity.status(HttpStatus.OK);
@@ -51,7 +51,7 @@ public class AccountController {
     @PostMapping("/verify-code")
     public ResponseEntity<Void> verifyCode(
         @RequestBody @Valid VerifyCodeBody body, 
-        @RequestHeader("Device-ID") @UUID(message = "Header Device-ID no tiene formato válido.") String deviceId
+        @RequestHeader("Device-ID") @UUID(message = "Formato inválido.") String deviceId
     ) {
         SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code(), deviceId);        
 
