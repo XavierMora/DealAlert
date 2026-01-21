@@ -7,14 +7,11 @@ import com.games_price_tracker.api.price.dtos.PriceInfo;
 @Component
 public class PriceMapper {
     public PriceInfo toPriceInfo(Price price){
-        int initialPrice = price.getInitialPrice();
-        int finalPrice = price.getFinalPrice();
-
         return new PriceInfo(
             price.getId(), 
-            initialPrice, 
-            finalPrice, 
-            calcDiscount(initialPrice, finalPrice)
+            price.getInitialPrice(), 
+            price.getFinalPrice(), 
+            calcDiscount(price.getInitialPrice(), price.getFinalPrice())
         );
     }
 

@@ -12,6 +12,7 @@ import com.games_price_tracker.api.email.config.EmailConfigProperties;
 import com.games_price_tracker.api.email.task.EmailTasksHandler;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
+import com.games_price_tracker.api.steam.SteamUrlBuilder;
 
 import jakarta.mail.internet.MimeMessage;
 
@@ -21,12 +22,14 @@ public class SendEmailService {
     private final EmailConfigProperties emailConfigProperties;
     private final TemplateEngine emailTemplateEngine;
     private final EmailTasksHandler emailTasksHandler;
+    private final SteamUrlBuilder steamUrlBuilder;
 
-    public SendEmailService(JavaMailSender mailSender, EmailConfigProperties emailConfigProperties, TemplateEngine emailTemplateEngine, EmailTasksHandler emailTasksHandler){
+    public SendEmailService(JavaMailSender mailSender, EmailConfigProperties emailConfigProperties, TemplateEngine emailTemplateEngine, EmailTasksHandler emailTasksHandler, SteamUrlBuilder steamUrlBuilder){
         this.mailSender = mailSender;
         this.emailConfigProperties = emailConfigProperties;
         this.emailTemplateEngine = emailTemplateEngine;
         this.emailTasksHandler = emailTasksHandler;
+        this.steamUrlBuilder = steamUrlBuilder;
     }
 
     public void verificationEmail(String emailTo, String code) throws SendEmailException{
@@ -64,6 +67,10 @@ public class SendEmailService {
             ctx.setVariable("oldPrice", changePriceResult.oldPrice());
             ctx.setVariable("newPrice", changePriceResult.newPrice());
             ctx.setVariable("basePriceChanged", changePriceResult.oldPrice().initialPrice() != changePriceResult.newPrice().initialPrice());
+            ctx.setVariable("gameSteamUrl", steamUrlBuilder.appUrl(
+                game.getSteamId(), 
+                game.getName()
+            ).toString());
             String template = emailTemplateEngine.process("price-change.html", ctx);
             messageHelper.setText(template, true);      
 

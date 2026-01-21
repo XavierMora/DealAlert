@@ -6,13 +6,16 @@ import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.price.PriceMapper;
 import com.games_price_tracker.api.price.dtos.PriceInfo;
 import com.games_price_tracker.api.steam.AppSteam;
+import com.games_price_tracker.api.steam.SteamUrlBuilder;
 
 @Component
 public class GameMapper {
+    private final SteamUrlBuilder steamUrlBuilder;
     private final PriceMapper priceMapper;
 
-    GameMapper(PriceMapper priceMapper){
+    GameMapper(PriceMapper priceMapper, SteamUrlBuilder steamUrlBuilder){
         this.priceMapper = priceMapper;
+        this.steamUrlBuilder = steamUrlBuilder;
     }
     
     public Game fromAppSteam(AppSteam appSteam){
@@ -32,11 +35,8 @@ public class GameMapper {
             game.getSteamId(),
             game.getName(),
             priceInfo,
-            builderUrlImg(game.getSteamId())
+            steamUrlBuilder.appImageUrl(game.getSteamId()).toString(),
+            steamUrlBuilder.appUrl(game.getSteamId(), game.getName()).toString()
         );
-    }
-
-    private String builderUrlImg(Long steamId){
-        return String.format("https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/%d/header.jpg", steamId);
     }
 }

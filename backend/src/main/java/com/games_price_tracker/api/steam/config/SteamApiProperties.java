@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.steam;
+package com.games_price_tracker.api.steam.config;
 
 import java.time.Duration;
 

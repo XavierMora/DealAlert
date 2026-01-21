@@ -11,7 +11,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.games_price_tracker.api.game.Game;
-import com.games_price_tracker.api.steam.SteamApiProperties;
+import com.games_price_tracker.api.steam.config.SteamApiProperties;
 import com.games_price_tracker.api.steam.SteamClient;
 import com.games_price_tracker.api.tracking.update_game_price.UpdateGamesPricesTasksHandler;
 

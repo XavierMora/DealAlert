@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameService;
-import com.games_price_tracker.api.steam.SteamApiProperties;
+import com.games_price_tracker.api.steam.config.SteamApiProperties;
 import com.games_price_tracker.api.tracking.fetch_appdetails.FetchAppDetailsTasksHandler;
 
 public class EnqueueGamesNeedingPriceUpdate implements Runnable{

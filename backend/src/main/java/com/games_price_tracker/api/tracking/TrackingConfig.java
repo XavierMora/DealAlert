@@ -13,7 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import com.games_price_tracker.api.game.GameService;
-import com.games_price_tracker.api.steam.SteamApiProperties;
+import com.games_price_tracker.api.steam.config.SteamApiProperties;
 import com.games_price_tracker.api.tracking.enqueue_games.EnqueueGamesTaskHandler;
 import com.games_price_tracker.api.tracking.fetch_appdetails.FetchAppDetailsTasksHandler;
 

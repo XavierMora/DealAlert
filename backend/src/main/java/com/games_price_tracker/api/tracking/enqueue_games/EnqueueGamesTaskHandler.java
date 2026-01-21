@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 
 import com.games_price_tracker.api.game.GameService;
-import com.games_price_tracker.api.steam.SteamApiProperties;
+import com.games_price_tracker.api.steam.config.SteamApiProperties;
 import com.games_price_tracker.api.tracking.fetch_appdetails.FetchAppDetailsTasksHandler;
 
 public class EnqueueGamesTaskHandler {
