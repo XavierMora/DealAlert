@@ -1,13 +1,13 @@
-package com.games_price_tracker.api.email;
+package com.games_price_tracker.api.email.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app.email")
-public class AppEmailConfigProperties {
+public class EmailConfigProperties {
     private String from;
     private String clientVerificationUrl;
 
-    AppEmailConfigProperties(String from, String clientVerificationUrl){
+    EmailConfigProperties(String from, String clientVerificationUrl){
         this.from = from;
         this.clientVerificationUrl = clientVerificationUrl;
     }

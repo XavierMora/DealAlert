@@ -1,5 +1,6 @@
 package com.games_price_tracker.api.price_change_alert;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -12,4 +13,6 @@ public interface PriceChangeAlertRepository extends JpaRepository<PriceChangeAle
     Page<PriceChangeAlert> findAllByAccountId(Long accountId, Pageable pageable);
 
     int deleteByIdAndAccountId(Long id, Long accountId);
+
+    Optional<List<PriceChangeAlert>> findAllByGameId(Long gameId);
 }

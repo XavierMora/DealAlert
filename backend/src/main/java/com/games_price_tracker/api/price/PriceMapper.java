@@ -9,10 +9,26 @@ public class PriceMapper {
     public PriceInfo toPriceInfo(Price price){
         int initialPrice = price.getInitialPrice();
         int finalPrice = price.getFinalPrice();
-        int discount = 0;
-        
-        if(initialPrice != finalPrice) discount = (initialPrice-finalPrice)*100/initialPrice;
 
-        return new PriceInfo(price.getId(), initialPrice, finalPrice, discount);
+        return new PriceInfo(
+            price.getId(), 
+            initialPrice, 
+            finalPrice, 
+            calcDiscount(initialPrice, finalPrice)
+        );
+    }
+
+    public PriceInfo toPriceInfo(int initialPrice, int finalPrice){
+        return new PriceInfo(
+            null, 
+            initialPrice, 
+            finalPrice, 
+            calcDiscount(initialPrice, finalPrice)
+        );
+    }
+
+    private int calcDiscount(int initialPrice, int finalPrice){
+        if(initialPrice > finalPrice) return (initialPrice-finalPrice)*100/initialPrice;
+        else return 0;
     }
 }

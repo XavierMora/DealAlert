@@ -11,7 +11,7 @@ public class AppDetailsSteam{
     @JsonProperty("success")
     private boolean success;
 
-    AppDetailsSteam(){}
+    public AppDetailsSteam(){}
 
     @JsonProperty("data")
     void parseData(JsonNode data){
