@@ -81,7 +81,7 @@ public class GameTest {
         assertNotNull(gameInfo.priceInfo());
 
         assertNotNull(gameInfo.id());
-        assertEquals(1L, gameInfo.SteamId());
+        assertEquals(1L, gameInfo.steamId());
         assertEquals("test", gameInfo.name());
     }
 }
