@@ -10,22 +10,24 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     @Bean
     SecurityFilterChain priceChangeAlert(HttpSecurity http, AuthFilter authFilter){
-        http.securityMatcher("/price-alerts/**")
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
-            .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-            .httpBasic(httpBasic -> httpBasic.disable())
-            .formLogin(formLogin -> formLogin.disable())
-            .exceptionHandling(e -> 
-                e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            );
+        http
+        .securityMatcher("/price-alerts/**")
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .csrf(csrf -> csrf.spa())
+        .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .formLogin(formLogin -> formLogin.disable())
+        .exceptionHandling(e -> 
+            e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+        );
 
         return http.build();
     }
@@ -34,11 +36,15 @@ public class SecurityConfig {
     SecurityFilterChain account(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/account/**")
-        .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code"))
+        .logout(logout -> logout
+            .logoutUrl("/account/logout")
+            .deleteCookies("SESSION")
+            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+        )
         .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/account/logout").authenticated()
             .requestMatchers("/account/sign-in-code", "/account/verify-code").not().authenticated()
         )
         .httpBasic(httpBasic -> httpBasic.disable())
@@ -57,9 +63,9 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-        .httpBasic(h -> h.disable())
-        .formLogin(f -> f.disable());
-
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .formLogin(formLogin -> formLogin.disable());
+        
         return http.build();
     }
 

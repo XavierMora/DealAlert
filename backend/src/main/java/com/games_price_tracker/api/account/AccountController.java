@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -58,23 +57,8 @@ public class AccountController {
         HttpHeaders headers = new HttpHeaders();
 
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
-        headers.set("Set-Cookie", sessionCookie(sessionToken.getToken().toString(), maxAge.intValue()));
+        headers.set("Set-Cookie", String.format("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/", sessionToken.getToken().toString(), maxAge.intValue()));
 
         return ResponseEntity.ok().headers(headers).build();
-    }    
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "SESSION") String sessionToken) {
-        accountService.logout(sessionToken);
-        
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.set("Set-Cookie", sessionCookie(null, 0));
-
-        return ResponseEntity.noContent().headers(headers).build();
-    }
-    
-    private String sessionCookie(String sessionValue, int maxAge){
-        return String.format("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/", sessionValue, maxAge);
     }
 }
