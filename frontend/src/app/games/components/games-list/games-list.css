@@ -1,0 +1,41 @@
+tr{
+  height: 2rem;
+  padding: 10px;
+  border-bottom-width: 1px;
+  border-color: var(--bg-hover);
+}
+
+thead tr{
+  border: 0;
+}
+
+th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background-color: var(--bg-hover);
+}
+
+td {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-secondary);
+  text-align: left;
+  height: 100%;
+}
+
+tr:hover > *{
+  background-color: var(--bg-hover);
+}
+
+.game-name{
+  width: 100%;
+  word-break: break-all;
+  max-height: 4.5rem;
+  line-height: 1.5rem;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+.old-price{
+  color: var(--text-muted);
+  text-decoration: line-through;
+}

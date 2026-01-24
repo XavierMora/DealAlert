@@ -1,0 +1,99 @@
+@let games = games$ | async;
+
+@if (games) {
+    <table class="hidden md:table md:table-fixed w-full border-collapse">
+        <thead>
+            <tr>
+                <th class="lg:w-[5%] w-[6%]"></th>
+                <th class="w-[60%]">Juego</th>
+                <th class="w-[15%]">Precio</th>
+                <th class="w-[5%]">%</th>
+                <th class="lg:w-[15%] w-[14%]"></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @for (game of games.data!.content; track game.id) {
+                <tr>
+                    <td>
+                        <a href="" title="Recibir notificaciones sobre cambios de precios">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" class="fill-(--text-main)"><path d="M480-500Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80Zm240-360v-120H600v-80h120v-120h80v120h120v80H800v120h-80ZM160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q14 4 27.5 8.5T593-772q-15 14-27 30.5T545-706q-15-7-31.5-10.5T480-720q-66 0-113 47t-47 113v280h320v-112q18 11 38 18t42 11v83h80v80H160Z"/></svg>
+                        </a>
+                    </td>
+
+                    <td>
+                        <div class="flex gap-2 items-center">
+                            <img class="w-28 h-full mr-1" [src]="game.img" [alt]="game.name" />
+
+                            <div class="flex gap-2 game-name items-center">
+                                <span class="game-name">
+                                    {{ game.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="flex flex-col">
+                            @if(game.priceInfo.discount > 0){
+                                <span class="old-price">{{ (game.priceInfo.initialPrice/100) | currency}}</span>
+                            }
+                            <span>{{ (game.priceInfo.finalPrice/100) | currency}} USD</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span [class.text-green-500]="game.priceInfo.discount > 0">
+                            -{{game.priceInfo.discount > 0 ? game.priceInfo.discount+"%" : ''}}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="flex lg:justify-center md:justify-end">
+                            <a class="w-fit h-fit flex items-center" [href]="game.steamUrl" target="_blank" title="Ver juego en Steam">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" height="24px" width="24px" class="fill-(--text-main)"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M568 320C568 457 456.8 568 319.6 568C205.8 568 110 491.7 80.6 387.6L175.8 426.9C182.2 459 210.7 483.3 244.7 483.3C283.9 483.3 316.6 450.9 314.9 409.8L399.4 349.6C451.5 350.9 495.2 308.7 495.2 256.1C495.2 204.5 453.2 162.6 401.5 162.6C349.8 162.6 307.8 204.6 307.8 256.1L307.8 257.3L248.6 343C233.1 342.1 217.9 346.4 205.1 355.1L72 300.1C82.2 172.4 189.1 72 319.6 72C456.8 72 568 183 568 320zM227.7 448.3L197.2 435.7C202.8 447.3 212.5 456.5 224.4 461.5C251.3 472.7 282.2 459.9 293.4 433.1C298.8 420.1 298.9 405.8 293.5 392.8C288.1 379.8 278 369.6 265 364.2C252.1 358.8 238.3 359 226.1 363.6L257.6 376.6C277.4 384.8 286.8 407.5 278.5 427.3C270.2 447.2 247.5 456.5 227.7 448.3zM401.5 193.8C435.9 193.8 463.8 221.7 463.8 256.1C463.8 290.5 435.9 318.4 401.5 318.4C367.1 318.4 339.2 290.5 339.2 256.1C339.2 221.7 367.1 193.8 401.5 193.8zM401.6 302.8C427.4 302.8 448.4 281.8 448.4 256C448.4 230.2 427.4 209.2 401.6 209.2C375.8 209.2 354.8 230.2 354.8 256C354.8 281.8 375.8 302.8 401.6 302.8z"/></svg>
+                                <span class="pt-0.5">Ver</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="md:hidden grid sm:grid-cols-2 gap-6">
+        @for (game of games.data!.content; track game.id) {
+            <div class="flex flex-col bg-(--bg-secondary) hover:bg-(--bg-hover)">
+                <img [src]="game.img" [alt]="game.name">
+
+                <div class="flex justify-between items-end mt-1 p-3 h-full">
+                    <div class="grow flex flex-col justify-between h-full">
+                        <span class="game-name">{{game.name}}</span>
+    
+                        <div class="flex flex-col justify-end">
+                            @if(game.priceInfo.discount > 0){
+                                <span class="old-price">{{game.priceInfo.initialPrice/100 | currency}}</span>
+                            }
+                            <div class="flex gap-2 items-center">
+                                <span>{{game.priceInfo.finalPrice/100 | currency}} USD</span>
+                                <span [class.text-green-500]="game.priceInfo.discount > 0">
+                                    {{game.priceInfo.discount > 0 ? "-"+game.priceInfo.discount+"%" : ''}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col justify-between items-center h-full">
+                        <a href="" class="text-right" title="Recibir notificaciones sobre cambios de precios">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" class="fill-(--text-main)"><path d="M480-500Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80Zm240-360v-120H600v-80h120v-120h80v120h120v80H800v120h-80ZM160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q14 4 27.5 8.5T593-772q-15 14-27 30.5T545-706q-15-7-31.5-10.5T480-720q-66 0-113 47t-47 113v280h320v-112q18 11 38 18t42 11v83h80v80H160Z"/></svg>
+                        </a>
+                        <a class="w-fit h-fit flex items-center" [href]="game.steamUrl" target="_blank" title="Ver juego en Steam">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" height="24px" width="24px" class="fill-(--text-main)"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M568 320C568 457 456.8 568 319.6 568C205.8 568 110 491.7 80.6 387.6L175.8 426.9C182.2 459 210.7 483.3 244.7 483.3C283.9 483.3 316.6 450.9 314.9 409.8L399.4 349.6C451.5 350.9 495.2 308.7 495.2 256.1C495.2 204.5 453.2 162.6 401.5 162.6C349.8 162.6 307.8 204.6 307.8 256.1L307.8 257.3L248.6 343C233.1 342.1 217.9 346.4 205.1 355.1L72 300.1C82.2 172.4 189.1 72 319.6 72C456.8 72 568 183 568 320zM227.7 448.3L197.2 435.7C202.8 447.3 212.5 456.5 224.4 461.5C251.3 472.7 282.2 459.9 293.4 433.1C298.8 420.1 298.9 405.8 293.5 392.8C288.1 379.8 278 369.6 265 364.2C252.1 358.8 238.3 359 226.1 363.6L257.6 376.6C277.4 384.8 286.8 407.5 278.5 427.3C270.2 447.2 247.5 456.5 227.7 448.3zM401.5 193.8C435.9 193.8 463.8 221.7 463.8 256.1C463.8 290.5 435.9 318.4 401.5 318.4C367.1 318.4 339.2 290.5 339.2 256.1C339.2 221.7 367.1 193.8 401.5 193.8zM401.6 302.8C427.4 302.8 448.4 281.8 448.4 256C448.4 230.2 427.4 209.2 401.6 209.2C375.8 209.2 354.8 230.2 354.8 256C354.8 281.8 375.8 302.8 401.6 302.8z"/></svg>
+                            <span class="pt-0.5">Ver</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

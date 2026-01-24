@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+:root {
+  --main: #5589b6;
+  
+  --bg-main: #0f1216; /*0e0f11 1a1b1b*/
+  --bg-secondary: #1a1b1b;
+  
+  --bg-hover: #232425;
+
+  --border: #15212c;
+  --text-main: #e5e5e5;
+  --text-muted: #94a3b8;
+}
+
+body{
+  background-color: var(--bg-main);
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-main)
+}
