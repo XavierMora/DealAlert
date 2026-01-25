@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, input, Signal, signal, WritableSignal } from '@angular/core';
 import { GameService } from '../../services/game-service';
 import { Observable } from 'rxjs';
 import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { fromEvent, switchMap, interval } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-games-list',
@@ -11,9 +13,9 @@ import { AsyncPipe, CurrencyPipe } from '@angular/common';
 })
 export class GamesList {
   private gameService = inject(GameService);
-  games$!: Observable<ApiResponse<PagedContent<Game>>>;
-
-  constructor(){
-    this.games$ = this.gameService.getGames();
-  }
+  name=input<string>();
+  nameChanged: Observable<any> = toObservable(this.name)
+  games$: Observable<ApiResponse<PagedContent<Game>>> = this.nameChanged.pipe(switchMap((name) => {
+    return this.gameService.getGames(20, 0, name)
+  })); 
 }

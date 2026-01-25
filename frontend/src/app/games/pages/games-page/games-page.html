@@ -1,0 +1,4 @@
+<div class="lg:w-9/12 w-11/12 m-auto">
+    <app-games-search-bar (newName)="setSearchName($event)"></app-games-search-bar>
+    <app-games-list [name]="searchGameByName()"></app-games-list>
+</div>

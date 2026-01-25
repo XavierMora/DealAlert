@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
@@ -9,7 +9,13 @@ import { environment } from '../../../environments/environment.development';
 export class GameService {
   private http = inject(HttpClient);
 
-  getGames(): Observable<ApiResponse<PagedContent<Game>>>{
-    return this.http.get(environment.apiUrl+"/games");
+  getGames(size: number, page: number, name?: string): Observable<ApiResponse<PagedContent<Game>>>{
+    let params = new HttpParams().set('size', size).set('page', page)
+
+    if(name !== undefined) params = params.append('name', name);
+
+    return this.http.get(`${environment.apiUrl}/games`, {
+      params
+    });
   }
 }

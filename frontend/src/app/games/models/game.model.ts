@@ -6,7 +6,8 @@ interface Game{
         id: number,
         initialPrice: number,
         finalPrice: number,
-        discount: number
+        discount: number,
+        lastUpdate: Date
     },
     img: string,
     steamUrl: string
