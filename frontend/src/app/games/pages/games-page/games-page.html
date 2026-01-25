@@ -1,4 +1,4 @@
-<div class="lg:w-9/12 w-11/12 m-auto">
+<div class="lg:w-8/12 md:10/12 w-11/12 m-auto flex flex-col gap-6">
     <app-games-search-bar (newName)="setSearchName($event)"></app-games-search-bar>
     <app-games-list [name]="searchGameByName()"></app-games-list>
 </div>

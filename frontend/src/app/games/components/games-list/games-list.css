@@ -2,7 +2,7 @@ tr{
   height: 2rem;
   padding: 10px;
   border-bottom-width: 1px;
-  border-color: var(--bg-hover);
+  border-color: var(--action);
 }
 
 thead tr{
@@ -12,7 +12,7 @@ thead tr{
 th {
   padding: 0.5rem 0.75rem;
   text-align: left;
-  background-color: var(--bg-hover);
+  background-color: var(--action);
 }
 
 td {
@@ -23,7 +23,7 @@ td {
 }
 
 tr:hover > *{
-  background-color: var(--bg-hover);
+  background-color: var(--action);
 }
 
 .game-name{

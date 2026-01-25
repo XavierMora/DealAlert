@@ -14,9 +14,9 @@ export class GamesSearchBar {
   emitNewName(value: string){
     if(this.lastEvent !== null) clearTimeout(this.lastEvent);
     
-    // Se notifica sobre el nombre que se busca si pasaron 500ms sin un nuevo evento
+    // Se notifica sobre el nombre que se busca si pasaron 400ms sin un nuevo evento
     this.lastEvent = setTimeout(() => {
       this.newName.emit(value);
-    }, 500); 
+    }, 400); 
   }
 }
