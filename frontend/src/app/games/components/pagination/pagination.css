@@ -1,0 +1,25 @@
+.default{
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+    padding: 0.125rem 0.5rem;
+}
+
+.active{
+    background-color: var(--main);
+    border-radius: 4px;
+    padding: 0.125rem 0.5rem;
+}
+
+.move{
+    background-color: var(--main);
+    border-radius: 4px;
+    padding: 0.125rem 0.3rem;
+}
+
+button.move:disabled{
+    background-color: #1f3a52;
+}
+
+svg{
+    fill: var(--text-main);
+}

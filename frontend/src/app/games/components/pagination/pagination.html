@@ -1,0 +1,44 @@
+@let _totalPages = totalPages();
+@if(_totalPages > 0){
+    @let _actualPage = actualPage();
+    
+    <div class="flex gap-2">
+        <button [disabled]="_actualPage == 1" class="move" (click)="actualPage.set(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M240-240v-480h80v480h-80Zm440 0L440-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
+        </button>
+
+        <button [disabled]="_actualPage == 1" (click)="previousPage()" class="move">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" ><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
+        </button>
+
+        <div class="flex gap-1 mx-2">
+            @for (page of pages(); track $index) {
+                @if($first && page>1){
+                    <div>
+                        <button class="default" (click)="actualPage.set(1)">1</button>
+                        <span> | </span>
+                    </div>
+                }
+
+                <div>
+                    <button [class]="_actualPage==page ? 'active' : 'default'" (click)="actualPage.set(page)">{{page}}</button>
+                </div>
+
+                @if($last && page<_totalPages){
+                    <div>
+                        <span> | </span>
+                        <button class="default" (click)="actualPage.set(_totalPages)">{{_totalPages}}</button>
+                    </div>
+                }
+            }
+        </div>
+
+        <button [disabled]="_actualPage == _totalPages" (click)="nextPage()" class="move">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
+        </button>
+
+        <button [disabled]="_actualPage == _totalPages" class="move" (click)="actualPage.set(_totalPages)">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="m280-240-56-56 184-184-184-184 56-56 240 240-240 240Zm360 0v-480h80v480h-80Z"/></svg>
+        </button>
+    </div>
+}

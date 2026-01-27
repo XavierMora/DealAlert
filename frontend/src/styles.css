@@ -1,14 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --main: #5589b6;
+  --main: #3e6d96;
   
-  --bg-main: #0f1216; /*0e0f11 1a1b1b*/
+  --bg-main: #0f1216;
   --bg-secondary: #1a1b1b;
   
   --action: #232425;
 
-  --border: #5589b6;
   --text-main: #e5e5e5;
   --text-muted: #94a3b8;
 }

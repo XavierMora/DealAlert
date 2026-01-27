@@ -12,11 +12,11 @@ export class GamesSearchBar {
   lastEvent: number | undefined = undefined;
 
   emitNewName(value: string){
-    if(this.lastEvent !== null) clearTimeout(this.lastEvent);
+    if(this.lastEvent !== undefined) clearTimeout(this.lastEvent);
     
     // Se notifica sobre el nombre que se busca si pasaron 400ms sin un nuevo evento
     this.lastEvent = setTimeout(() => {
-      this.newName.emit(value);
+      this.newName.emit(value.trim());
     }, 400); 
   }
 }
