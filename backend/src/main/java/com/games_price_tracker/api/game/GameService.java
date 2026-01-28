@@ -2,6 +2,7 @@ package com.games_price_tracker.api.game;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,5 +45,12 @@ public class GameService {
         if(name == null || name.isBlank()) return gameRepository.findAll(pageable);
         
         return gameRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
+    }
+
+    public Long getDateNextUpdateInSeconds(Game game){
+        return Instant.now().until(
+            game.getPrice().getLastUpdate().plus(priceMinIntervalUpdate), 
+            ChronoUnit.SECONDS
+        );
     }
 }
