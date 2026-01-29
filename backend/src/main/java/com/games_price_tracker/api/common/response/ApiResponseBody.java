@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"message", "data"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponseBody{
+    private boolean success;
     private String message;
     private Object data; 
 
     public ApiResponseBody(){}
 
-    public ApiResponseBody(String message, Object data){
+    public ApiResponseBody(boolean success, String message, Object data){
+        this.success = success;
         this.message = message;
         this.data = data;
     }
@@ -22,6 +24,14 @@ public class ApiResponseBody{
 
     public Object getData() {
         return data;
+    }
+
+    public boolean getSuccess(){
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     public void setMessage(String message) {

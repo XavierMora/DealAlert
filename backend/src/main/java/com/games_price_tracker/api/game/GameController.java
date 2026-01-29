@@ -41,6 +41,7 @@ public class GameController {
         Game game = gameService.getGameById(id);
 
         return ResponseEntity.ok(new ApiResponseBody(
+            true,
             null,
             gameMapper.toGameInfo(game)
         ));
@@ -74,6 +75,7 @@ public class GameController {
         .status(HttpStatus.OK)
         .cacheControl(cacheControl)
         .body(new ApiResponseBody(
+            true,
             null,
             gameInfoPage
         ));

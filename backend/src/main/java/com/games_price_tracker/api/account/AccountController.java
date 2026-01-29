@@ -39,12 +39,14 @@ public class AccountController {
     ) {
         SignInCodeResult codeResult = accountService.signInCode(body.email(), deviceId);
         BodyBuilder responseWithStatus = ResponseEntity.status(HttpStatus.OK);
+        boolean success = true;
 
         if(codeResult == SignInCodeResult.TOO_MANY_REQUESTS){
             responseWithStatus = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS);
+            success = false;
         }
         
-        return responseWithStatus.body(new ApiResponseBody(codeResult.getMessage(), null));
+        return responseWithStatus.body(new ApiResponseBody(success, codeResult.getMessage(), null));
     }
 
     @PostMapping("/verify-code")

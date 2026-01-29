@@ -37,6 +37,7 @@ public class ExceptionsHandlerController{
         }
         
         return ResponseEntity.badRequest().body(new ApiResponseBody(
+            false,
             "Datos inválidos.",
             errors
         ));
@@ -65,6 +66,7 @@ public class ExceptionsHandlerController{
         }
         
         return ResponseEntity.badRequest().body(new ApiResponseBody(
+            false,
             "Datos inválidos.",
             errors
         ));
@@ -72,7 +74,7 @@ public class ExceptionsHandlerController{
 
     @ExceptionHandler(MissingRequestValueException.class) // Excepciones cuando falta un header,cookie,path variable
     public ResponseEntity<ApiResponseBody> missingRequestHeader(MissingRequestValueException e){
-        ApiResponseBody body = new ApiResponseBody("Faltan datos requeridos.", null);
+        ApiResponseBody body = new ApiResponseBody(false, "Faltan datos requeridos.", null);
         
         if(e instanceof MissingRequestHeaderException){
             body.setData(Map.of("header", ((MissingRequestHeaderException) e).getHeaderName()));
@@ -90,6 +92,7 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(AccountAuthErrorException.class)
     public ResponseEntity<ApiResponseBody> accountAuthError(AccountAuthErrorException e){
         return ResponseEntity.badRequest().body(new ApiResponseBody(
+            false,
             e.getMessage(),
             null
         ));
@@ -98,6 +101,7 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(GameNotFoundException.class)
     public ResponseEntity<ApiResponseBody> gameNotFound(){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseBody(
+            false,
             "Juego no encontrado.",
             null
         ));
@@ -106,6 +110,7 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(SendEmailException.class)
     public ResponseEntity<ApiResponseBody> sendEmail(SendEmailException e){
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ApiResponseBody(
+            false,
             e.getMessage(), 
             null
         ));

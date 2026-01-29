@@ -46,11 +46,13 @@ public class PriceChangeAlertController {
         Optional<PriceChangeAlert> alert = priceChangeAlertService.createAlert(account, body.gameId());
         
         if(alert.isPresent()) return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseBody(
+            true,
             "Alerta creada.", 
             priceChangeAlertMapper.toPriceChangeAlertInfo(alert.get())
         ));
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseBody(
+            false,
             "La alerta ya existe.", 
             null
         ));
@@ -68,7 +70,7 @@ public class PriceChangeAlertController {
 
         PageDto<PriceChangeAlertInfo> pageDto = pageDtoMapper.fromPage(pageAlertInfo);
 
-        return ResponseEntity.ok(new ApiResponseBody(null, pageDto));
+        return ResponseEntity.ok(new ApiResponseBody(true, null, pageDto));
     }
 
     @DeleteMapping("/{id}")
@@ -76,11 +78,13 @@ public class PriceChangeAlertController {
         boolean success = priceChangeAlertService.deleteAlert(id, account);
         
         if(!success) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseBody(
+            false,
             "La alerta no existe.", 
             null
         ));
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponseBody(
+            true,
             "Alerta eliminada.", 
             null
         ));
