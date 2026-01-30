@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 import com.games_price_tracker.api.session_token.SessionToken;
@@ -31,8 +30,6 @@ public class Account {
     private Instant signInCodeExpiration;
     private Instant lastSignInCodeSentAt;
 
-    private UUID lastDeviceIdAssignedCode;
-
     @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
     @OrderBy("expiration DESC")
     private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
@@ -46,10 +43,9 @@ public class Account {
         this.email = email;
     }
     
-    public void assignSignInCode(String code, Duration validDuration, UUID deviceId){
+    public void assignSignInCode(String code, Duration validDuration){
         this.signInCode = code;
         this.signInCodeExpiration = Instant.now().plus(validDuration);
-        this.lastDeviceIdAssignedCode = deviceId;
     }
 
     public void addToken(SessionToken token, int maxTokens){
@@ -84,16 +80,16 @@ public class Account {
         return lastSignInCodeSentAt;
     }
 
-    public UUID getLastDeviceIdAssignedCode() {
-        return lastDeviceIdAssignedCode;
-    }
-
     public List<SessionToken> getSessionTokens() {
         return sessionTokens;
     }
 
-    public void setLastDeviceIdAssignedCode(UUID lastDeviceIdAssignedCode) {
-        this.lastDeviceIdAssignedCode = lastDeviceIdAssignedCode;
+    public List<PriceChangeAlert> getPriceAlerts() {
+        return priceAlerts;
+    }
+
+    public void setPriceAlerts(List<PriceChangeAlert> priceAlerts) {
+        this.priceAlerts = priceAlerts;
     }
 
     public void setSessionTokens(List<SessionToken> sessionTokens) {

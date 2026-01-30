@@ -58,7 +58,7 @@ public class AccountTest {
         entityManager.clear(); // Limpia lo que esta en memoria entonces si se accede a la lista de tokens permite que se consulte a la bd y venga ordenado
 
         VerifyCodeBody verifyCodeBody = new VerifyCodeBody("test@test", "1");
-        SessionToken token = accountService.verifyCode(verifyCodeBody.email(), verifyCodeBody.code(), testUUID.toString());
+        SessionToken token = accountService.verifyCode(verifyCodeBody.email(), verifyCodeBody.code());
 
         assertNotNull(token);
         

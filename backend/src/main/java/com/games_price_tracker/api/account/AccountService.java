@@ -38,29 +38,25 @@ public class AccountService {
     }
 
     @Transactional
-    public SignInCodeResult signInCode(String email, String deviceIdStr) throws SendEmailException{
+    public SignInCodeResult signInCode(String email) throws SendEmailException{
         Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Account account;
-        String code=null;
         
         if(optionalAccount.isEmpty()) account = new Account(email);
         else account = optionalAccount.get();
         
-        UUID deviceId = UUID.fromString(deviceIdStr);
-        UUID lastDeviceId = account.getLastDeviceIdAssignedCode();
+        String code=null;
 
-        // Se verifica si se puede enviar otro codigo o hay que asignar uno nuevo en caso que el device id coincida
-        if(lastDeviceId != null && lastDeviceId.equals(deviceId)){
-            if(account.getLastSignInCodeSentAt() != null && account.getLastSignInCodeSentAt().plus(intervalSendEmail).isAfter(Instant.now())) return SignInCodeResult.TOO_MANY_REQUESTS; // No paso el tiempo para reenviar el codigo
+        // Se verifica si se puede enviar otro codigo o hay que asignar uno nuevo
+        if(account.getLastSignInCodeSentAt() != null && account.getLastSignInCodeSentAt().plus(intervalSendEmail).isAfter(Instant.now())) return SignInCodeResult.TOO_MANY_REQUESTS; // No paso el tiempo para reenviar el codigo
 
-            // Se recupera el codigo si no expiro
-            if(!account.signInCodeExpired()) code = account.getSignInCode();
-        }
+        // Se recupera el codigo si no expiro
+        if(!account.signInCodeExpired()) code = account.getSignInCode();
 
         // En caso que no se pudo obtener un código válido
         if(code == null){
             code = generateSignInCode();
-            account.assignSignInCode(code, signInCodeValidDuration, deviceId);
+            account.assignSignInCode(code, signInCodeValidDuration);
         }
 
         sendEmailService.verificationEmail(account.getEmail(), code);
@@ -76,9 +72,9 @@ public class AccountService {
     }
 
     @Transactional
-    public SessionToken verifyCode(String email, String code, String deviceIdStr){
-        UUID deviceId = UUID.fromString(deviceIdStr); 
-        Account account = accountRepository.findByEmailAndSignInCodeAndLastDeviceIdAssignedCode(email, code, deviceId).orElseThrow(
+    public SessionToken verifyCode(String email, String code){
+        //UUID deviceId = UUID.fromString(deviceIdStr); 
+        Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(
             () -> new AccountAuthErrorException("Código incorrecto.")
         );
 

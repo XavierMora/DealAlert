@@ -8,14 +8,12 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
@@ -34,10 +32,9 @@ public class AccountController {
 
     @PostMapping("/sign-in-code")
     public ResponseEntity<ApiResponseBody> signInCode(
-        @RequestBody @Valid SignInBody body, 
-        @RequestHeader(name = "Device-ID") @UUID(message = "Formato inválido.") String deviceId
+        @RequestBody @Valid SignInBody body
     ) {
-        SignInCodeResult codeResult = accountService.signInCode(body.email(), deviceId);
+        SignInCodeResult codeResult = accountService.signInCode(body.email());
         BodyBuilder responseWithStatus = ResponseEntity.status(HttpStatus.OK);
         boolean success = true;
 
@@ -51,15 +48,14 @@ public class AccountController {
 
     @PostMapping("/verify-code")
     public ResponseEntity<Void> verifyCode(
-        @RequestBody @Valid VerifyCodeBody body, 
-        @RequestHeader("Device-ID") @UUID(message = "Formato inválido.") String deviceId
+        @RequestBody @Valid VerifyCodeBody body
     ) {
-        SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code(), deviceId);        
+        SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code());        
 
         HttpHeaders headers = new HttpHeaders();
 
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
-        headers.set("Set-Cookie", String.format("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/", sessionToken.getToken().toString(), maxAge.intValue()));
+        headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
 
         return ResponseEntity.ok().headers(headers).build();
     }
