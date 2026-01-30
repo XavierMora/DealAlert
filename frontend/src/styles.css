@@ -3,17 +3,62 @@
 :root {
   --main: #3e6d96;
   
-  --bg-main: #0f1216;
-  --bg-secondary: #1a1b1b;
-  
-  --action: #232425;
+  --surface-0: #0f1216;
+  --surface-1: #1a1b1b;
+  --surface-2: #232425;
+
+  --disabled: #1f3a52;
 
   --text-main: #e5e5e5;
   --text-muted: #94a3b8;
 }
 
 body{
-  background-color: var(--bg-main);
-  font-family: 'Roboto', sans-serif;
+  background-color: var(--surface-0);
+  font-family: 'Roboto Flex', sans-serif;
   color: var(--text-main)
+}
+
+input{
+  outline: 0;
+}
+
+.input-container{
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  background-color: var(--surface-1);
+  border-radius: 4px;
+  border-width: 1px;
+  border-color: var(--surface-2);
+}
+
+.input-container:hover{
+  background-color: var(--surface-2);
+}
+
+.input-container:focus-within{
+  background-color: var(--surface-1);
+  border-width: 1px;
+  border-color: var(--main);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  -moz-appearance: textfield
+}
+
+.default-button{
+  background-color: var(--main);
+  width: fit-content;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.default-button:disabled{
+  background-color: var(--disabled);
+  color: var(--text-muted);
 }

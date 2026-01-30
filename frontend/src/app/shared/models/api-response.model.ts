@@ -1,4 +1,5 @@
 interface ApiResponse<DataType>{
-    message?: String,
+    success: boolean,
+    message?: string,
     data?: DataType
 }

@@ -1,0 +1,8 @@
+div:has(input.ng-invalid:not(form).ng-touched){
+    border-color: var(--color-red-500);
+}
+
+h1{
+    text-align: center;
+    font-size: x-large;
+}
