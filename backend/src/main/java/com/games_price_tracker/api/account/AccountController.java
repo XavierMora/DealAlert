@@ -42,7 +42,7 @@ public class AccountController {
             responseWithStatus = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS);
             success = false;
         }
-        
+
         return responseWithStatus.body(new ApiResponseBody(success, codeResult.getMessage(), null));
     }
 

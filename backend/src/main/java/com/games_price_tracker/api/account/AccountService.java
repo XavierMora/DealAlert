@@ -5,15 +5,18 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.enums.SignInCodeResult;
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
+
+import io.github.bucket4j.Bucket;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,19 +29,32 @@ public class AccountService {
     private final Duration intervalSendEmail = Duration.ofMinutes(1);
     private final SessionTokenService sessionTokenService;
     private final int maxTokens = 3;
+    private final ConcurrentHashMap<String, String> accountRequest = new ConcurrentHashMap<>();
+    private final AccountCacheService bucketsByEmail;
 
-    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService){
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService bucketsByEmail){
         this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
+        this.bucketsByEmail = bucketsByEmail;
+    }
+
+    public ConcurrentHashMap<String,String> getAccountLockRequest(){
+        return accountRequest;
     }
 
     private String generateSignInCode(){
         return String.valueOf(secureRandom.nextInt(100000, 1000000));
     }
 
+    public void verifyRateLimit(String email){
+        Bucket bucket = bucketsByEmail.getBucket(email);
+        if(!bucket.tryConsume(1)) throw new TooManyRequestsException();        
+    }
+
     @Transactional
     public SignInCodeResult signInCode(String email) throws SendEmailException{
+        verifyRateLimit(email);
         Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Account account;
         
@@ -73,7 +89,7 @@ public class AccountService {
 
     @Transactional
     public SessionToken verifyCode(String email, String code){
-        //UUID deviceId = UUID.fromString(deviceIdStr); 
+        verifyRateLimit(email);
         Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(
             () -> new AccountAuthErrorException("Código incorrecto.")
         );

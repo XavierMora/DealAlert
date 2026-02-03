@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common;
+package com.games_price_tracker.api.common.exceptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +30,12 @@ public class ExceptionsHandlerController{
     // Controla los argumentos marcados con @Valid que no cumplan con las restricciones 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponseBody> methodArgumentNotValid(MethodArgumentNotValidException e){
+        try {
+            
+            Thread.sleep(1000);
+        } catch (Exception e2) {
+            // TODO: handle exception
+        }
         Map<String, String> errors = new HashMap<String, String>();
         
         for (FieldError fieldErr : e.getFieldErrors()){
@@ -45,6 +51,12 @@ public class ExceptionsHandlerController{
     
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ApiResponseBody> handlerMethodValidation(HandlerMethodValidationException e){
+        try {
+            
+            Thread.sleep(1000);
+        } catch (Exception e2) {
+            // TODO: handle exception
+        }
         Map<String, String> errors = new HashMap<String, String>();
         
         // Errores de parametros que tienen constraints
@@ -96,6 +108,11 @@ public class ExceptionsHandlerController{
             e.getMessage(),
             null
         ));
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<Void> tooManyRequests(){
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
     }
 
     @ExceptionHandler(GameNotFoundException.class)
