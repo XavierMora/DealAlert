@@ -9,25 +9,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
+import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
+
+import io.github.bucket4j.Bucket;
 
 @Service
 public class PriceChangeAlertService {
     private final PriceChangeAlertRepository priceChangeAlertRepository;
     private final GameService gameService;
     private final SendEmailService sendEmailService;
+    private final PriceChangeAlertCacheService priceChangeAlertCacheService;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService){
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService){
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
         this.sendEmailService = sendEmailService;
+        this.priceChangeAlertCacheService = priceChangeAlertCacheService;
+    }
+
+    private void verifyRateLimit(Account account){
+        Bucket bucket = priceChangeAlertCacheService.getBucket(account);
+        if(!bucket.tryConsume(1)) throw new TooManyRequestsException();
     }
 
     @Transactional
     public Optional<PriceChangeAlert> createAlert(Account account, Long gameId){
+        verifyRateLimit(account);
         Optional<PriceChangeAlert> optionalPriceAlert = priceChangeAlertRepository.findByAccountIdAndGameId(account.getId(), gameId);
 
         if(optionalPriceAlert.isPresent()) return Optional.empty();
@@ -39,11 +50,13 @@ public class PriceChangeAlertService {
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
+        verifyRateLimit(account);
         return priceChangeAlertRepository.findAllByAccountId(account.getId(), pageable);
     }
 
     @Transactional
     public boolean deleteAlert(Long alertId, Account account){
+        verifyRateLimit(account);
         return priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
     }
 

@@ -18,6 +18,7 @@ import java.util.Optional;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,7 +65,7 @@ public class PriceChangeAlertController {
         @RequestParam(defaultValue = "10") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50.") int size, 
         @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0.") int page
     ) {
-        Page<PriceChangeAlert> pageAlerts = priceChangeAlertService.getAlerts(account, PageRequest.of(page, size));
+        Page<PriceChangeAlert> pageAlerts = priceChangeAlertService.getAlerts(account, PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         Page<PriceChangeAlertInfo> pageAlertInfo = pageAlerts.map((alert) -> priceChangeAlertMapper.toPriceChangeAlertInfo(alert));
 

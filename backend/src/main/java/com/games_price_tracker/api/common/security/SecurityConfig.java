@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.games_price_tracker.api.common.security.filters.AuthFilter;
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
@@ -41,7 +43,7 @@ public class SecurityConfig {
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code"))
+        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code"))
         .logout(logout -> logout
             .logoutUrl("/account/logout")
             .deleteCookies("SESSION")

@@ -26,11 +26,16 @@ public class CacheConfig {
         return Caffeine.newBuilder().maximumSize(1_000).expireAfterWrite(intervalSendEmail).build();
     }
 
+    private Cache<Object, Object> alertsRateLimitCache(){
+        return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(10)).build();
+    }
+
     @Bean
     CacheManager cacheManager(){
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.registerCustomCache("account-rate-limit", accountRateLimitCache());
         cacheManager.registerCustomCache("email-sent", emailSentCache());
+        cacheManager.registerCustomCache("alerts-rate-limit", alertsRateLimitCache());
         return cacheManager;
     }
 }

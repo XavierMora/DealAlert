@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.security;
+package com.games_price_tracker.api.common.security.filters;
 
 import java.io.IOException;
 import java.util.List;
