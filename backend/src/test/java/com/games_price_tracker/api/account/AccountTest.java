@@ -1,6 +1,7 @@
 package com.games_price_tracker.api.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,10 +45,7 @@ public class AccountTest {
         // Carga de account
         Account account = new Account("test@test");
         account.setSignInCode("1");
-        account.setSignInCodeExpiration(Instant.now().plus(Duration.ofMinutes(5)));
-
-        UUID testUUID = UUID.randomUUID();
-        account.setLastDeviceIdAssignedCode(testUUID);
+        account.setSignInCodeExpectedExpiration(Instant.now().plus(Duration.ofMinutes(2)));
     
         for (int i = 0; i < accountService.getMaxTokens(); i++) {
             SessionToken token = sessionTokenService.createSessionToken(account);
@@ -65,9 +63,22 @@ public class AccountTest {
         account = accountRepository.findByEmail("test@test").get();
 
         assertNull(account.getSignInCode());
-        assertNull(account.getSignInCodeExpiration());
+        assertNull(account.getSignInCodeExpectedExpiration());
         assertEquals(accountService.getMaxTokens(), account.getSessionTokens().size());
         List<UUID> tokens = account.getSessionTokens().stream().map(t -> t.getToken()).toList();
         assertTrue(tokens.contains(token.getToken()));
+    }
+
+    @Test
+    void signInCodeExpired(){
+        Account account = new Account("test");
+
+        account.setSignInCodeExpectedExpiration(Instant.now().minusSeconds(1));
+        account.setLastSignInCodeSentAt(account.getSignInCodeExpectedExpiration().minus(Duration.ofSeconds(30)));
+        assertFalse(account.signInCodeExpired(Duration.ofMinutes(1)));
+
+        account.setSignInCodeExpectedExpiration(Instant.now().minusSeconds(1));
+        account.setLastSignInCodeSentAt(account.getSignInCodeExpectedExpiration().minus(Duration.ofMinutes(1)));
+        assertTrue(account.signInCodeExpired(Duration.ofMinutes(1)));
     }
 }

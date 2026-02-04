@@ -5,19 +5,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
-import com.games_price_tracker.api.account.enums.SignInCodeResult;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.session_token.SessionToken;
 
@@ -25,25 +26,30 @@ import com.games_price_tracker.api.session_token.SessionToken;
 @RequestMapping("/account")
 public class AccountController {
     private final AccountService accountService;
+    @Value("${app.email.sign-in-code.interval}")
+    private Duration intervalSendEmail;
+    private AccountCacheService accountCacheService;
 
-    public AccountController(AccountService accountService){
+    public AccountController(AccountService accountService, AccountCacheService accountCacheService){
         this.accountService = accountService;
+        this.accountCacheService = accountCacheService;
     }
 
     @PostMapping("/sign-in-code")
     public ResponseEntity<ApiResponseBody> signInCode(
         @RequestBody @Valid SignInBody body
     ) {
-        SignInCodeResult codeResult = accountService.signInCode(body.email());
-        BodyBuilder responseWithStatus = ResponseEntity.status(HttpStatus.OK);
-        boolean success = true;
-
-        if(codeResult == SignInCodeResult.TOO_MANY_REQUESTS){
-            responseWithStatus = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS);
-            success = false;
+        long emailSentAgo = accountCacheService.emailSentAgo(body.email());
+        
+        if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){
+            CacheControl cacheControl = CacheControl.maxAge(intervalSendEmail.minusSeconds(emailSentAgo));
+            cacheControl.cachePrivate();
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).cacheControl(cacheControl).body(new ApiResponseBody(false, "Un código fue enviado recientemente. Intentar más tarde.", null));
         }
 
-        return responseWithStatus.body(new ApiResponseBody(success, codeResult.getMessage(), null));
+        accountService.signInCode(body.email());
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseBody(true, "Se envió un código al email para iniciar sesión.", null));
     }
 
     @PostMapping("/verify-code")

@@ -27,7 +27,7 @@ public class Account {
     private String email;
 
     private String signInCode;
-    private Instant signInCodeExpiration;
+    private Instant signInCodeExpectedExpiration;
     private Instant lastSignInCodeSentAt;
 
     @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
@@ -45,7 +45,7 @@ public class Account {
     
     public void assignSignInCode(String code, Duration validDuration){
         this.signInCode = code;
-        this.signInCodeExpiration = Instant.now().plus(validDuration);
+        this.signInCodeExpectedExpiration = Instant.now().plus(validDuration);
     }
 
     public void addToken(SessionToken token, int maxTokens){
@@ -56,8 +56,17 @@ public class Account {
         sessionTokens.add(token);
     }
 
-    public boolean signInCodeExpired(){
-        return signInCodeExpiration == null || signInCodeExpiration.isBefore(Instant.now());
+    public boolean signInCodeExpired(Duration intervalSendEmail){
+        if(signInCodeExpectedExpiration == null) return true;
+        
+        Instant expectedTimeLastEmail = signInCodeExpectedExpiration.minus(intervalSendEmail);
+        Instant expiration = signInCodeExpectedExpiration;
+
+        if(lastSignInCodeSentAt != null && lastSignInCodeSentAt.isAfter(expectedTimeLastEmail)){
+            expiration = lastSignInCodeSentAt.plus(intervalSendEmail);
+        }
+
+        return expiration.isBefore(Instant.now());
     }
 
     public String getEmail() {
@@ -72,8 +81,8 @@ public class Account {
         return signInCode;
     }
 
-    public Instant getSignInCodeExpiration() {
-        return signInCodeExpiration;
+    public Instant getSignInCodeExpectedExpiration() {
+        return signInCodeExpectedExpiration;
     }
 
     public Instant getLastSignInCodeSentAt() {
@@ -108,8 +117,8 @@ public class Account {
         this.signInCode = signInCode;
     }
 
-    public void setSignInCodeExpiration(Instant signInCodeExpiration) {
-        this.signInCodeExpiration = signInCodeExpiration;
+    public void setSignInCodeExpectedExpiration(Instant signInCodeExpectedExpiration) {
+        this.signInCodeExpectedExpiration = signInCodeExpectedExpiration;
     }
 
     public void setLastSignInCodeSentAt(Instant lastSignInCodeSentAt) {
