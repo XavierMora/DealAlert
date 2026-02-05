@@ -43,7 +43,7 @@ public class SecurityConfig {
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code"))
+        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code"))
         .logout(logout -> logout
             .logoutUrl("/account/logout")
             .deleteCookies("SESSION")
@@ -88,7 +88,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST"));
         config.setAllowCredentials(true);
-        config.setAllowedHeaders(List.of("Device-ID", "Content-Type", "X-XSRF-TOKEN"));
+        config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

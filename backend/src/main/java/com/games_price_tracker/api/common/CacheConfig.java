@@ -19,7 +19,7 @@ public class CacheConfig {
     private Duration intervalSendEmail;
 
     private Cache<Object, Object> accountRateLimitCache(){
-        return Caffeine.newBuilder().maximumSize(5_000).expireAfterWrite(Duration.ofMinutes(5)).build();
+        return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
     }
 
     private Cache<Object, Object> emailSentCache(){
@@ -27,7 +27,11 @@ public class CacheConfig {
     }
 
     private Cache<Object, Object> alertsRateLimitCache(){
-        return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(10)).build();
+        return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
+    }
+
+    private Cache<Object, Object> alertsCache(){
+        return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
     }
 
     @Bean
@@ -36,6 +40,7 @@ public class CacheConfig {
         cacheManager.registerCustomCache("account-rate-limit", accountRateLimitCache());
         cacheManager.registerCustomCache("email-sent", emailSentCache());
         cacheManager.registerCustomCache("alerts-rate-limit", alertsRateLimitCache());
+        cacheManager.registerCustomCache("alerts", alertsCache());
         return cacheManager;
     }
 }

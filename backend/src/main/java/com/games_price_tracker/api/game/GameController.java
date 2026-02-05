@@ -66,7 +66,7 @@ public class GameController {
             Game gameClosestToUpdate = games.getContent().getLast();
             Long maxAge = gameService.getDateNextUpdateInSeconds(gameClosestToUpdate);
 
-            cacheControl = maxAge >= 15 ? CacheControl.maxAge(Duration.ofSeconds(maxAge)) : CacheControl.maxAge(Duration.ofSeconds(0));
+            cacheControl = maxAge >= 10 ? CacheControl.maxAge(Duration.ofSeconds(maxAge)) : CacheControl.maxAge(Duration.ofSeconds(0));
         }
         if(name == null || name.isBlank()) cacheControl.cachePublic();
         else cacheControl.cachePrivate();

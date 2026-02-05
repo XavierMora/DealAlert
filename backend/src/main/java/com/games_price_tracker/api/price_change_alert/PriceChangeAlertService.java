@@ -32,7 +32,7 @@ public class PriceChangeAlertService {
     }
 
     private void verifyRateLimit(Account account){
-        Bucket bucket = priceChangeAlertCacheService.getBucket(account);
+        Bucket bucket = priceChangeAlertCacheService.getBucket(account.getEmail());
         if(!bucket.tryConsume(1)) throw new TooManyRequestsException();
     }
 
@@ -46,18 +46,26 @@ public class PriceChangeAlertService {
         Game game = gameService.getGameById(gameId);
 
         PriceChangeAlert priceAlert = new PriceChangeAlert(account, game);
-        return Optional.of(priceChangeAlertRepository.save(priceAlert));
+        Optional<PriceChangeAlert> newAlert = Optional.of(priceChangeAlertRepository.save(priceAlert));
+
+        priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
+
+        return newAlert;
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
         verifyRateLimit(account);
-        return priceChangeAlertRepository.findAllByAccountId(account.getId(), pageable);
+        return priceChangeAlertCacheService.getAlerts(account.getId(), pageable);
     }
 
     @Transactional
     public boolean deleteAlert(Long alertId, Account account){
         verifyRateLimit(account);
-        return priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
+        boolean alertDeleted = priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
+        
+        if(alertDeleted) priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
+        
+        return alertDeleted;
     }
 
     public void notifyPriceChange(Game game, ChangePriceResult result){
