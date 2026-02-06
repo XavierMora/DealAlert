@@ -89,6 +89,7 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST"));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
+        config.setExposedHeaders(List.of("Retry-After"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

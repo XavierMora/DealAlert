@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +41,9 @@ public class AccountController {
         long emailSentAgo = accountCacheService.emailSentAgo(body.email());
         
         if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){
-            CacheControl cacheControl = CacheControl.maxAge(intervalSendEmail.minusSeconds(emailSentAgo));
-            cacheControl.cachePrivate();
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).cacheControl(cacheControl).body(new ApiResponseBody(false, "Un código fue enviado recientemente. Intentar más tarde.", null));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Retry-After", String.valueOf(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds()));
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).headers(headers).body(new ApiResponseBody(false, "Un código fue enviado recientemente. Intentar más tarde.", null));
         }
 
         accountService.signInCode(body.email());
