@@ -1,27 +1,26 @@
-<div class="bg-(--surface-1) md:w-2/3 w-11/12 mx-auto rounded-sm p-4 flex flex-col gap-4">
-@if (!codeSended()) {
-    <h1>Iniciar sesión</h1>
-    <form (ngSubmit)="signInCode(loginForm)" #loginForm="ngForm">
-        <label for="email">Email</label>
-        <div class="input-container">
-            <input id="email" class="w-full h-full px-2" [(ngModel)]="email" name="email" type="email" placeholder="Ingresar email" required email #emailInput="ngModel">
-        </div>
+<h1>Iniciar sesión</h1>
+<form (ngSubmit)="signInCode(loginForm)" #loginForm="ngForm">
+    <label for="email">Email</label>
+    <div class="input-container">
+        <input id="email" class="w-full h-full px-2" [(ngModel)]="email" name="email" type="email" placeholder="Ingresar email" required email #emailInput="ngModel">
+    </div>
 
+    <div class="text-red-500 mt-1">
         @if(emailInput.invalid && emailInput.touched){
-            <div class="text-red-500 mt-1">
-                <span>
-                    @if(emailInput.hasError('required')){
-                        El email es obligatorio.
-                    }@else if(emailInput.hasError('email')){
-                        Formato de email inválido.
-                    }@else if(emailInput.hasError('apiError')){
-                        {{emailInput.getError('apiError')}}
-                    }
-                </span>
-            </div>
+            @if(emailInput.hasError('required')){
+                El email es obligatorio.
+            }@else if(emailInput.hasError('email')){
+                Formato de email inválido.
+            }@else if(emailInput.hasError('apiError')){
+                {{emailInput.getError('apiError')}}
+            }
+        }@else if(errorSendingForm() !== undefined){
+            {{errorSendingForm()}}
         }
+    </div>
 
-        <button [disabled]="loginForm.invalid" type="submit" class="default-button mt-4">Enviar</button>
-    </form>
-}
-</div>
+    @let _sending = sending();
+    <button [disabled]="loginForm.invalid || _sending" type="submit" class="default-button mt-4">
+        {{_sending ? 'Enviando' : 'Enviar'}}
+    </button>
+</form>

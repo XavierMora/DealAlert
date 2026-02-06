@@ -1,8 +1,7 @@
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
-import { catchError, map } from 'rxjs';
-import { required } from '@angular/forms/signals';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -13,25 +12,30 @@ import { required } from '@angular/forms/signals';
 export class Login {
   private authService = inject(AuthService);
   email: string = '';
-  codeSended = signal<boolean>(false);
-  emailAlreadySent = signal<string | undefined>(undefined);
+  codeSent = output<string>();
+  sending = signal<boolean>(false);
+  errorSendingForm = signal<string | undefined>(undefined);
 
-  login(form:NgForm){
-    const fields = form.form.controls;
-    let error = fields['email'];
-
-    if(error.errors === null){
-      this.authService.login(this.email).subscribe({
-        next: () => this.codeSended.set(true),
-        error: (err: ApiResponse<undefined | Record<string, string>>) => {
-          if(err.data === undefined){
-            this.emailAlreadySent.set(err.message);
-          }else{
-            fields['email'].setErrors({apiError: err.data!['email']});
-            fields['email'].markAllAsTouched();
-          }
+  signInCode(form:NgForm){    
+    if(form.invalid && this.sending()) return;
+    
+    this.sending.set(true);
+    this.authService.signInCode(this.email).pipe(
+      finalize(() => this.sending.set(false))
+    ).subscribe({
+      next: () => this.codeSent.emit(this.email),
+      error: (err: ApiResponse<undefined | Record<string, string>>) => {
+        if(err === null){ // Error por rate limit
+          this.errorSendingForm.set("Error enviando el formulario. Intentar nuevamente.")
+          setTimeout(() => this.errorSendingForm.set(undefined), 3000)
+        }else if(err.data === undefined){ // error, ya se envió un código
+          this.codeSent.emit(this.email)
+        }else{
+          let errorEmail = form.form.controls['email'];
+          errorEmail.setErrors({apiError: err.data!['email']});
+          errorEmail.markAllAsTouched();
         }
-      }) 
-    }
+      }
+    }) 
   }
 }
