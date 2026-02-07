@@ -1,14 +1,14 @@
 package com.games_price_tracker.api.account.exceptions;
 
 public class AccountAuthErrorException extends RuntimeException {
-    private final String message;
+    private final AuthExceptionError error;
 
-    public AccountAuthErrorException(String msg){
+    public AccountAuthErrorException(AuthExceptionError error, String msg){
         super(msg);
-        this.message = msg;
+        this.error = error;
     }
 
-    public String getMessage() {
-        return message;
+    public AuthExceptionError getError() {
+        return error;
     }
 }

@@ -3,11 +3,10 @@ package com.games_price_tracker.api.account;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
+import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.session_token.SessionToken;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/account")
@@ -40,10 +42,8 @@ public class AccountController {
     ) {
         long emailSentAgo = accountCacheService.emailSentAgo(body.email());
         
-        if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Retry-After", String.valueOf(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds()));
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).headers(headers).body(new ApiResponseBody(false, "Un código fue enviado recientemente. Intentar más tarde.", null));
+        if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){ // No pasó el intervalo para enviar otro email
+            throw new TooManyRequestsException(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), TimeUnit.SECONDS, "Un código fue enviado recientemente. Intentar más tarde.");
         }
 
         accountService.signInCode(body.email());
@@ -55,6 +55,8 @@ public class AccountController {
     public ResponseEntity<Void> verifyCode(
         @RequestBody @Valid VerifyCodeBody body
     ) {
+        accountService.verifyCodeRateLimit(body.email());
+
         SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code());        
 
         HttpHeaders headers = new HttpHeaders();

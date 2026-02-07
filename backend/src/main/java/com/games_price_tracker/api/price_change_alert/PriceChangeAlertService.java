@@ -2,6 +2,7 @@ package com.games_price_tracker.api.price_change_alert;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 
 @Service
 public class PriceChangeAlertService {
@@ -33,7 +35,9 @@ public class PriceChangeAlertService {
 
     private void verifyRateLimit(Account account){
         Bucket bucket = priceChangeAlertCacheService.getBucket(account.getEmail());
-        if(!bucket.tryConsume(1)) throw new TooManyRequestsException();
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+
+        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
     }
 
     @Transactional

@@ -18,7 +18,7 @@ public class CacheConfig {
     @Value("${app.email.sign-in-code.interval}")
     private Duration intervalSendEmail;
 
-    private Cache<Object, Object> accountRateLimitCache(){
+    private Cache<Object, Object> verifyCodeRateLimitCache(){
         return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
     }
 
@@ -37,7 +37,7 @@ public class CacheConfig {
     @Bean
     CacheManager cacheManager(){
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.registerCustomCache("account-rate-limit", accountRateLimitCache());
+        cacheManager.registerCustomCache("verify-code-rate-limit", verifyCodeRateLimitCache());
         cacheManager.registerCustomCache("email-sent", emailSentCache());
         cacheManager.registerCustomCache("alerts-rate-limit", alertsRateLimitCache());
         cacheManager.registerCustomCache("alerts", alertsCache());

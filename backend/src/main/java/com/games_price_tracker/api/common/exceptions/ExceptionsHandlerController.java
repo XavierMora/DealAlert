@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
@@ -94,13 +95,15 @@ public class ExceptionsHandlerController{
         return ResponseEntity.badRequest().body(new ApiResponseBody(
             false,
             e.getMessage(),
-            null
+            Map.of("Error", e.getError())
         ));
     }
 
     @ExceptionHandler(TooManyRequestsException.class)
-    public ResponseEntity<Void> tooManyRequests(){
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+    public ResponseEntity<ApiResponseBody> tooManyRequests(TooManyRequestsException e){
+        BodyBuilder bodyBuilder = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
+
+        return bodyBuilder.body(new ApiResponseBody(false, e.getMessage(), null));
     }
 
     @ExceptionHandler(GameNotFoundException.class)

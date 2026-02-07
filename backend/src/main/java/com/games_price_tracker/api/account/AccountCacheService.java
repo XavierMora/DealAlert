@@ -42,16 +42,11 @@ public class AccountCacheService {
         return ((Instant) wrapperLastSent.get()).until(Instant.now(), ChronoUnit.SECONDS);
     }
 
-    // Cacheo de bucket con 1 token/seg de un email
-    @Cacheable(cacheNames = "account-rate-limit", sync = true)
+    @Cacheable(cacheNames = "verify-code-rate-limit", sync = true)
     public Bucket getBucket(String email){
         return Bucket.builder()
-        .addLimit(limit -> limit.capacity(1).refillIntervally(1, Duration.ofSeconds(2)).initialTokens(1))
+        .addLimit(limit -> limit.capacity(5).refillIntervally(5, Duration.ofMinutes(3)))
         .build();
-    }
-
-    private String generateSignInCode(){
-        return String.valueOf(secureRandom.nextInt(100000, 1000000));
     }
 
     // Se cachea la fecha en que se envió el email y este expira cuando pase el intervalo
@@ -69,7 +64,7 @@ public class AccountCacheService {
         if(!account.signInCodeExpired(intervalSendEmail)){
             code = account.getSignInCode();
         }else{
-            code = generateSignInCode();
+            code = String.valueOf(secureRandom.nextInt(100000, 1000000));
             account.assignSignInCode(code, signInCodeValidDuration);
         }
 

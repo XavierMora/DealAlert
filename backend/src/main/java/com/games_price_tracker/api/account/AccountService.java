@@ -1,18 +1,21 @@
 package com.games_price_tracker.api.account;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+import com.games_price_tracker.api.account.exceptions.AuthExceptionError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +34,14 @@ public class AccountService {
         this.accountCacheService = accountCacheService;
     }
 
-    public void verifyRateLimit(String email){
+    public void verifyCodeRateLimit(String email){
         Bucket bucket = accountCacheService.getBucket(email);
-        if(!bucket.tryConsume(1)) throw new TooManyRequestsException();        
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+
+        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS, "Muchos intentos. Intentar más tarde."); 
     }
 
     public void signInCode(String email) throws SendEmailException{
-        verifyRateLimit(email);
         accountCacheService.sendSignInCode(email);
     }
 
@@ -48,12 +52,11 @@ public class AccountService {
     @CacheEvict(cacheNames = "email-sent")
     @Transactional
     public SessionToken verifyCode(String email, String code){
-        verifyRateLimit(email);
         Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(
-            () -> new AccountAuthErrorException("Código incorrecto.")
+            () -> new AccountAuthErrorException(AuthExceptionError.INCORRECT_CODE, "Código incorrecto.")
         );
 
-        if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException("Código expirado.");
+        if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException(AuthExceptionError.EXPIRED_CODE, "Código expirado.");
         
         SessionToken token = sessionTokenService.createSessionToken(account);
         account.addToken(token, maxTokens);
