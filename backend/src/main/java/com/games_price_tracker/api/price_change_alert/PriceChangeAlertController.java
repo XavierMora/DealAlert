@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.common.response.ErrorType;
+import com.games_price_tracker.api.common.response.ErrorCode;
 import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.page_dto.PageDtoMapper;
 import com.games_price_tracker.api.price_change_alert.dtos.CreatePriceChangeAlertBody;
@@ -54,7 +54,7 @@ public class PriceChangeAlertController {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponseBodyBuilder.error(
             "La alerta ya existe.", 
-            ErrorType.RESOURCE_ALREADY_EXISTS
+            ErrorCode.RESOURCE_ALREADY_EXISTS
         ));
     }
 
@@ -74,12 +74,7 @@ public class PriceChangeAlertController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponseBody<Void>> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long id){
-        boolean success = priceChangeAlertService.deleteAlert(id, account);
-        
-        if(!success) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponseBodyBuilder.error(
-            "La alerta no existe.", 
-            ErrorType.RESOURCE_NOT_FOUND
-        ));
+        priceChangeAlertService.deleteAlert(id, account);
 
         return ResponseEntity.noContent().build();
     }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
+import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
@@ -63,13 +64,13 @@ public class PriceChangeAlertService {
     }
 
     @Transactional
-    public boolean deleteAlert(Long alertId, Account account){
+    public void deleteAlert(Long alertId, Account account) throws ResourceNotFoundException{
         verifyRateLimit(account);
         boolean alertDeleted = priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
         
-        if(alertDeleted) priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
+        if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");
         
-        return alertDeleted;
+        priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
     }
 
     public void notifyPriceChange(Game game, ChangePriceResult result){

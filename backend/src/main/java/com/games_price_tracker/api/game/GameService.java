@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
+import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
 
 @Service
 public class GameService {
@@ -23,8 +23,8 @@ public class GameService {
         this.gameRepository = gameRepository;
     }
 
-    public Game getGameById(Long id) throws GameNotFoundException{
-        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
+    public Game getGameById(Long id) throws ResourceNotFoundException{
+        return gameRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("El juego no existe."));
     }
 
     public boolean gamePriceNeedsUpdate(Game game){

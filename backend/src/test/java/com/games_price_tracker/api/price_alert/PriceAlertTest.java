@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.account.AccountRepository;
+import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameRepository;
-import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlertRepository;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlertService;
@@ -60,7 +60,7 @@ public class PriceAlertTest {
     
     @Test
     void shouldNotCreatePriceAlert(){
-        assertThrows(GameNotFoundException.class, () -> priceAlertService.createAlert(accountTest, 10L));
+        assertThrows(ResourceNotFoundException.class, () -> priceAlertService.createAlert(accountTest, 10L));
 
         assertTrue(priceAlertRepository.findByAccountIdAndGameId(accountTest.getId(), 10L).isEmpty());
     }

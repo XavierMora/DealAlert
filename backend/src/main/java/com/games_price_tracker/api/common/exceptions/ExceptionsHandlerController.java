@@ -102,6 +102,16 @@ public class ExceptionsHandlerController{
         return bodyBuilder.body(ApiResponseBodyBuilder.error(e.getMessage(), e.getErrorCode()));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponseBody<Void>> resourceNotFoundException(ResourceNotFoundException e){
+        return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(ApiResponseBodyBuilder.error(
+            e.getMessage(), 
+            e.getErrorCode()
+        ));
+    }
+
     @ExceptionHandler(SendEmailException.class)
     public ResponseEntity<ApiResponseBody<Void>> sendEmail(SendEmailException e){
         return ResponseEntity
