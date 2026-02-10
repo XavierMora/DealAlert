@@ -17,7 +17,7 @@ public class ApiResponseBody<T>{
         this.success = success;
         this.message = message;
         this.data = data;
-        this.error = error == null ? null : error.getError();
+        this.error = error == null ? null : error.getErrorCode();
     }
 
     public String getMessage() {
@@ -37,7 +37,7 @@ public class ApiResponseBody<T>{
     }
 
     public void setError(ApiError error) {
-        this.error = error == null ? null : error.getError();
+        this.error = error == null ? null : error.getErrorCode();
     }
 
     public void setSuccess(boolean success) {

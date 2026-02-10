@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
+import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
@@ -44,7 +45,7 @@ public class AccountController {
         long emailSentAgo = accountCacheService.emailSentAgo(body.email());
         
         if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){ // No pasó el intervalo para enviar otro email
-            throw new TooManyRequestsException(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), TimeUnit.SECONDS, "Un código fue enviado recientemente. Intentar más tarde.");
+            throw new TooManyRequestsException(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), TimeUnit.SECONDS, "Un código fue enviado recientemente. Intentar más tarde.", AuthError.CODE_SENT_RECENTLY);
         }
 
         accountService.signInCode(body.email());

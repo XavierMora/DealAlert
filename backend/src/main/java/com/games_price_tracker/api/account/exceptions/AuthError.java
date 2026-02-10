@@ -2,12 +2,13 @@ package com.games_price_tracker.api.account.exceptions;
 
 import com.games_price_tracker.api.common.response.ApiError;
 
-public enum AuthExceptionError implements ApiError{
+public enum AuthError implements ApiError{
     EXPIRED_CODE,
-    INCORRECT_CODE;
-
+    INCORRECT_CODE,
+    CODE_SENT_RECENTLY;
+    
     @Override
-    public String getError() {
+    public String getErrorCode() {
         return toString();
     }
 }

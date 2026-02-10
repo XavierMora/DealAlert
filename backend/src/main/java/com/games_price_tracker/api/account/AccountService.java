@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
-import com.games_price_tracker.api.account.exceptions.AuthExceptionError;
+import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.session_token.SessionToken;
@@ -53,10 +53,10 @@ public class AccountService {
     @Transactional
     public SessionToken verifyCode(String email, String code){
         Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(
-            () -> new AccountAuthErrorException(AuthExceptionError.INCORRECT_CODE, "Código incorrecto.")
+            () -> new AccountAuthErrorException(AuthError.INCORRECT_CODE, "Código incorrecto.")
         );
 
-        if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException(AuthExceptionError.EXPIRED_CODE, "Código expirado.");
+        if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException(AuthError.EXPIRED_CODE, "Código expirado.");
         
         SessionToken token = sessionTokenService.createSessionToken(account);
         account.addToken(token, maxTokens);

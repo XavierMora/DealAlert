@@ -1,14 +1,15 @@
 package com.games_price_tracker.api.common.response;
 
-public enum ErrorType implements ApiError {
+public enum ErrorCode implements ApiError {
     INVALID_DATA,
     SENDING_EMAIL,
     TOO_MANY_REQUESTS,
     RESOURCE_NOT_FOUND,
-    RESOURCE_ALREADY_EXISTS;
+    RESOURCE_ALREADY_EXISTS,
+    EMAIL_SENT_RECENTLY;
 
     @Override
-    public String getError() {
+    public String getErrorCode() {
         return toString();
     }
 }
