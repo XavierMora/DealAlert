@@ -13,10 +13,7 @@ export class AuthService {
     return this.http.post<ApiResponse<undefined | Record<string, string>>>(
       `${environment.apiUrl}/account/sign-in-code`, 
       {email}, 
-      {
-        mode: 'cors',
-        credentials: 'include'
-      },
+      {credentials: 'include'}
     ).pipe(
       catchError((err:HttpErrorResponse) => {
         throw err.error

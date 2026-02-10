@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { GamesPage } from './games/pages/games-page/games-page';
-import { Login } from './auth/components/login/login';
+import { LoginPage } from './auth/pages/login-page/login-page';
 export const routes: Routes = [
     {
         path: '', 
@@ -8,6 +8,6 @@ export const routes: Routes = [
     },
     {
         path: 'login', 
-        component: Login
+        component: LoginPage
     }
 ];
