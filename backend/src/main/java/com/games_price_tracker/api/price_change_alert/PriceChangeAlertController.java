@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
+import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.common.response.ErrorType;
 import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.page_dto.PageDtoMapper;
 import com.games_price_tracker.api.price_change_alert.dtos.CreatePriceChangeAlertBody;
@@ -42,24 +44,22 @@ public class PriceChangeAlertController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponseBody> createAlert(@AuthenticationPrincipal Account account, @RequestBody @Valid CreatePriceChangeAlertBody body) {
+    public ResponseEntity<ApiResponseBody<PriceChangeAlertInfo>> createAlert(@AuthenticationPrincipal Account account, @RequestBody @Valid CreatePriceChangeAlertBody body) {
         Optional<PriceChangeAlert> alert = priceChangeAlertService.createAlert(account, body.gameId());
         
-        if(alert.isPresent()) return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseBody(
-            true,
+        if(alert.isPresent()) return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseBodyBuilder.success(
             "Alerta creada.", 
             priceChangeAlertMapper.toPriceChangeAlertInfo(alert.get())
         ));
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponseBody(
-            false,
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponseBodyBuilder.error(
             "La alerta ya existe.", 
-            null
+            ErrorType.RESOURCE_ALREADY_EXISTS
         ));
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponseBody> getAlerts(
+    public ResponseEntity<ApiResponseBody<PageDto<PriceChangeAlertInfo>>> getAlerts(
         @AuthenticationPrincipal Account account, 
         @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0.") int page
     ) {
@@ -69,23 +69,18 @@ public class PriceChangeAlertController {
 
         PageDto<PriceChangeAlertInfo> pageDto = pageDtoMapper.fromPage(pageAlertInfo);
 
-        return ResponseEntity.ok(new ApiResponseBody(true, null, pageDto));
+        return ResponseEntity.ok(ApiResponseBodyBuilder.success(pageDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseBody> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long id){
+    public ResponseEntity<ApiResponseBody<Void>> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long id){
         boolean success = priceChangeAlertService.deleteAlert(id, account);
         
-        if(!success) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseBody(
-            false,
+        if(!success) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponseBodyBuilder.error(
             "La alerta no existe.", 
-            null
+            ErrorType.RESOURCE_NOT_FOUND
         ));
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponseBody(
-            true,
-            "Alerta eliminada.", 
-            null
-        ));
+        return ResponseEntity.noContent().build();
     }
 }

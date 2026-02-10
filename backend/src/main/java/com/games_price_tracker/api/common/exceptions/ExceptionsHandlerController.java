@@ -21,6 +21,8 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
+import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.common.response.ErrorType;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.game.exceptions.GameNotFoundException;
 
@@ -30,22 +32,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ExceptionsHandlerController{
     // Controla los argumentos marcados con @Valid que no cumplan con las restricciones 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponseBody> methodArgumentNotValid(MethodArgumentNotValidException e){
+    public ResponseEntity<ApiResponseBody<Map<String, String>>> methodArgumentNotValid(MethodArgumentNotValidException e){
         Map<String, String> errors = new HashMap<String, String>();
         
         for (FieldError fieldErr : e.getFieldErrors()){
             errors.putIfAbsent(fieldErr.getField(), fieldErr.getDefaultMessage()); // Se queda con el primer error
         }
         
-        return ResponseEntity.badRequest().body(new ApiResponseBody(
-            false,
-            "Datos inválidos.",
-            errors
-        ));
+        return ResponseEntity.badRequest().body(
+            ApiResponseBodyBuilder.error("Datos inválidos", errors, ErrorType.INVALID_DATA)
+        );
     }
     
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ApiResponseBody> handlerMethodValidation(HandlerMethodValidationException e){
+    public ResponseEntity<ApiResponseBody<Map<String, String>>> handlerMethodValidation(HandlerMethodValidationException e){
         Map<String, String> errors = new HashMap<String, String>();
         
         // Errores de parametros que tienen constraints
@@ -66,16 +66,14 @@ public class ExceptionsHandlerController{
             }
         }
         
-        return ResponseEntity.badRequest().body(new ApiResponseBody(
-            false,
-            "Datos inválidos.",
-            errors
-        ));
+        return ResponseEntity.badRequest().body(
+            ApiResponseBodyBuilder.error("Datos inválidos.", errors, ErrorType.INVALID_DATA)
+        );
     }
 
     @ExceptionHandler(MissingRequestValueException.class) // Excepciones cuando falta un header,cookie,path variable
-    public ResponseEntity<ApiResponseBody> missingRequestHeader(MissingRequestValueException e){
-        ApiResponseBody body = new ApiResponseBody(false, "Faltan datos requeridos.", null);
+    public ResponseEntity<ApiResponseBody<Map<String, String>>> missingRequestHeader(MissingRequestValueException e){
+        ApiResponseBody<Map<String, String>> body = ApiResponseBodyBuilder.error("Faltan datos requeridos.", ErrorType.INVALID_DATA);
         
         if(e instanceof MissingRequestHeaderException){
             body.setData(Map.of("header", ((MissingRequestHeaderException) e).getHeaderName()));
@@ -91,36 +89,37 @@ public class ExceptionsHandlerController{
     }
 
     @ExceptionHandler(AccountAuthErrorException.class)
-    public ResponseEntity<ApiResponseBody> accountAuthError(AccountAuthErrorException e){
-        return ResponseEntity.badRequest().body(new ApiResponseBody(
-            false,
+    public ResponseEntity<ApiResponseBody<Void>> accountAuthError(AccountAuthErrorException e){
+        return ResponseEntity.badRequest().body(ApiResponseBodyBuilder.error(
             e.getMessage(),
-            Map.of("Error", e.getError())
+            e.getError()
         ));
     }
 
     @ExceptionHandler(TooManyRequestsException.class)
-    public ResponseEntity<ApiResponseBody> tooManyRequests(TooManyRequestsException e){
+    public ResponseEntity<ApiResponseBody<Void>> tooManyRequests(TooManyRequestsException e){
         BodyBuilder bodyBuilder = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
 
-        return bodyBuilder.body(new ApiResponseBody(false, e.getMessage(), null));
+        return bodyBuilder.body(ApiResponseBodyBuilder.error(e.getMessage(), ErrorType.TOO_MANY_REQUESTS));
     }
 
     @ExceptionHandler(GameNotFoundException.class)
-    public ResponseEntity<ApiResponseBody> gameNotFound(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseBody(
-            false,
-            "Juego no encontrado.",
-            null
+    public ResponseEntity<ApiResponseBody<Void>> gameNotFound(){
+        return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(ApiResponseBodyBuilder.error(
+            "Juego no encontrado.", 
+            ErrorType.RESOURCE_NOT_FOUND
         ));
     }
 
     @ExceptionHandler(SendEmailException.class)
-    public ResponseEntity<ApiResponseBody> sendEmail(SendEmailException e){
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new ApiResponseBody(
-            false,
+    public ResponseEntity<ApiResponseBody<Void>> sendEmail(SendEmailException e){
+        return ResponseEntity
+        .status(HttpStatus.BAD_GATEWAY)
+        .body(ApiResponseBodyBuilder.error(
             e.getMessage(), 
-            null
+            ErrorType.SENDING_EMAIL
         ));
     }
 }

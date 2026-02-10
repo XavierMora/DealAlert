@@ -19,6 +19,7 @@ import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
+import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.validation.Valid;
@@ -37,7 +38,7 @@ public class AccountController {
     }
 
     @PostMapping("/sign-in-code")
-    public ResponseEntity<ApiResponseBody> signInCode(
+    public ResponseEntity<ApiResponseBody<Void>> signInCode(
         @RequestBody @Valid SignInBody body
     ) {
         long emailSentAgo = accountCacheService.emailSentAgo(body.email());
@@ -48,7 +49,9 @@ public class AccountController {
 
         accountService.signInCode(body.email());
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseBody(true, "Se envió un código al email para iniciar sesión.", null));
+        return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(ApiResponseBodyBuilder.success("Se envió un código al email para iniciar sesión."));
     }
 
     @PostMapping("/verify-code")
