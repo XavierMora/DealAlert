@@ -1,6 +1,9 @@
 package com.games_price_tracker.api.account;
 
+import java.security.SecureRandom;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +14,7 @@ import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
+import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
@@ -22,14 +26,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AccountService {
     private final AccountRepository accountRepository;
+    private final SendEmailService sendEmailService;
+    private final Duration signInCodeValidDuration = Duration.ofMinutes(10);
     @Value("${app.email.sign-in-code.interval}")
     private Duration intervalSendEmail;
     private final SessionTokenService sessionTokenService;
     private final int maxTokens = 3;
     private final AccountCacheService accountCacheService;
+    private final SecureRandom secureRandom = new SecureRandom();
     
-    public AccountService(AccountRepository accountRepository, SessionTokenService sessionTokenService, AccountCacheService accountCacheService){
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService){
         this.accountRepository = accountRepository;
+        this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
         this.accountCacheService = accountCacheService;
     }
@@ -41,8 +49,29 @@ public class AccountService {
         if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS, "Muchos intentos. Intentar más tarde."); 
     }
 
-    public void signInCode(String email) throws SendEmailException{
-        accountCacheService.sendSignInCode(email);
+    @Transactional
+    public Instant sendSignInCode(String email) throws SendEmailException{
+        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
+        Account account;
+        
+        if(optionalAccount.isEmpty()) account = new Account(email);
+        else account = optionalAccount.get();
+
+        String code;
+        // Se recupera el codigo si no expiro
+        if(!account.signInCodeExpired(intervalSendEmail)){
+            code = account.getSignInCode();
+        }else{
+            code = String.valueOf(secureRandom.nextInt(100000, 1000000));
+            account.assignSignInCode(code, signInCodeValidDuration);
+        }
+
+        sendEmailService.verificationEmail(account.getEmail(), code);
+
+        account.setLastSignInCodeSentAt(Instant.now());
+        accountRepository.save(account);
+
+        return account.getLastSignInCodeSentAt();
     }
 
     public int getMaxTokens() {

@@ -1,10 +1,10 @@
 package com.games_price_tracker.api.account;
 
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -12,34 +12,20 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.games_price_tracker.api.email.SendEmailService;
+import com.games_price_tracker.api.account.exceptions.AuthError;
+import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 
 import io.github.bucket4j.Bucket;
 
 @Service
 public class AccountCacheService {
-    private final AccountRepository accountRepository;
-    private final SendEmailService sendEmailService;
-    private final Duration signInCodeValidDuration = Duration.ofMinutes(10);
     @Value("${app.email.sign-in-code.interval}")
     private Duration intervalSendEmail;
-    private final SecureRandom secureRandom = new SecureRandom();
     private final Cache emailSentCache;
 
-    public AccountCacheService(AccountRepository accountRepository, SendEmailService sendEmailService,CacheManager cacheManager){
+    public AccountCacheService(CacheManager cacheManager){
         this.emailSentCache = cacheManager.getCache("email-sent");
-        this.accountRepository = accountRepository;
-        this.sendEmailService = sendEmailService; 
-    }
-
-    public long emailSentAgo(String email){
-        ValueWrapper wrapperLastSent = emailSentCache.get(email);
-
-        if(wrapperLastSent == null) return -1;
-
-        return ((Instant) wrapperLastSent.get()).until(Instant.now(), ChronoUnit.SECONDS);
     }
 
     @Cacheable(cacheNames = "verify-code-rate-limit", sync = true)
@@ -49,30 +35,35 @@ public class AccountCacheService {
         .build();
     }
 
-    // Se cachea la fecha en que se envió el email y este expira cuando pase el intervalo
-    @Cacheable(cacheNames = "email-sent", sync = true)
-    @Transactional
-    public Instant sendSignInCode(String email){
-        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
-        Account account;
+    @SuppressWarnings("unchecked")
+    public void setEmailSentCache(String email){
+        ValueWrapper value = emailSentCache.putIfAbsent(email, Optional.empty());
+
+        if(value == null) return; 
+
+        Optional<Instant> optionalEmailSentAt = (Optional<Instant>) value.get();
         
-        if(optionalAccount.isEmpty()) account = new Account(email);
-        else account = optionalAccount.get();
-
-        String code;
-        // Se recupera el codigo si no expiro
-        if(!account.signInCodeExpired(intervalSendEmail)){
-            code = account.getSignInCode();
+        if(optionalEmailSentAt.isEmpty()){
+            // Si había un valor y es empty entonces es porque entraron requests muy juntas y se lanza la excepción
+            throw new TooManyRequestsException();
         }else{
-            code = String.valueOf(secureRandom.nextInt(100000, 1000000));
-            account.assignSignInCode(code, signInCodeValidDuration);
+            // Se calcula hace cuanto fue y se lanza la excepción pasandole el dato
+            long emailSentAgo = optionalEmailSentAt.get().until(Instant.now(), ChronoUnit.SECONDS);
+            
+            throw new TooManyRequestsException(
+                intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), 
+                TimeUnit.SECONDS, 
+                "Un código fue enviado recientemente. Intentar más tarde.", 
+                AuthError.CODE_SENT_RECENTLY
+            );
         }
+    }
 
-        sendEmailService.verificationEmail(account.getEmail(), code);
+    public void updateEmailSentCache(String email, Instant emailSentAt){
+        emailSentCache.put(email, Optional.of(emailSentAt));
+    }
 
-        account.setLastSignInCodeSentAt(Instant.now());
-        accountRepository.save(account);
-
-        return account.getLastSignInCodeSentAt();
+    public void evictEmailSentCache(String email){
+        emailSentCache.evictIfPresent(email);
     }
 }

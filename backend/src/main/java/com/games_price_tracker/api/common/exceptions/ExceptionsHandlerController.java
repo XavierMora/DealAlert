@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterErrors;
 import org.springframework.validation.method.ParameterValidationResult;
@@ -97,9 +97,15 @@ public class ExceptionsHandlerController{
 
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<ApiResponseBody<Void>> tooManyRequests(TooManyRequestsException e){
-        BodyBuilder bodyBuilder = ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
+        HttpHeaders headers = new HttpHeaders();
+        if(e.getRetryAfterSeconds() != null){
+            headers.add("Retry-After", String.valueOf(e.getRetryAfterSeconds()));
+        }
 
-        return bodyBuilder.body(ApiResponseBodyBuilder.error(e.getMessage(), e.getErrorCode()));
+        return ResponseEntity
+        .status(HttpStatus.TOO_MANY_REQUESTS)
+        .headers(headers)
+        .body(ApiResponseBodyBuilder.error(e.getMessage(), e.getErrorCode()));
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

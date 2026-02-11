@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
-import com.games_price_tracker.api.account.exceptions.AuthError;
-import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
 import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.session_token.SessionToken;
@@ -42,13 +39,15 @@ public class AccountController {
     public ResponseEntity<ApiResponseBody<Void>> signInCode(
         @RequestBody @Valid SignInBody body
     ) {
-        long emailSentAgo = accountCacheService.emailSentAgo(body.email());
+        accountCacheService.setEmailSentCache(body.email());
         
-        if(emailSentAgo > 0 && emailSentAgo <= intervalSendEmail.get(ChronoUnit.SECONDS)){ // No pasó el intervalo para enviar otro email
-            throw new TooManyRequestsException(intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), TimeUnit.SECONDS, "Un código fue enviado recientemente. Intentar más tarde.", AuthError.CODE_SENT_RECENTLY);
+        try {
+            Instant sentAt = accountService.sendSignInCode(body.email());
+            accountCacheService.updateEmailSentCache(body.email(), sentAt);
+        } catch (RuntimeException e) {
+            accountCacheService.evictEmailSentCache(body.email());
+            throw e;
         }
-
-        accountService.signInCode(body.email());
 
         return ResponseEntity
         .status(HttpStatus.OK)

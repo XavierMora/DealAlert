@@ -53,7 +53,7 @@ public class PriceChangeAlertService {
         PriceChangeAlert priceAlert = new PriceChangeAlert(account, game);
         Optional<PriceChangeAlert> newAlert = Optional.of(priceChangeAlertRepository.save(priceAlert));
 
-        priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
+        priceChangeAlertCacheService.evictAlertsCache(account.getId());
 
         return newAlert;
     }
@@ -70,7 +70,7 @@ public class PriceChangeAlertService {
         
         if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");
         
-        priceChangeAlertCacheService.invalidateAlertsCache(account.getId());
+        priceChangeAlertCacheService.evictAlertsCache(account.getId());
     }
 
     public void notifyPriceChange(Game game, ChangePriceResult result){

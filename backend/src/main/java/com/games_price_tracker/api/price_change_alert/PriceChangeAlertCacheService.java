@@ -29,6 +29,6 @@ public class PriceChangeAlertCacheService {
     }
 
     @CacheEvict(cacheNames = "alerts", key = "#accountId")
-    public void invalidateAlertsCache(Long accountId){
+    public void evictAlertsCache(Long accountId){
     }
 }
