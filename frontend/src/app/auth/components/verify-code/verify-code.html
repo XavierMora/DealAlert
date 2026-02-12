@@ -1,0 +1,31 @@
+<h1 class="text-center text-2xl mb-4">Verificación</h1>
+<p>
+    Para acceder ingresa el código de acceso enviado a <br>
+    <span class="font-bold">{{email()}}</span>
+</p>
+
+<form (ngSubmit)="verifyCode(codeForm)" #codeForm="ngForm" class="my-4">
+    <label for="code">Código de acceso</label>
+    <div class="input-container w-4/12 mt-0.5">
+        <input id="code" type="text" inputmode="numeric" required class="px-2 w-full" placeholder="000000" [(ngModel)]="code" name="code" minlength="6" maxlength="6" (input)="replaceNotNumbers($event)" #codeInput="ngModel">
+    </div>
+
+    <div class="text-red-500 mt-1">
+        @if(codeInput.invalid && codeInput.touched){
+            @if(codeInput.hasError('required')){
+                El código es obligatorio.
+            }@else if(codeInput.hasError('minlength') || codeInput.hasError('maxlength')){
+                El código es inválido.
+            }@else if(codeInput.hasError('apiError')){
+                {{codeInput.getError('apiError')}}
+            }
+        }@else if(errorSendingForm() !== undefined){
+            {{errorSendingForm()}}
+        }
+    </div>
+
+    @let _sending = sending();
+    <button [disabled]="codeForm.invalid || _sending" type="submit" class="default-button mt-4">
+        {{_sending ? 'Enviando' : 'Enviar'}}
+    </button>
+</form>

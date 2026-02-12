@@ -1,3 +1,4 @@
 export enum ApiErrorCode{
-    INVALID_DATA = "INVALID_DATA"
+    INVALID_DATA = "INVALID_DATA",
+    SENDING_EMAIL = "SENDING_EMAIL"
 }

@@ -1,4 +1,4 @@
-import { Component, inject, model, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
 import { finalize } from 'rxjs';
@@ -17,7 +17,6 @@ export class Login {
   codeSent = output<string>();
   sending = signal<boolean>(false);
   errorSendingForm = signal<string | undefined>(undefined);
-  timeoutErrorSendingForm!: number;
 
   signInCode(form:NgForm){   
     if(form.invalid || this.sending()) return;
@@ -27,7 +26,6 @@ export class Login {
       finalize(() => this.sending.set(false))
     ).subscribe({
       next: () => {
-        clearTimeout(this.timeoutErrorSendingForm);
         this.codeSent.emit(this.email);
       },
       error: (err: ApiResponse<undefined | Record<string, string>>) => {
@@ -37,14 +35,15 @@ export class Login {
         };
 
         if(err.error === ApiAuthErrorCode.CODE_SENT_RECENTLY){
+          this.errorSendingForm.set(undefined);
           this.codeSent.emit(this.email)
         }else if(err.error === ApiErrorCode.INVALID_DATA){
+          this.errorSendingForm.set(undefined);
           let errorEmail = form.form.controls['email'];
           errorEmail.setErrors({apiError: err.data!['email']});
           errorEmail.markAllAsTouched();
         }else{
           this.errorSendingForm.set(err.message);
-          this.timeoutErrorSendingForm = setTimeout(() => this.errorSendingForm.set(undefined), 3000);
         }
       }
     }) 
