@@ -24,7 +24,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain priceChangeAlert(HttpSecurity http, AuthFilter authFilter){
         http
-        .securityMatcher("/price-alerts/**")
+        .securityMatcher("/price-change-alerts/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .csrf(csrf -> csrf.spa())
         .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
@@ -63,14 +63,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain security(HttpSecurity http){
+    SecurityFilterChain security(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/**")
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
         .httpBasic(httpBasic -> httpBasic.disable())
-        .formLogin(formLogin -> formLogin.disable());
+        .formLogin(formLogin -> formLogin.disable())
+        .addFilterAfter(authFilter, ExceptionTranslationFilter.class);
         
         return http.build();
     }

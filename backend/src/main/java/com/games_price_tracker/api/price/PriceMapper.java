@@ -24,7 +24,7 @@ public class PriceMapper {
         );
     }
 
-    private int calcDiscount(int initialPrice, int finalPrice){
+    private static int calcDiscount(int initialPrice, int finalPrice){
         if(initialPrice > finalPrice) return (initialPrice-finalPrice)*100/initialPrice;
         else return 0;
     }

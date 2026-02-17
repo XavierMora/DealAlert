@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
-@RequestMapping("/price-alerts")
+@RequestMapping("/price-change-alerts")
 public class PriceChangeAlertController {
     private final PriceChangeAlertService priceChangeAlertService;
     private final PageDtoMapper pageDtoMapper;

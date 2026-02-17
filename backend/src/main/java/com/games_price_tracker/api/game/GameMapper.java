@@ -2,6 +2,7 @@ package com.games_price_tracker.api.game;
 
 import org.springframework.stereotype.Component;
 
+import com.games_price_tracker.api.game.dtos.GameData;
 import com.games_price_tracker.api.game.dtos.GameInfo;
 import com.games_price_tracker.api.price.PriceMapper;
 import com.games_price_tracker.api.price.dtos.PriceInfo;
@@ -25,7 +26,7 @@ public class GameMapper {
         );
     }
 
-    public GameInfo toGameInfo(Game game){
+    private GameInfo createGameInfo(Game game, Boolean isInPriceAlert){
         PriceInfo priceInfo = null;
         
         if(game.getPrice() != null) priceInfo = priceMapper.toPriceInfo(game.getPrice());
@@ -36,7 +37,16 @@ public class GameMapper {
             game.getName(),
             priceInfo,
             steamUrlBuilder.appImageUrl(game.getSteamId()).toString(),
-            steamUrlBuilder.appUrl(game.getSteamId(), game.getName()).toString()
+            steamUrlBuilder.appUrl(game.getSteamId(), game.getName()).toString(),
+            isInPriceAlert
         );
+    }
+
+    public GameInfo toGameInfo(Game game){
+        return createGameInfo(game, null);
+    }
+
+    public GameInfo toGameInfo(GameData gameData){
+        return createGameInfo(gameData.game(), gameData.isInPriceAlert());
     }
 }

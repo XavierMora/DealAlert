@@ -41,7 +41,7 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
 
         do {
             Pageable pageable = PageRequest.of(actualPage, gamesPerRequest);
-            page = gameService.getGames(null, pageable);
+            page = gameService.getGames(pageable);
             
             List<Game> gamesToUpdate = page.getContent().stream().filter((game) -> gameService.gamePriceNeedsUpdate(game)).toList();
             
