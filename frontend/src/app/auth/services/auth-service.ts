@@ -56,4 +56,8 @@ export class AuthService {
       });
     }
   }
+
+  loadCsrfToken(){
+    return this.http.get(`${environment.apiUrl}/csrf`, {credentials: 'include'});
+  }
 }
