@@ -10,5 +10,6 @@ interface Game{
         lastUpdate: Date
     },
     img: string,
-    steamUrl: string
+    steamUrl: string,
+    isInPriceAlert?: boolean
 }

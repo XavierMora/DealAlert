@@ -12,7 +12,7 @@ public interface PriceChangeAlertRepository extends JpaRepository<PriceChangeAle
 
     Page<PriceChangeAlert> findAllByAccountId(Long accountId, Pageable pageable);
 
-    int deleteByIdAndAccountId(Long id, Long accountId);
+    int deleteByAccountIdAndGameId(Long accountId, Long gameId);
 
     Optional<List<PriceChangeAlert>> findAllByGameId(Long gameId);
 }

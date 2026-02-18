@@ -1,7 +1,7 @@
 @if (show()) {
     <div class="w-full fixed bottom-5 left-0 z-20">
         <div [class]="alertData.type" class="p-4 bg-(--surface-1) rounded-sm mx-auto w-fit">
-            <span>{{alertData.text}}Alerta creada</span>
+            <span>{{alertData.text}}</span>
 
             @if(alertData.action !== undefined && alertData.actionText !== undefined){
                 <button (click)="alertData.action()">

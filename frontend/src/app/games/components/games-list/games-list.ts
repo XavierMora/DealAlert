@@ -1,14 +1,15 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { GameService } from '../../services/game-service';
 import { distinctUntilChanged, finalize, Observable } from 'rxjs';
-import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Pagination } from '../pagination/pagination';
+import { ButtonPriceAlert } from '../button-price-alert/button-price-alert';
 
 @Component({
   selector: 'app-games-list',
-  imports: [AsyncPipe, CurrencyPipe, Pagination],
+  imports: [AsyncPipe, CurrencyPipe, Pagination, NgTemplateOutlet, ButtonPriceAlert],
   templateUrl: './games-list.html',
   styleUrl: './games-list.css',
 })
@@ -31,11 +32,13 @@ export class GamesList {
 
   games$: Observable<ApiResponse<PagedContent<Game>>> = this.queryChanged$.pipe(
     distinctUntilChanged((prev, current) => { // Acepta los valores si la función devuelve falso
-      if(prev.name!==current.name){
+      // Si la request es por el nombre se toma
+      if(prev.name!==current.name){ 
         current.page = 1;
         this.firstNameRequestOnProgress = true;
         return false
       }
+      // Sino se acepta si la primera request del nombre terminó y que la página haya cambiado
       return this.firstNameRequestOnProgress || prev.page === current.page
     }),
     switchMap((query) => {

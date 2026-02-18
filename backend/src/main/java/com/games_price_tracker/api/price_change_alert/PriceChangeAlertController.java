@@ -72,9 +72,9 @@ public class PriceChangeAlertController {
         return ResponseEntity.ok(ApiResponseBodyBuilder.success(pageDto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseBody<Void>> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long id){
-        priceChangeAlertService.deleteAlert(id, account);
+    @DeleteMapping("/{gameId}")
+    public ResponseEntity<ApiResponseBody<Void>> deleteAlert(@AuthenticationPrincipal Account account, @PathVariable Long gameId){
+        priceChangeAlertService.deleteAlert(gameId, account);
 
         return ResponseEntity.noContent().build();
     }

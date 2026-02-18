@@ -64,9 +64,9 @@ public class PriceChangeAlertService {
     }
 
     @Transactional
-    public void deleteAlert(Long alertId, Account account) throws ResourceNotFoundException{
+    public void deleteAlert(Long gameId, Account account) throws ResourceNotFoundException{
         verifyRateLimit(account);
-        boolean alertDeleted = priceChangeAlertRepository.deleteByIdAndAccountId(alertId, account.getId()) > 0;
+        boolean alertDeleted = priceChangeAlertRepository.deleteByAccountIdAndGameId(account.getId(), gameId) > 0;
         
         if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");
         

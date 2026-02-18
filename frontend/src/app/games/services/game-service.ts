@@ -15,7 +15,8 @@ export class GameService {
     if(name !== undefined) params = params.append('name', name);
 
     return this.http.get<ApiResponse<PagedContent<Game>>>(`${environment.apiUrl}/games`, {
-      params
+      params,
+      credentials: 'include'
     });
   }
 }

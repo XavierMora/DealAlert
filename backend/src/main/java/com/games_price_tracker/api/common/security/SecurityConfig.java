@@ -87,7 +87,7 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedMethods(List.of("GET", "POST"));
+        config.setAllowedMethods(List.of("GET", "POST", "DELETE"));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
         config.setExposedHeaders(List.of("Retry-After"));
