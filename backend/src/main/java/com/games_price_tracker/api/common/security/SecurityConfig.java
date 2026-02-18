@@ -22,7 +22,7 @@ import com.games_price_tracker.api.common.security.filters.AuthFilter;
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain priceChangeAlert(HttpSecurity http, AuthFilter authFilter){
+    SecurityFilterChain priceChangeAlertSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/price-change-alerts/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -39,11 +39,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain account(HttpSecurity http, AuthFilter authFilter){
+    SecurityFilterChain accountSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code"))
+        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code")) // No valida el token para los endpoints en ignoringRequestMatchers
         .logout(logout -> logout
             .logoutUrl("/account/logout")
             .deleteCookies("SESSION")
@@ -63,7 +63,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain security(HttpSecurity http, AuthFilter authFilter){
+    SecurityFilterChain csrfToken(HttpSecurity http){
+        http
+        .securityMatcher("/csrf")
+        .csrf(csrf -> csrf.spa())
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .formLogin(formLogin -> formLogin.disable());
+
+        return http.build();
+    }
+
+    @Bean
+    SecurityFilterChain generalSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/**")
         .csrf(csrf -> csrf.disable())
