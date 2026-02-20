@@ -1,17 +1,21 @@
 @let _totalPages = totalPages();
 @if(_totalPages > 1){
     @let _actualPage = actualPage();
+
+    <div class="sm:hidden ml-auto mr-2 mb-1 w-fit">
+        <span>Pág. {{_actualPage}} de {{_totalPages}}</span>
+    </div>
     
-    <div class="flex gap-2">
+    <div class="flex gap-2 sm:h-fit h-7">
         <button [disabled]="_actualPage == 1" class="move" (click)="actualPage.set(1)">
             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M240-240v-480h80v480h-80Zm440 0L440-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
         </button>
 
-        <button [disabled]="_actualPage == 1" (click)="previousPage()" class="move">
+        <button [disabled]="_actualPage == 1" (click)="previousPage()" class="move sm:m-0 mr-2">
             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" ><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
         </button>
 
-        <div class="flex gap-1 mx-2">
+        <div class="sm:flex hidden gap-1 mx-2">
             @for (page of pages(); track $index) {
                 @if($first && page>1){
                     <div>
