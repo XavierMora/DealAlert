@@ -26,6 +26,10 @@ tr:hover > *{
   background-color: var(--surface-2);
 }
 
+table tr:last-child{
+  border: 0;
+}
+
 .old-price{
   color: var(--text-muted);
   text-decoration: line-through;

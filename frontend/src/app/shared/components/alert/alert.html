@@ -1,10 +1,10 @@
 @if (show()) {
     <div class="w-full fixed bottom-5 left-0 z-20">
-        <div [class]="alertData.type" class="p-4 bg-(--surface-1) rounded-sm mx-auto w-fit">
+        <div [class]="alertData.type" class="flex gap-2 p-4 bg-(--surface-1) rounded-sm mx-auto w-fit">
             <span>{{alertData.text}}</span>
 
             @if(alertData.action !== undefined && alertData.actionText !== undefined){
-                <button (click)="alertData.action()">
+                <button class="cursor-pointer underline" (click)="action()">
                     {{alertData.actionText}}
                 </button>
             }

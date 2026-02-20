@@ -11,8 +11,12 @@ export function UnauthorizedInterceptor(
 
     return next(req).pipe(
         catchError(err => {
-            if(err.status === 401) router.navigateByUrl("/login")
-            return EMPTY;
+            if(err.status === 401){
+                router.navigateByUrl("/login")
+                return EMPTY;
+            }else{
+                throw err;
+            }
         })
     )
 }

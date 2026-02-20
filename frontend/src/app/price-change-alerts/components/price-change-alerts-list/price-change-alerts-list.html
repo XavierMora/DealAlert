@@ -1,0 +1,24 @@
+@if(alerts$ | async; as alerts){
+    <div class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mx-auto">
+        @for (alert of alerts.data!.content; track alert.id) {
+            <div class="flex sm:flex-col h-full bg-(--surface-1) rounded-sm">
+                <img [src]="alert.game.img" [alt]="alert.game.name" class="sm:w-full w-30 sm:h-24 h-full sm:rounded-t-sm sm:rounded-b-none rounded-l-sm rounded-r-none">
+    
+                <div class="flex flex-col justify-between h-full w-full p-3">
+                    <div>
+                        <span class="game-name">{{alert.game.name}}</span>
+                    </div>
+    
+                    <div class="flex justify-between mt-2">
+                        <app-steam-store-link [gameSteamUrl]="alert.game.steamUrl"></app-steam-store-link>
+                        <button>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e5e5e5"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <app-pagination (actualPageChange)="page.set($event)" [totalPages]="alerts.data!.totalPages"></app-pagination>
+}

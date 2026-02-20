@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
-import { catchError } from 'rxjs';
+import { catchError, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,7 @@ export class PriceChangeAlertsService {
     return this.http.post<ApiResponse<PriceChangeAlert>>(
       `${environment.apiUrl}/price-change-alerts`, 
       {gameId},
-      {withCredentials: true}
+      {credentials: 'include'}
     ).pipe(
       catchError((err: HttpErrorResponse) => {
         throw err.error
@@ -29,6 +29,13 @@ export class PriceChangeAlertsService {
       catchError((err: HttpErrorResponse) => {
         throw err.error
       })
+    )
+  }
+
+  getAlerts(page: number){
+    return this.http.get<ApiResponse<PagedContent<PriceChangeAlert>>>(
+      `${environment.apiUrl}/price-change-alerts?page=${page}`,
+      {credentials: 'include'}
     )
   }
 }

@@ -21,4 +21,11 @@ export class Alert {
       this.showTimeout = setTimeout(() => this.show.set(false), 4000);
     })
   }
+
+  action(){
+    if(this.alertData.action === undefined) return;
+
+    this.show.set(false);
+    this.alertData.action();
+  }
 }
