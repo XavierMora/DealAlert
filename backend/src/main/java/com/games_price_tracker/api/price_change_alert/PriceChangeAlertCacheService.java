@@ -20,7 +20,7 @@ public class PriceChangeAlertCacheService {
 
     @Cacheable(cacheNames = "alerts-rate-limit", sync = true)
     public Bucket getBucket(String email){
-        return Bucket.builder().addLimit(limit -> limit.capacity(10).refillGreedy(10, Duration.ofMinutes(1))).build();
+        return Bucket.builder().addLimit(limit -> limit.capacity(20).refillGreedy(10, Duration.ofSeconds(30))).build();
     }
 
     @Cacheable(cacheNames = "alerts", sync = true, key = "#accountId", condition = "#pageable.getPageNumber() == 0")

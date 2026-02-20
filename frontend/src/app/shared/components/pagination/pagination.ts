@@ -17,7 +17,7 @@ export class Pagination {
     computation: (page, prevPages) => {
       let totalPages = this.totalPages();
       if(totalPages == 0) return [];
-
+      
       let pages: number[] | undefined = prevPages?.value;
       let maxPages = Math.min(this.maxPages, totalPages)
       // Inicialización del array si no existe o la nueva longitud es distinta a la anterior
@@ -31,18 +31,19 @@ export class Pagination {
         return pages;
       }
       
-      // Salto directo a última o primera página
-      if(page == 1 && pages[0] > 1){ // También resetea si cambia totalPages mientras se mantenga la longitud sino se establece en el if anterior
+      if(page == 1 && pages[0] > 1){ 
+        // Salto a primera página
+        // También resetea el array si cambia totalPages y se mantiene la longitud del anterior sino se establece en el if anterior
         return pages.map((_, i) => 1+i)
-      }else if(page == totalPages && pages[0] != (totalPages-this.maxPages)){
+      }else if(page == totalPages && pages[0] <= (totalPages-this.maxPages)){
+        // Salto a última página
         return pages.map((_, i) => (totalPages-this.maxPages)+i+1)
       }
 
-      // Siguiente y anterior página
-      if(page == pages[pages.length-1]+1){
+      if(page == pages[pages.length-1]+1){ // Siguiente página
         pages.shift()
         pages.push(page)
-      }else if(page == pages[0]-1){
+      }else if(page == pages[0]-1){ // Anterior página
         pages.pop();
         pages.unshift(page);
       }
