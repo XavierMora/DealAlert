@@ -1,15 +1,16 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { GameService } from '../../services/game-service';
 import { distinctUntilChanged, finalize, Observable } from 'rxjs';
-import { AsyncPipe, CurrencyPipe, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Pagination } from '../pagination/pagination';
+import { Pagination } from '../../../shared/components/pagination/pagination';
 import { ButtonPriceAlert } from '../button-price-alert/button-price-alert';
+import { SteamStoreLink } from '../steam-store-link/steam-store-link';
 
 @Component({
   selector: 'app-games-list',
-  imports: [AsyncPipe, CurrencyPipe, Pagination, NgTemplateOutlet, ButtonPriceAlert],
+  imports: [AsyncPipe, CurrencyPipe, Pagination, ButtonPriceAlert, SteamStoreLink],
   templateUrl: './games-list.html',
   styleUrl: './games-list.css',
 })
