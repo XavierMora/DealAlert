@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { GamesPage } from './games/pages/games-page/games-page';
 import { LoginPage } from './auth/pages/login-page/login-page';
-import { PriceChangeAlertsList } from './price-change-alerts/components/price-change-alerts-list/price-change-alerts-list';
+import { PriceChangeAlertsPage } from './price-change-alerts/pages/price-change-alerts-page/price-change-alerts-page';
 export const routes: Routes = [
     {
         path: '', 
@@ -13,6 +13,6 @@ export const routes: Routes = [
     },
     {
         path: 'price-alerts',
-        component: PriceChangeAlertsList
+        component: PriceChangeAlertsPage
     }
 ];
