@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.games_price_tracker.api.account.dtos.AccountDto;
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
 import com.games_price_tracker.api.common.response.ApiResponseBody;
@@ -21,6 +23,7 @@ import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/account")
@@ -68,5 +71,12 @@ public class AccountController {
         headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
 
         return ResponseEntity.ok().headers(headers).build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<ApiResponseBody<AccountDto>> getAccount(@AuthenticationPrincipal Account account) {
+        return ResponseEntity.ok(ApiResponseBodyBuilder.success(
+            new AccountDto(account.getId(), account.getEmail()))
+        );
     }
 }
