@@ -5,7 +5,9 @@ public enum ErrorCode implements ApiError {
     SENDING_EMAIL,
     TOO_MANY_REQUESTS,
     RESOURCE_NOT_FOUND,
-    RESOURCE_ALREADY_EXISTS;
+    RESOURCE_ALREADY_EXISTS,
+    UNAUTHORIZED,
+    FORBIDDEN;
 
     @Override
     public String getErrorCode() {

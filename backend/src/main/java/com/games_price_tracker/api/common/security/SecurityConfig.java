@@ -11,18 +11,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.games_price_tracker.api.common.security.filters.AuthFilter;
+import com.games_price_tracker.api.common.security.handlers.ApiAccessDeniedHandler;
+import com.games_price_tracker.api.common.security.handlers.ApiAuthenticationEntryPointHandler;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain priceChangeAlertSecurityChain(HttpSecurity http, AuthFilter authFilter){
+    SecurityFilterChain priceChangeAlertSecurityChain(HttpSecurity http, AuthFilter authFilter, ApiAuthenticationEntryPointHandler authEntryPointHandler){
         http
         .securityMatcher("/price-change-alerts/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -31,19 +32,17 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(formLogin -> formLogin.disable())
-        .exceptionHandling(e -> 
-            e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-        );
+        .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPointHandler));
 
         return http.build();
     }
 
     @Bean
-    SecurityFilterChain accountSecurityChain(HttpSecurity http, AuthFilter authFilter){
+    SecurityFilterChain accountSecurityChain(HttpSecurity http, AuthFilter authFilter, ApiAccessDeniedHandler accessDeniedHandler, ApiAuthenticationEntryPointHandler authEntryPointHandler){
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code")) // No valida el token para los endpoints en ignoringRequestMatchers
+        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code")) // No valida el token csrf para los endpoints en ignoringRequestMatchers
         .logout(logout -> logout
             .logoutUrl("/account/logout")
             .deleteCookies("SESSION")
@@ -52,12 +51,11 @@ public class SecurityConfig {
         .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/account/sign-in-code", "/account/verify-code").not().authenticated()
+            .anyRequest().authenticated()
         )
         .httpBasic(httpBasic -> httpBasic.disable())
         .formLogin(formLogin -> formLogin.disable())
-        .exceptionHandling(e -> 
-            e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-        );
+        .exceptionHandling(handler -> handler.accessDeniedHandler(accessDeniedHandler).authenticationEntryPoint(authEntryPointHandler));
 
         return http.build();
     }
