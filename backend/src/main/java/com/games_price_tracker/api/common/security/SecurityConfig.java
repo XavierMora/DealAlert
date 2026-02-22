@@ -59,18 +59,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain csrfToken(HttpSecurity http){
-        http
-        .securityMatcher("/csrf")
-        .csrf(csrf -> csrf.spa())
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-        .httpBasic(httpBasic -> httpBasic.disable())
-        .formLogin(formLogin -> formLogin.disable());
-
-        return http.build();
-    }
-
-    @Bean
     SecurityFilterChain generalSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/**")
