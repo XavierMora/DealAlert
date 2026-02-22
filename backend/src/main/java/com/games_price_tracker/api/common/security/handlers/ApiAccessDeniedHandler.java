@@ -28,7 +28,8 @@ public class ApiAccessDeniedHandler implements AccessDeniedHandler{
             AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setStatus(HttpStatus.FORBIDDEN.value());
-
+        response.setCharacterEncoding("UTF-8");
+        
         response.getWriter().write(
             objectMapper.writeValueAsString(ApiResponseBodyBuilder.error("No autorizado", ErrorCode.FORBIDDEN))
         );

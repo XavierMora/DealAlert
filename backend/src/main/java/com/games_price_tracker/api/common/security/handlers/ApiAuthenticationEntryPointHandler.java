@@ -27,7 +27,8 @@ public class ApiAuthenticationEntryPointHandler implements AuthenticationEntryPo
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
+        response.setCharacterEncoding("UTF-8");
+        
         response.getWriter().write(
             objectMapper.writeValueAsString(ApiResponseBodyBuilder.error("No autenticado", ErrorCode.UNAUTHORIZED))
         );

@@ -5,19 +5,18 @@ import java.util.List;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.games_price_tracker.api.common.security.filters.AuthFilter;
 import com.games_price_tracker.api.common.security.handlers.ApiAccessDeniedHandler;
 import com.games_price_tracker.api.common.security.handlers.ApiAuthenticationEntryPointHandler;
+import com.games_price_tracker.api.common.security.handlers.ApiLogoutSuccessHandler;
 
 @EnableWebSecurity
 @Configuration
@@ -38,15 +37,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain accountSecurityChain(HttpSecurity http, AuthFilter authFilter, ApiAccessDeniedHandler accessDeniedHandler, ApiAuthenticationEntryPointHandler authEntryPointHandler){
+    SecurityFilterChain accountSecurityChain(HttpSecurity http, AuthFilter authFilter, ApiAccessDeniedHandler accessDeniedHandler, ApiAuthenticationEntryPointHandler authEntryPointHandler, ApiLogoutSuccessHandler logoutSuccessHandler){
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code")) // No valida el token csrf para los endpoints en ignoringRequestMatchers
         .logout(logout -> logout
             .logoutUrl("/account/logout")
-            .deleteCookies("SESSION")
-            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+            .logoutSuccessHandler(logoutSuccessHandler)
         )
         .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
         .authorizeHttpRequests(authorize -> authorize
