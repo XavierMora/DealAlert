@@ -1,7 +1,7 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
-import { catchError, EMPTY, Observable, throwError } from 'rxjs';
+import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +10,16 @@ export class AuthService {
   private http = inject(HttpClient);
   private retryAfterSignInCode = signal<any | undefined>(undefined);
   private retryAfterVerifyCode = signal<any | undefined>(undefined);
+  private _isAuthenticated = signal<boolean>(false);
+  private _currentAccount = signal<Account | null>(null);
+  readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  readonly currentAccount = this._currentAccount.asReadonly();
+  
+  constructor(){
+    this.setAuthentication()
+  }
 
-  public signInCode(email: string): Observable<ApiResponse<undefined | Record<string, string>> | null>{
+  signInCode(email: string): Observable<ApiResponse<undefined | Record<string, string>> | null>{
     if(this.canSend(this.retryAfterSignInCode(), email)) return throwError(() => null);
 
     return this.http.post<ApiResponse<undefined | Record<string, string>>>(
@@ -27,7 +35,7 @@ export class AuthService {
     );
   }
 
-  public verifyCode(email: string, code: string): Observable<ApiResponse<undefined | Record<string, string>>>{
+  verifyCode(email: string, code: string): Observable<ApiResponse<undefined | Record<string, string>>>{
     if(this.canSend(this.retryAfterVerifyCode(), email)) return throwError(() => null);
 
     return this.http.post<ApiResponse<undefined | Record<string, string>>>(
@@ -38,7 +46,8 @@ export class AuthService {
       catchError((err:HttpErrorResponse) => {
         if(err.status == 429) this.setRetryAfterResponse(this.retryAfterVerifyCode, err, email);
         throw err.error
-      })
+      }),
+      tap(() => this.setAuthentication()) // Se ejecuta si no hay error
     );
   }
 
@@ -57,7 +66,32 @@ export class AuthService {
     }
   }
 
-  loadCsrfToken(){
-    return this.http.get(`${environment.apiUrl}/csrf`, {credentials: 'include'});
+  private setAuthentication(){
+    this.http.get<ApiResponse<Account>>(
+      `${environment.apiUrl}/account`,
+      {credentials: 'include'}
+    ).pipe(
+      catchError(err => {throw err.error})
+    ).subscribe({
+      next: (res: ApiResponse<Account>) => {
+        this._isAuthenticated.set(true);
+        this._currentAccount.set(res.data!);
+      },
+      error: () => {
+        this._isAuthenticated.set(false);
+        this._currentAccount.set(null);
+      }
+    })
+  }
+
+  logout(): Observable<ApiResponse<undefined>>{
+    return this.http.post<ApiResponse<undefined>>(
+      `${environment.apiUrl}/account/logout`,
+      null,
+      {credentials: 'include'}
+    ).pipe(
+      finalize(() => this.setAuthentication()),
+      catchError((err: ApiResponse<undefined>) => {throw err.error})
+    )
   }
 }

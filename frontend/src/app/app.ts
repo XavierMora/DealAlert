@@ -1,7 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Alert } from './shared/components/alert/alert';
-import { AuthService } from './auth/services/auth-service';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +10,4 @@ import { AuthService } from './auth/services/auth-service';
 })
 export class App {
   protected readonly title = signal('frontend');
-  private authService = inject(AuthService)
-
-  constructor(){
-    this.authService.loadCsrfToken().subscribe();
-  }
 }
