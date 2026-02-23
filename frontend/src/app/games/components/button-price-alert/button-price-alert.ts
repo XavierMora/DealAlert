@@ -2,6 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { PriceChangeAlertsService } from '../../../price-change-alerts/services/price-change-alerts-service';
 import { AlertService } from '../../../shared/components/alert/alert-service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth-service';
 
 @Component({
   selector: 'app-button-price-alert',
@@ -25,6 +26,7 @@ export class ButtonPriceAlert {
   private priceChangeAlertsService = inject(PriceChangeAlertsService);
   private alertService = inject(AlertService);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   ngOnInit(){
     let { id, isInPriceAlert } = this.game();
@@ -33,6 +35,11 @@ export class ButtonPriceAlert {
   }
 
   modifyPriceAlert(){
+    if(!this.authService.isAuthenticated()){
+      this.router.navigateByUrl('/login')
+      return;
+    }
+
     if(!this.isInPriceAlert()){
       this.priceChangeAlertsService.createAlert(this.gameId).subscribe({
         next: (res) => {
@@ -47,7 +54,7 @@ export class ButtonPriceAlert {
         error: (res) => {
           this.alertService.newAlert({
             type: 'error',
-            text: res.message === undefined ? 'Error creando alerta' : res.message
+            text: res.message === undefined ? 'Error creando alerta.' : res.message
           })
         }
       });
@@ -57,7 +64,7 @@ export class ButtonPriceAlert {
         error: (res) => {
           this.alertService.newAlert({
             type: 'error',
-            text: res.message === undefined ? 'Error eliminando alerta' : res.message
+            text: res.message === undefined ? 'Error eliminando alerta.' : res.message
           })
         }
       });
