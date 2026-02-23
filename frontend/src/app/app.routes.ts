@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { GamesPage } from './games/pages/games-page/games-page';
 import { LoginPage } from './auth/pages/login-page/login-page';
 import { PriceChangeAlertsPage } from './price-change-alerts/pages/price-change-alerts-page/price-change-alerts-page';
+import { authGuard } from './shared/guards/auth-guard';
+import { noAuthGuard } from './shared/guards/no-auth-guard';
 export const routes: Routes = [
     {
         path: '', 
@@ -9,10 +11,12 @@ export const routes: Routes = [
     },
     {
         path: 'login', 
-        component: LoginPage
+        component: LoginPage,
+        canActivate: [noAuthGuard]
     },
     {
         path: 'price-alerts',
-        component: PriceChangeAlertsPage
+        component: PriceChangeAlertsPage,
+        canActivate: [authGuard]
     }
 ];

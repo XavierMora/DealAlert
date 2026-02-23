@@ -34,16 +34,20 @@ export class Login {
           return;
         };
 
-        if(err.error === ApiAuthErrorCode.CODE_SENT_RECENTLY){
-          this.errorSendingForm.set(undefined);
-          this.codeSent.emit(this.email)
-        }else if(err.error === ApiErrorCode.INVALID_DATA){
-          this.errorSendingForm.set(undefined);
-          let errorEmail = form.form.controls['email'];
-          errorEmail.setErrors({apiError: err.data!['email']});
-          errorEmail.markAllAsTouched();
-        }else{
-          this.errorSendingForm.set(err.message);
+        switch(err.error){
+          case ApiAuthErrorCode.CODE_SENT_RECENTLY:
+            this.errorSendingForm.set(undefined);
+            this.codeSent.emit(this.email)
+            break;
+          case ApiErrorCode.INVALID_DATA:
+            this.errorSendingForm.set(undefined);
+            let errorEmail = form.form.controls['email'];
+            errorEmail.setErrors({apiError: err.data!['email']});
+            errorEmail.markAllAsTouched();
+            break;
+          default:
+            this.errorSendingForm.set(err.message);
+            break;
         }
       }
     }) 

@@ -42,7 +42,7 @@ public class ApiLogoutSuccessHandler implements LogoutSuccessHandler {
         try {
             sessionTokenService.invalidateToken(sessionToken.getToken());
 
-            response.setHeader("Set-Cookie", "SESSION=;Max-Age=0;HttpOnly;Secure;SameSite=Lax;Path=/");
+            response.addHeader("Set-Cookie", "SESSION=;Max-Age=0;HttpOnly;Secure;SameSite=Lax;Path=/");
         } catch (Exception e) { // Por si hay error invalidando el token, no se elimina la cookie session
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("application/json");
