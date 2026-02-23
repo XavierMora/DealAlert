@@ -22,6 +22,7 @@ export class Navbar {
 
     if(auth){
       this.authService.logout().subscribe({
+        next: () => this.router.navigateByUrl(''),
         error: (err: ApiResponse<undefined>) => {
           if(err.error === ApiErrorCode.INTERNAL_SERVER_ERROR){
             this.alertService.newAlert({

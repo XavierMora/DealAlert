@@ -6,6 +6,7 @@ import { Pagination } from '../../../shared/components/pagination/pagination';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, EMPTY, switchMap } from 'rxjs';
 import { AlertService } from '../../../shared/components/alert/alert-service';
+import { ApiErrorCode } from '../../../shared/models/ApiErrorCode';
 
 @Component({
   selector: 'app-price-change-alerts-list',
@@ -15,7 +16,7 @@ import { AlertService } from '../../../shared/components/alert/alert-service';
 })
 export class PriceChangeAlertsList {
   private priceChangeAlertsService = inject(PriceChangeAlertsService);
-  private alertService = inject(AlertService)
+  private alertService = inject(AlertService);
 
   page = signal<number>(1);
   delete = signal<number | undefined>(undefined)
@@ -31,7 +32,7 @@ export class PriceChangeAlertsList {
     switchMap((query) => {
       return this.priceChangeAlertsService.getAlerts(query.page-1).pipe(
         catchError(err => {
-          if(err.status === 429){
+          if(err.error === ApiErrorCode.TOO_MANY_REQUESTS){
             this.alertService.newAlert({
               type: 'error',
               text: 'Error obteniendo datos. Intentar más tarde.'

@@ -3,6 +3,7 @@ import { PriceChangeAlertsService } from '../../../price-change-alerts/services/
 import { AlertService } from '../../../shared/components/alert/alert-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth-service';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-button-price-alert',
@@ -28,10 +29,16 @@ export class ButtonPriceAlert {
   private router = inject(Router);
   private authService = inject(AuthService);
 
+  constructor(){
+    toObservable(this.authService.isAuthenticated).subscribe(auth => {
+      if(!auth) this.isInPriceAlert.set(false);
+    })
+  }
+
   ngOnInit(){
     let { id, isInPriceAlert } = this.game();
     this.gameId = id
-    this.isInPriceAlert.set(isInPriceAlert === undefined ? false : isInPriceAlert);
+    this.isInPriceAlert.update(currentValue => isInPriceAlert !== undefined ? isInPriceAlert : currentValue);
   }
 
   modifyPriceAlert(){
