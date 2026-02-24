@@ -78,7 +78,7 @@ public class AccountService {
         return maxTokens;
     }
 
-    @CacheEvict(cacheNames = "email-sent")
+    @CacheEvict(cacheNames = "email-sent", key = "#email")
     @Transactional
     public SessionToken verifyCode(String email, String code){
         Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(

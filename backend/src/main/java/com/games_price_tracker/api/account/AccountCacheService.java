@@ -35,6 +35,8 @@ public class AccountCacheService {
         .build();
     }
 
+    // Se setea primero con un optional vacio, si llegan más requests y no terminó la anterior, se lanza la primera excepción
+    // Cuando termina la request que la seteo se actualiza con la fecha, entonces si llega otra y no paso el intervalo de envio se lanza la otra excepción
     @SuppressWarnings("unchecked")
     public void setEmailSentCache(String email){
         ValueWrapper value = emailSentCache.putIfAbsent(email, Optional.empty());
@@ -44,10 +46,8 @@ public class AccountCacheService {
         Optional<Instant> optionalEmailSentAt = (Optional<Instant>) value.get();
         
         if(optionalEmailSentAt.isEmpty()){
-            // Si había un valor y es empty entonces es porque entraron requests muy juntas y se lanza la excepción
             throw new TooManyRequestsException();
         }else{
-            // Se calcula hace cuanto fue y se lanza la excepción pasandole el dato
             long emailSentAgo = optionalEmailSentAt.get().until(Instant.now(), ChronoUnit.SECONDS);
             
             throw new TooManyRequestsException(
