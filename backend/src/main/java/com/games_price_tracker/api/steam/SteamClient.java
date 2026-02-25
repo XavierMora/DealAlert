@@ -49,8 +49,10 @@ public class SteamClient {
         return objectMapper.treeToValue(apps, new TypeReference<List<AppSteam>>(){});    
     }
 
-    public List<AppSteam> getAppList(){
-        String response = restAppListClient.get().retrieve().body(String.class);
+    public List<AppSteam> getAppList(int maxGames){
+        String response = restAppListClient.get().uri(uriBuilder -> {
+            return uriBuilder.queryParam("max_results", maxGames).build();
+        }).retrieve().body(String.class);
 
         return parseSteamApps(response);
     }

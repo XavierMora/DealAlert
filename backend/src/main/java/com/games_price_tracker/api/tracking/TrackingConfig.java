@@ -36,7 +36,7 @@ public class TrackingConfig {
     }
 
     @Bean
-    EnqueueGamesTaskHandler gamePriceCheckScheduler(GameService gameService, FetchAppDetailsTasksHandler updatePriceTasksHandler, TaskScheduler taskScheduler, SteamApiProperties steamApiProperties, @Value("${price.min-interval-update}") Duration priceMinIntevalUpdate){
+    EnqueueGamesTaskHandler enqueueGamesTaskHandler(GameService gameService, FetchAppDetailsTasksHandler updatePriceTasksHandler, TaskScheduler taskScheduler, SteamApiProperties steamApiProperties, @Value("${price.min-interval-update}") Duration priceMinIntevalUpdate){
         return new EnqueueGamesTaskHandler(gameService, updatePriceTasksHandler, taskScheduler, steamApiProperties, priceMinIntevalUpdate);
     }
 }

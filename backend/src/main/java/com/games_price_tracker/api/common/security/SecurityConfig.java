@@ -13,6 +13,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.games_price_tracker.api.common.security.filters.AdminFilter;
 import com.games_price_tracker.api.common.security.filters.AuthFilter;
 import com.games_price_tracker.api.common.security.handlers.ApiAccessDeniedHandler;
 import com.games_price_tracker.api.common.security.handlers.ApiAuthenticationEntryPointHandler;
@@ -59,6 +60,20 @@ public class SecurityConfig {
     }
 
     @Bean
+    SecurityFilterChain adminSecurityChain(HttpSecurity http, AdminFilter adminFilter){
+        http
+        .securityMatcher("/admin/**")
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterAfter(adminFilter, ExceptionTranslationFilter.class)
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().hasRole("ADMIN"))
+        .httpBasic(basic -> basic.disable())
+        .formLogin(form -> form.disable());
+
+        return http.build();
+    }
+
+    @Bean
     SecurityFilterChain generalSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
         .securityMatcher("/**")
@@ -75,6 +90,13 @@ public class SecurityConfig {
     @Bean
     FilterRegistrationBean<AuthFilter> authFilterRegistration(AuthFilter filter) { // No registra el filtro permitiendo que solo httpsecurity lo agregue
         FilterRegistrationBean<AuthFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    @Bean
+    FilterRegistrationBean<AdminFilter> adminFilterRegistrationBean(AdminFilter filter){
+        FilterRegistrationBean<AdminFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }

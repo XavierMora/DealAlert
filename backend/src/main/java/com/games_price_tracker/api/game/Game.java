@@ -7,6 +7,7 @@ import java.util.Objects;
 import com.games_price_tracker.api.price.Price;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +20,9 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private Long steamId;
+    @Column(nullable = false)
     private String name;
 
     @OneToOne(mappedBy = "game")

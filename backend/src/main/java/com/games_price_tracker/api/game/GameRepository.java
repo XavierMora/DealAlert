@@ -1,5 +1,8 @@
 package com.games_price_tracker.api.game;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +30,11 @@ public interface GameRepository extends JpaRepository<Game, Long>{
         where g.name like CONCAT('%',LOWER(?1),'%')
     """) 
     Page<GameData> findGames(String name, Long accountId, Pageable pageable);
+
+    @Query("""
+        select g.steamId     
+        from Game g
+        where g.steamId in(?1)
+    """)
+    Set<Long> getExistingSteamIdsIn(List<Long> steamIds);
 }

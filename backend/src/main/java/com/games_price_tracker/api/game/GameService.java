@@ -3,8 +3,12 @@ package com.games_price_tracker.api.game;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,7 @@ import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.account.AccountRepository;
 import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.game.dtos.GameData;
+import com.games_price_tracker.api.steam.AppSteam;
 
 @Service
 public class GameService {
@@ -22,7 +27,11 @@ public class GameService {
     @Value("${price.min-interval-update}") 
     private Duration priceMinIntervalUpdate;
     AccountRepository accountRepository;
-    GameService(GameRepository gameRepository, AccountRepository accountRepository){
+    private final Logger log = LoggerFactory.getLogger(GameService.class);
+    private final GameMapper gameMapper;
+
+    GameService(GameRepository gameRepository, AccountRepository accountRepository, GameMapper gameMapper){
+        this.gameMapper = gameMapper;
         this.gameRepository = gameRepository;
         this.accountRepository=accountRepository;
     }
@@ -51,7 +60,7 @@ public class GameService {
 
     public Page<GameData> getGames(String name, Account account, Pageable pageable){
         return gameRepository.findGames(
-            name == null ? "" : name, 
+            name == null ? "" : name.trim(), 
             account == null ? null : account.getId(), 
             pageable
         );
@@ -62,5 +71,35 @@ public class GameService {
             game.getPrice().getLastUpdate().plus(priceMinIntervalUpdate), 
             ChronoUnit.SECONDS
         );
+    }
+
+    @Transactional
+    public void saveGames(List<AppSteam> apps){
+        log.info("Starting save of {} games", apps.size());
+
+        Set<Long> existingSteamIds = gameRepository.getExistingSteamIdsIn(apps.stream().map(app -> app.getSteamId()).toList());
+
+        if(existingSteamIds.size() == apps.size()){
+            log.info("No games to save");
+            return;
+        }
+        
+        List<AppSteam> gamesToSave;
+            
+        if(existingSteamIds.isEmpty()){
+            gamesToSave = apps;
+        }else{
+            gamesToSave = apps.stream().filter(app -> !existingSteamIds.contains(app.getSteamId())).toList();
+            log.info("{} games already existed", existingSteamIds.size());
+        }
+          
+        try {
+            gameRepository.saveAll(gamesToSave.stream().map(app -> gameMapper.fromAppSteam(app)).toList());
+
+            log.info("Success saving {} games", gamesToSave.size());
+        } catch (RuntimeException e) {
+            log.error("Failed saving {} games", gamesToSave.size(), e);
+            throw e;
+        }
     }
 }
