@@ -36,7 +36,7 @@ public class SteamClientTest {
     void setupMockApi() throws IOException{
         String dataAppList = new String(resourceLoader.getResource("classpath:some-steam-data.json").getInputStream().readAllBytes());
         
-        stubFor(get(urlEqualTo("/IStoreService/GetAppList/v1"))
+        stubFor(get(urlEqualTo("/IStoreService/GetAppList/v1?max_results=10"))
         .willReturn(aResponse().withBody(dataAppList)));
 
         String dataAppDetails = new String(resourceLoader.getResource("classpath:test-appdetails-response.json").getInputStream().readAllBytes());
@@ -54,7 +54,7 @@ public class SteamClientTest {
 
     @Test
     void shouldGetAndParseAppList(){
-        List<AppSteam> games = steamClient.getAppList();
+        List<AppSteam> games = steamClient.getAppList(10);
 
         assertNotNull(games);
         assertEquals(10, games.size());

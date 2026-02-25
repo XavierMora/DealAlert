@@ -5,7 +5,7 @@ import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -19,7 +19,6 @@ import com.games_price_tracker.api.tracking.fetch_appdetails.FetchAppDetailsTask
 
 @Configuration
 @EnableScheduling
-@Profile("!test")
 public class TrackingConfig {
     @Bean
     TaskScheduler taskScheduler(){

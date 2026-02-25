@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,6 @@ import com.games_price_tracker.api.steam.SteamClient;
 import com.games_price_tracker.api.tracking.update_game_price.UpdateGamesPricesTasksHandler;
 
 @Component
-@Profile("!test")
 public class FetchAppDetailsTasksHandler {
     private final SteamClient steamClient;
     private final TaskScheduler taskScheduler;

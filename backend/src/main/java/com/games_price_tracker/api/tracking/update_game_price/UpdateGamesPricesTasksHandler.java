@@ -2,7 +2,6 @@ package com.games_price_tracker.api.tracking.update_game_price;
 
 import java.util.List;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,6 @@ import com.games_price_tracker.api.price_change_alert.PriceChangeAlertService;
 import com.games_price_tracker.api.steam.AppDetailsSteam;
 
 @Component
-@Profile("!test")
 public class UpdateGamesPricesTasksHandler {
     private final PriceService priceService;
     private final TaskExecutor taskExecutor;

@@ -1,6 +1,5 @@
 package com.games_price_tracker.api.admin;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.springframework.core.task.TaskExecutor;
@@ -39,7 +38,7 @@ public class AdminService {
                     gameService.saveGames(games.subList(start, end));                    
                 }finally{
                     if(startEnqueueGames && end == games.size()){
-                        enqueueGamesTaskHandler.nextExecution(Instant.now());
+                        enqueueGamesTaskHandler.start();
                         startEnqueueGames = false;
                     }
                 }

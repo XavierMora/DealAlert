@@ -11,21 +11,27 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameRepository;
 import com.games_price_tracker.api.price.dtos.PriceInfo;
 
+import jakarta.persistence.EntityManager;
+
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 public class PriceTest {
     private final PriceMapper priceMapper;
     private final PriceService priceService;
     private final GameRepository gameRepository;
     private Game game;
+    private EntityManager entityManager;
 
     @Autowired
-    PriceTest(PriceMapper priceMapper, PriceService priceService, GameRepository gameRepository){
+    PriceTest(PriceMapper priceMapper, PriceService priceService, GameRepository gameRepository, EntityManager entityManager){
+        this.entityManager = entityManager;
         this.priceMapper=priceMapper;
         this.priceService=priceService;
         this.gameRepository=gameRepository;
@@ -40,6 +46,7 @@ public class PriceTest {
     void changePriceShouldCreatePrice() throws NoSuchElementException{
         priceService.changePrice(2, 1, game);
 
+        entityManager.clear(); // para forzar que se busque el juego en db y tenga el precio
         game = gameRepository.findById(game.getId()).orElseThrow();
 
         assertNotNull(game.getPrice());
@@ -50,6 +57,8 @@ public class PriceTest {
     @Test
     void changePriceShouldJustRefreshLastUpdate(){
         priceService.changePrice(2, 1, game);
+
+        entityManager.clear();
         game = gameRepository.findById(game.getId()).orElseThrow();
         Price firstPrice = game.getPrice();
 
