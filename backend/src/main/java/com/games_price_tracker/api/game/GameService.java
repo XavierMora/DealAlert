@@ -55,7 +55,7 @@ public class GameService {
     }
 
     public Page<Game> getGames(Pageable pageable){
-        return gameRepository.findAll(pageable);        
+        return gameRepository.findAllByActive(true, pageable);        
     }
 
     public Page<GameData> getGames(String name, Account account, Pageable pageable){
@@ -101,5 +101,15 @@ public class GameService {
             log.error("Failed to save {} games", gamesToSave.size(), e);
             throw e;
         }
+    }
+
+    @Transactional
+    public boolean updateActiveStatusBySteamId(Long steamId, boolean active){
+        boolean updated = gameRepository.updateActiveStatusBySteamId(steamId, active) > 0;
+        
+        if(updated) log.info("Active status of game with steam_id={} updated to {}", steamId, active);
+        else log.warn("No game with steam_id={} existed", steamId);
+
+        return updated;    
     }
 }

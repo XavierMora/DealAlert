@@ -31,11 +31,14 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private List<PriceChangeAlert> priceAlerts = new ArrayList<PriceChangeAlert>();
     
+    private boolean active;
+
     public Game(){}
 
     public Game(Long steamId, String name){
         this.steamId = steamId;
         this.name = name;
+        this.active = true;
     }
 
     public Long getId() {
@@ -56,6 +59,14 @@ public class Game {
 
     public List<PriceChangeAlert> getPriceAlerts() {
         return priceAlerts;
+    }
+
+    public boolean getActive(){
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public void setPriceAlerts(List<PriceChangeAlert> priceAlerts) {

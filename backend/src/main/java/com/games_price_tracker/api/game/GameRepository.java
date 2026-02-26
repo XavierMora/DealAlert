@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.games_price_tracker.api.game.dtos.GameData;
@@ -27,9 +28,11 @@ public interface GameRepository extends JpaRepository<Game, Long>{
             where p.account.id = ?2
         ) as T2
         on g.id = T2.gameId
-        where g.name like CONCAT('%',LOWER(?1),'%')
+        where g.name like CONCAT('%',LOWER(?1),'%') and g.active = true
     """) 
     Page<GameData> findGames(String name, Long accountId, Pageable pageable);
+
+    Page<Game> findAllByActive(boolean active, Pageable pageable);
 
     @Query("""
         select g.steamId     
@@ -37,4 +40,12 @@ public interface GameRepository extends JpaRepository<Game, Long>{
         where g.steamId in(?1)
     """)
     Set<Long> getExistingSteamIdsIn(List<Long> steamIds);
+
+    @Modifying
+    @Query("""
+        update Game g
+        set g.active = ?2
+        where g.steamId = ?1
+    """)
+    int updateActiveStatusBySteamId(Long steamId, boolean active);
 }

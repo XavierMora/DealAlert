@@ -11,6 +11,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.steam.config.SteamApiProperties;
 
 import tools.jackson.core.type.TypeReference;
@@ -23,8 +24,10 @@ public class SteamClient {
     private final RestClient restAppListClient;
     private final RestClient restAppDetailsClient;
     private final Logger log = LoggerFactory.getLogger(SteamClient.class);
+    private final GameService gameService;
 
-    public SteamClient(ObjectMapper objectMapper, SteamApiProperties steamApiProperties){
+    public SteamClient(ObjectMapper objectMapper, SteamApiProperties steamApiProperties, GameService gameService){
+        this.gameService = gameService;
         this.objectMapper = objectMapper;
 
         JdkClientHttpRequestFactory clientHttpRequestFactory = new JdkClientHttpRequestFactory(
@@ -71,21 +74,30 @@ public class SteamClient {
 
     private List<AppDetailsSteam> parseAppDetails(String response, List<Long> steamIds){
         return steamIds.stream().map(steamId -> {
-            JsonNode data = objectMapper
-                .readTree(response)
-                .get(steamId.toString());
-
-            if(data == null){
-                log.error("Game with steam_id={} is not present in the appdetails response", steamId);
+            try {
+                JsonNode data = objectMapper
+                    .readTree(response)
+                    .get(steamId.toString());
+    
+                if(data == null){
+                    log.warn("Game with steam_id={} is not present in the appdetails response", steamId);
+                    gameService.updateActiveStatusBySteamId(steamId, false);
+                    return null;
+                }
+    
+                AppDetailsSteam appDetailsSteam = objectMapper.treeToValue(data, AppDetailsSteam.class);
+                appDetailsSteam.setSteamId(steamId);
+    
+                if(!appDetailsSteam.getSuccess()){
+                    log.info("Game with steam_id={} has success=false in response", steamId);
+                    gameService.updateActiveStatusBySteamId(steamId, false);
+                }
+                
+                return appDetailsSteam;
+            } catch (Exception e) {
+                log.error("Failed to proccess game appdetails with steam_id={}", steamId, e);
                 return null;
             }
-
-            AppDetailsSteam appDetailsSteam = objectMapper.treeToValue(data, AppDetailsSteam.class);
-            appDetailsSteam.setSteamId(steamId);
-
-            if(!appDetailsSteam.getSuccess()) log.info("Game with steam_id={} has success=false in response", steamId);
-
-            return appDetailsSteam;
         }).toList();
     }
 
