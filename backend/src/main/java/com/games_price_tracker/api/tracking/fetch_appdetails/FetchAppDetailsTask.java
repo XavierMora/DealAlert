@@ -2,7 +2,8 @@ package com.games_price_tracker.api.tracking.fetch_appdetails;
 
 import java.util.List;
 
-import org.springframework.web.client.ResourceAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.steam.AppDetailsSteam;
@@ -15,6 +16,7 @@ public class FetchAppDetailsTask implements Runnable{
     private final FetchAppDetailsTasksHandler fetchAppDetailsTasksHandler;
     private final UpdateGamesPricesTasksHandler updateGamesPricesTasksHandler;
     private boolean success = true;
+    private final Logger log = LoggerFactory.getLogger(FetchAppDetailsTask.class);
 
     public FetchAppDetailsTask(List<Game> games, SteamClient steamClient, UpdateGamesPricesTasksHandler updateGamesPricesTasksHandler, FetchAppDetailsTasksHandler fetchAppDetailsTasksHandler){
         this.games = games;
@@ -36,10 +38,11 @@ public class FetchAppDetailsTask implements Runnable{
         List<Long> steamIds = games.stream().map(game -> game.getSteamId()).toList();
         
         try {
-            List<AppDetailsSteam> appsDetailsSteam = steamClient.getMultipleAppDetails(steamIds); // se hace la request
+            List<AppDetailsSteam> appsDetailsSteam = steamClient.getMultipleAppDetails(steamIds);
             updateGamesPricesTasksHandler.createTask(games, appsDetailsSteam);
-        } catch (ResourceAccessException e) { // puede producirse por error de timeout en request
+        } catch (Exception e) { 
             success = false;
+            log.error("Fetch appdetails task failed", e);
         }finally{
             fetchAppDetailsTasksHandler.nextTask(this);
         }

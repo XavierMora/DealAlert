@@ -23,6 +23,6 @@ public class AdminController {
     public ResponseEntity<Void> syncGames(@RequestParam(name = "max_games") @Min(1) @Max(30000) Integer maxGames) {
         adminService.saveAppList(maxGames);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.accepted().build();
     }   
 }

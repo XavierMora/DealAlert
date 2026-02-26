@@ -48,11 +48,12 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
             log.info("{} games to update", gamesToUpdate.size());
             
             try {
-                if(!gamesToUpdate.isEmpty()) fetchAppDetailsTasksHandler.createTask(gamesToUpdate);    
+                if(!gamesToUpdate.isEmpty()) fetchAppDetailsTasksHandler.createTask(gamesToUpdate); 
+                   
                 actualPage++;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.error("Failed creating FetchAppDetailsTask", e);
+                log.error("Failed to create FetchAppDetailsTask", e);
                 enqueueGamesTaskHandler.nextExecution(false);
                 return;
             }

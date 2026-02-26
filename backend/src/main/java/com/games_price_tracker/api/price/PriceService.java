@@ -29,7 +29,10 @@ public class PriceService {
 
         if(optionalPrice.isEmpty()){
             priceRepository.save(new Price(initialPrice, finalPrice, game));
-            return Optional.empty();
+            return Optional.of(new ChangePriceResult(
+                null, 
+                priceMapper.toPriceInfo(initialPrice, finalPrice)
+            ));
         }
 
         Price price = optionalPrice.get();

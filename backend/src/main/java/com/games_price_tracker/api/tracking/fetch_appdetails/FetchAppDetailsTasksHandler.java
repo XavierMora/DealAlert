@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,7 @@ public class FetchAppDetailsTasksHandler {
     private final UpdateGamesPricesTasksHandler updateGamesPricesTasksHandler;
     private final Duration delayBetweenRequests;
     private final AtomicBoolean canStartTask = new AtomicBoolean(true);
+    private final Logger log = LoggerFactory.getLogger(FetchAppDetailsTasksHandler.class);
 
     FetchAppDetailsTasksHandler(SteamClient steamClient, TaskScheduler taskScheduler, UpdateGamesPricesTasksHandler updateGamesPricesTasksHandler, SteamApiProperties steamApiProperties){
         this.steamClient = steamClient;
@@ -33,7 +36,8 @@ public class FetchAppDetailsTasksHandler {
 
     public void createTask(List<Game> games) throws InterruptedException{
         pendingTasks.put(new FetchAppDetailsTask(games, steamClient, updateGamesPricesTasksHandler, this));
-    
+
+        log.info("New fetch appdetails task added to pending. Currrent pending tasks: {}", pendingTasks.size());
         startTask();
     }
     
@@ -45,6 +49,8 @@ public class FetchAppDetailsTasksHandler {
         Instant time = Instant.now().plus(delayBetweenRequests);
         
         taskScheduler.schedule(fetchAppDetailsTask, time);
+
+        log.info("Fetch appdetails task scheduled");
     }
 
     public void nextTask(FetchAppDetailsTask previousTask){        
@@ -53,6 +59,8 @@ public class FetchAppDetailsTasksHandler {
 
         if(previousTask.getSuccess()) return; 
         
-        pendingTasks.offer(new FetchAppDetailsTask(previousTask.getGames(), steamClient, updateGamesPricesTasksHandler, this)); // Se intenta poner de vuelta la tarea en caso de fallo.
+        boolean failedTaskAddedToPending = pendingTasks.offer(new FetchAppDetailsTask(previousTask.getGames(), steamClient, updateGamesPricesTasksHandler, this)); // Se intenta poner de vuelta la tarea en caso de fallo.
+
+        if(!failedTaskAddedToPending) log.info("Failed task couldn't be added to pending");
     }
 }

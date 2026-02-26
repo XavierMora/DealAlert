@@ -97,8 +97,8 @@ public class GameService {
             gameRepository.saveAll(gamesToSave.stream().map(app -> gameMapper.fromAppSteam(app)).toList());
 
             log.info("Success saving {} games", gamesToSave.size());
-        } catch (RuntimeException e) {
-            log.error("Failed saving {} games", gamesToSave.size(), e);
+        } catch (Exception e) {
+            log.error("Failed to save {} games", gamesToSave.size(), e);
             throw e;
         }
     }

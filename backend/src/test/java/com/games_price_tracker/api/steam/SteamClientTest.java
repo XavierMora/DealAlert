@@ -54,7 +54,7 @@ public class SteamClientTest {
 
     @Test
     void shouldGetAndParseAppList(){
-        List<AppSteam> games = steamClient.getAppList(10);
+        List<AppSteam> games = steamClient.getAppList(10).orElseThrow();
 
         assertNotNull(games);
         assertEquals(10, games.size());
