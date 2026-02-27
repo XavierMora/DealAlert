@@ -29,11 +29,13 @@ public class GameService {
     AccountRepository accountRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private final GameMapper gameMapper;
+    private final GameSearchNameNormalizer gameSearchNameNormalizer;
 
-    GameService(GameRepository gameRepository, AccountRepository accountRepository, GameMapper gameMapper){
+    GameService(GameRepository gameRepository, AccountRepository accountRepository, GameMapper gameMapper, GameSearchNameNormalizer gameSearchNameNormalizer){
         this.gameMapper = gameMapper;
         this.gameRepository = gameRepository;
         this.accountRepository=accountRepository;
+        this.gameSearchNameNormalizer = gameSearchNameNormalizer;
     }
 
     public Game getGameById(Long id) throws ResourceNotFoundException{
@@ -49,18 +51,13 @@ public class GameService {
         return limit.isBefore(Instant.now());
     }
 
-    @Transactional
-    public Game createGame(Long steamId, String name){
-        return gameRepository.save(new Game(steamId, name));
-    }
-
     public Page<Game> getGames(Pageable pageable){
         return gameRepository.findAllByActive(true, pageable);        
     }
 
     public Page<GameData> getGames(String name, Account account, Pageable pageable){
         return gameRepository.findGames(
-            name == null ? "" : name.trim(), 
+            name == null ? "" : gameSearchNameNormalizer.transform(name), 
             account == null ? null : account.getId(), 
             pageable
         );

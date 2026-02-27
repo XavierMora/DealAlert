@@ -39,7 +39,7 @@ public class PriceTest {
 
     @BeforeEach
     void loadGameForTest(){
-        game = gameRepository.saveAndFlush(new Game(0L, "test"));
+        game = gameRepository.saveAndFlush(new Game(0L, "test", null));
     }
 
     @Test

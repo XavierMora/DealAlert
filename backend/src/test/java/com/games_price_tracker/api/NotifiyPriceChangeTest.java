@@ -52,7 +52,7 @@ public class NotifiyPriceChangeTest {
 
     @BeforeEach
     void setup(){
-        gameTest = gameRepository.save(new Game(10L, "Counter-Strike"));
+        gameTest = gameRepository.save(new Game(10L, "Counter-Strike", null));
         priceService.changePrice(10, 5, gameTest);
 
         appDetailsSteamTest.setSuccess(true);

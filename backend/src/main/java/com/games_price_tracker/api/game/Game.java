@@ -12,10 +12,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(
+    name = "game",
+    indexes = @Index(
+        name = "idx_game_name",
+        columnList = "search_name"
+    )
+)
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +33,9 @@ public class Game {
     private Long steamId;
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private String searchName;
 
     @OneToOne(mappedBy = "game")
     private Price price;
@@ -35,9 +47,10 @@ public class Game {
 
     public Game(){}
 
-    public Game(Long steamId, String name){
+    public Game(Long steamId, String name, String searchName){
         this.steamId = steamId;
         this.name = name;
+        this.searchName = searchName;
         this.active = true;
     }
 
@@ -63,6 +76,14 @@ public class Game {
 
     public boolean getActive(){
         return active;
+    }
+
+    public String getSearchName() {
+        return searchName;
+    }
+
+    public void setSearchName(String searchName) {
+        this.searchName = searchName;
     }
 
     public void setActive(boolean active) {

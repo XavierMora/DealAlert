@@ -37,7 +37,7 @@ public class GameTest {
 
     @BeforeEach
     void setup(){
-        game = gameService.createGame(1L, "test");
+        game = new Game(1L, "test", "test");
     }
 
     @Test

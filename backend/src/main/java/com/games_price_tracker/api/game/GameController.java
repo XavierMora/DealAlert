@@ -12,6 +12,7 @@ import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.page_dto.PageDtoMapper;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.Page;
@@ -37,7 +38,7 @@ public class GameController {
     
     @GetMapping()
     public ResponseEntity<ApiResponseBody<PageDto<GameInfo>>> getGames(
-        @RequestParam(required = false) String name, 
+        @RequestParam(required = false) @Size(max = 255) String name, 
         @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page debe ser mayor o igual a 0") int page, 
         @RequestParam(defaultValue = "20") @Range(min = 1, max = 50, message = "Size debe estar entre 1 y 50") int size,
         @AuthenticationPrincipal Account account

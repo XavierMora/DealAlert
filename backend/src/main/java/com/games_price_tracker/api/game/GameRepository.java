@@ -28,7 +28,7 @@ public interface GameRepository extends JpaRepository<Game, Long>{
             where p.account.id = ?2
         ) as T2
         on g.id = T2.gameId
-        where g.name like CONCAT('%',LOWER(?1),'%') and g.active = true
+        where g.searchName like CONCAT('%',?1,'%') and g.active = true
     """) 
     Page<GameData> findGames(String name, Long accountId, Pageable pageable);
 

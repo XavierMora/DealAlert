@@ -13,16 +13,19 @@ import com.games_price_tracker.api.steam.SteamUrlBuilder;
 public class GameMapper {
     private final SteamUrlBuilder steamUrlBuilder;
     private final PriceMapper priceMapper;
+    private final GameSearchNameNormalizer gameSearchNameNormalizer;
 
-    GameMapper(PriceMapper priceMapper, SteamUrlBuilder steamUrlBuilder){
+    GameMapper(PriceMapper priceMapper, SteamUrlBuilder steamUrlBuilder, GameSearchNameNormalizer gameSearchNameNormalizer){
         this.priceMapper = priceMapper;
         this.steamUrlBuilder = steamUrlBuilder;
+        this.gameSearchNameNormalizer = gameSearchNameNormalizer;
     }
     
     public Game fromAppSteam(AppSteam appSteam){
         return new Game(
             appSteam.getSteamId(), 
-            appSteam.getName()
+            appSteam.getName(),
+            gameSearchNameNormalizer.transform(appSteam.getName())
         );
     }
 
