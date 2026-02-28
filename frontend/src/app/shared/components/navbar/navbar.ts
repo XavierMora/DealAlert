@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { AuthService } from '../../../auth/services/auth-service';
 import { ApiErrorCode } from '../../models/ApiErrorCode';
@@ -14,9 +14,14 @@ export class Navbar {
   private authService = inject(AuthService);
   private router = inject(Router);
   private alertService = inject(AlertService);
+  activeMenu = signal<boolean>(false);
 
   isAuthenticated = this.authService.isAuthenticated;
   navigateHomePage = () => this.router.navigateByUrl('');
+
+  toggleMenu(){
+    this.activeMenu.update(value => !value);
+  }
 
   authAction(){
     let auth = this.isAuthenticated()
