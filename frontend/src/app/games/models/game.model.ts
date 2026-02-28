@@ -2,7 +2,7 @@ interface Game{
     id: number,
     steamId: number,
     name: string,
-    priceInfo: {
+    priceInfo?: {
         id: number,
         initialPrice: number,
         finalPrice: number,

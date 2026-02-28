@@ -1,6 +1,6 @@
 @let _email = email();
 
-<div class="bg-(--surface-1) md:w-2/3 w-11/12 mx-auto rounded-sm p-4 flex flex-col gap-4">
+<div class="bg-(--surface-1) mx-auto mt-12 rounded-sm p-4 flex flex-col gap-4 sm:w-xl w-11/12">
 @if(_email === undefined){
     <app-login (codeSent)="email.set($event)"></app-login>
 }@else{

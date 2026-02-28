@@ -3,20 +3,20 @@
 :root {
   --main: #4481b6;
   
-  --surface-0: #0f1216;
-  --surface-1: #1a1b1b;
-  --surface-2: #232425;
+  --surface-0: #0b0d0f;
+  --surface-1: #0f1318;
+  --surface-2: #151b27;
 
   --disabled: #1f3a52;
 
   --text-main: #e5e5e5;
-  --text-muted: #cccccc;
+  --text-muted: #98a5b6;
 }
 
 body{
   background-color: var(--surface-0);
   font-family: 'Roboto Flex', sans-serif;
-  color: var(--text-main)
+  color: var(--text-main);
 }
 
 input{
@@ -54,8 +54,9 @@ input[type="number"]::-webkit-inner-spin-button {
   background-color: var(--main);
   width: fit-content;
   padding: 0.5rem 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 .default-button:disabled{

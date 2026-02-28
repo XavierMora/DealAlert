@@ -30,23 +30,29 @@
                             </div>
                         </td>
     
-                        <td>
-                            <div class="flex flex-col">
-                                @if(game.priceInfo.discount > 0){
-                                    <span class="old-price">{{ (game.priceInfo.initialPrice/100) | currency}}</span>
-                                }
-                                <span>{{ (game.priceInfo.finalPrice/100) | currency}} USD</span>
-                            </div>
-                        </td>
+                        @if(game.priceInfo == undefined){
+                            <td>-</td>
+                            <td>-</td>
+                        }@else{
+                            <td>
+                                <div class="flex flex-col">
+                                    @if(game.priceInfo.discount > 0){
+                                        <span class="old-price">{{ (game.priceInfo.initialPrice/100) | currency}}</span>
+                                    }
+                                    <span>{{ (game.priceInfo.finalPrice/100) | currency}} USD</span>
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <span [class.text-green-500]="game.priceInfo.discount > 0">
+                                    -{{game.priceInfo.discount > 0 ? game.priceInfo.discount+"%" : ''}}
+                                </span>
+                            </td>
+                        }
+    
     
                         <td>
-                            <span [class.text-green-500]="game.priceInfo.discount > 0">
-                                -{{game.priceInfo.discount > 0 ? game.priceInfo.discount+"%" : ''}}
-                            </span>
-                        </td>
-    
-                        <td>
-                            <div class="lg:group-hover:flex lg:hidden lg:justify-center md:justify-center md:pl-3 flex">
+                            <div class="lg:group-hover:flex lg:hidden lg:justify-center md:justify-center md:pl-3 block">
                                 <app-steam-store-link [gameSteamUrl]="game.steamUrl"></app-steam-store-link>
                             </div>
                         </td>
@@ -67,17 +73,21 @@
                     <div class="grow flex flex-col justify-between h-full">
                         <span class="game-name">{{game.name}}</span>
     
-                        <div class="flex flex-col justify-end">
-                            @if(game.priceInfo.discount > 0){
-                                <span class="old-price">{{game.priceInfo.initialPrice/100 | currency}}</span>
-                            }
-                            <div class="flex gap-2 items-center">
-                                <span>{{game.priceInfo.finalPrice/100 | currency}} USD</span>
-                                <span [class.text-green-500]="game.priceInfo.discount > 0">
-                                    {{game.priceInfo.discount > 0 ? "-"+game.priceInfo.discount+"%" : ''}}
-                                </span>
+                        @if(game.priceInfo == undefined){
+                            <span>-</span>
+                        }@else{
+                            <div class="flex flex-col justify-end">
+                                @if(game.priceInfo.discount > 0){
+                                    <span class="old-price">{{game.priceInfo.initialPrice/100 | currency}}</span>
+                                }
+                                <div class="flex gap-2 items-center">
+                                    <span>{{game.priceInfo.finalPrice/100 | currency}} USD</span>
+                                    <span [class.text-green-500]="game.priceInfo.discount > 0">
+                                        {{game.priceInfo.discount > 0 ? "-"+game.priceInfo.discount+"%" : ''}}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
 
                     <div class="flex flex-col justify-between items-center h-full gap-4">
