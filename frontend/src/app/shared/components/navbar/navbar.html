@@ -3,16 +3,17 @@
 <div class="w-full h-fit bg-(--surface-2) sticky top-0 shadow-lg">
     <div class="w-11/12 py-4 h-fit flex justify-between items-center mx-auto">
         <div class="flex gap-4 items-center">
-            <h1 class="text-lg font-bold tracking-wide mr-2">
-            GameWatcher
+            <h1 (click)="navigateHomePage()" class="text-lg font-bold tracking-wide mr-2 cursor-pointer">
+            PriceWatch
             </h1>
-            <a routerLink="/" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Juegos</a>
+            <a routerLink="" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+            <a routerLink="/games" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Juegos</a>
             @if(_isAuthenticated){
                 <a routerLink="/price-alerts" routerLinkActive="text-(--main)">Mis alertas</a>
             }
         </div>
         
-        <button (click)="authAction()" class="default-button px-3!">
+        <button (click)="authAction()" class="main-button px-3!">
         @if(_isAuthenticated){
             <span class="sm:inline hidden">Cerrar sesión</span>
             <span class="sm:hidden">

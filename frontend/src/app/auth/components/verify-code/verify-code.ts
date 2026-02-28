@@ -28,7 +28,7 @@ export class VerifyCode {
       finalize(() => this.sending.set(false))
     ).subscribe({
       next: () => {
-        this.router.navigateByUrl('');
+        this.router.navigateByUrl('/games');
       },
       error: (err: ApiResponse<undefined | Record<string, string>>) => {
         if(err.error === ApiErrorCode.INVALID_DATA){

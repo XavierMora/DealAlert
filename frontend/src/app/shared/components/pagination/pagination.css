@@ -23,3 +23,7 @@ button.move:disabled{
 svg{
     fill: var(--text-main);
 }
+
+button{
+    cursor: pointer;
+}

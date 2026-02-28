@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --main: #4481b6;
-  
+  --main: #347bb9;
+  --main-action: #2a72b4;
+
   --surface-0: #0b0d0f;
   --surface-1: #0f1318;
   --surface-2: #151b27;
@@ -50,18 +51,21 @@ input[type="number"]::-webkit-inner-spin-button {
   -moz-appearance: textfield;
 }
 
-.default-button{
+.main-button{
   background-color: var(--main);
-  width: fit-content;
   padding: 0.5rem 1.5rem;
   font-weight: 600;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.default-button:disabled{
+.main-button:disabled{
   background-color: var(--disabled);
   color: var(--text-muted);
+}
+
+.main-button:hover{
+  background-color: var(--main-action);
 }
 
 .game-name{

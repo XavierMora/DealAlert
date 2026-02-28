@@ -7,7 +7,7 @@ export const noAuthGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if(authService.isAuthenticated()){
-    return new RedirectCommand(router.createUrlTree([''], {relativeTo: null}))
+    return new RedirectCommand(router.createUrlTree(['/games'], {relativeTo: null}))
   }
 
   return true;

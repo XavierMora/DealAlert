@@ -16,6 +16,7 @@ export class Navbar {
   private alertService = inject(AlertService);
 
   isAuthenticated = this.authService.isAuthenticated;
+  navigateHomePage = () => this.router.navigateByUrl('');
 
   authAction(){
     let auth = this.isAuthenticated()
@@ -23,7 +24,7 @@ export class Navbar {
     if(auth){
       this.authService.logout().subscribe({
         next: () => {
-          this.router.navigateByUrl('');
+          this.router.navigateByUrl('/games');
           this.alertService.newAlert({
             type: 'success',
             text: 'Sesión cerrada'

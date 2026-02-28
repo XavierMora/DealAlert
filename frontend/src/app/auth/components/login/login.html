@@ -20,7 +20,7 @@
     </div>
 
     @let _sending = sending();
-    <button [disabled]="loginForm.invalid || _sending" type="submit" class="default-button mt-4">
+    <button [disabled]="loginForm.invalid || _sending" type="submit" class="main-button mt-4">
         {{_sending ? 'Enviando' : 'Enviar'}}
     </button>
 </form>
