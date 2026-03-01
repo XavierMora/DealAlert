@@ -43,7 +43,7 @@ export class GamesList {
       return this.firstNameRequestOnProgress || prev.page === current.page
     }),
     switchMap((query) => {
-      return this.gameService.getGames(5, query.page-1, query.name).pipe(
+      return this.gameService.getGames(20, query.page-1, query.name).pipe(
         finalize(() => {
           this.firstNameRequestOnProgress = false;
         })

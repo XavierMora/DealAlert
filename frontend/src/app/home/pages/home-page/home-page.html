@@ -1,28 +1,24 @@
-<section class="w-10/12 mx-auto mt-16">
-    <div class="max-w-3xl text-center">
+<section class="w-10/12 mx-auto mt-16 text-center">
+    <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-12">
+        Seguimiento de precios de juegos de Steam.
+    </h2>
 
-        <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-12">
-            Seguimiento de precios de juegos de Steam.
-        </h2>
+    <p class="text-(--text-muted) text-lg mb-2">
+        Agregá juegos a tu lista de alertas y recibí notificaciones cuando cambien de precio.
+    </p>
 
-        <p class="text-(--text-muted) text-lg mb-2">
-            Agregá juegos a tu lista de alertas y recibí notificaciones cuando cambien de precio.
-        </p>
+    <p class="text-(--text-muted) text-sm mb-8">
+        Los precios pueden no estar completamente sincronizados con Steam, ya que se actualizan con cierta frecuencia.
+    </p>
 
-        <p class="text-(--text-muted) text-sm mb-8">
-            Nota: Los precios pueden no estar completamente sincronizados con Steam, ya que se actualizan con cierta frecuencia.
-        </p>
+    <div class="flex sm:flex-row flex-col justify-center gap-4">
+        <button routerLink="/games" class="main-button sm:w-fit w-full">
+            Ver juegos
+        </button>
 
-        <div class="flex sm:flex-row flex-col justify-center gap-4">
-            <button routerLink="/games" class="main-button sm:w-fit w-full">
-                Ver juegos
-            </button>
-
-            <button routerLink="/login"
-                class="bg-(--surface-1) hover:bg-(--surface-2) px-6 py-2.5 rounded-sm font-semibold border cursor-pointer border-(--surface-2) sm:w-fit">
-                Iniciar sesión
-            </button>
-        </div>
-
+        <button routerLink="/login"
+            class="bg-(--surface-1) hover:bg-(--surface-2) px-6 py-2.5 rounded-sm font-semibold border cursor-pointer border-(--surface-2) sm:w-fit">
+            Iniciar sesión
+        </button>
     </div>
 </section>

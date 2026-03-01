@@ -5,6 +5,7 @@ import { PriceChangeAlertsPage } from './price-change-alerts/pages/price-change-
 import { authGuard } from './shared/guards/auth-guard';
 import { noAuthGuard } from './shared/guards/no-auth-guard';
 import { HomePage } from './home/pages/home-page/home-page';
+import { NotFoundPage } from './not-found/not-found-page';
 export const routes: Routes = [
     {
         path: '', 
@@ -23,5 +24,9 @@ export const routes: Routes = [
         path: 'price-alerts',
         component: PriceChangeAlertsPage,
         canActivate: [authGuard]
+    },
+    {
+        path: '**',
+        component: NotFoundPage
     }
 ];
