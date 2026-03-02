@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class PriceChangeAlertService {
     private final GameService gameService;
     private final SendEmailService sendEmailService;
     private final PriceChangeAlertCacheService priceChangeAlertCacheService;
+    private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
 
     PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService){
         this.priceChangeAlertRepository = priceChangeAlertRepository;
@@ -73,12 +76,32 @@ public class PriceChangeAlertService {
         priceChangeAlertCacheService.evictAlertsCache(account.getId());
     }
 
-    public void notifyPriceChange(Game game, ChangePriceResult result){
+    public boolean notifyPriceChange(Game game, ChangePriceResult result){
         Optional<List<PriceChangeAlert>> optionalAlerts = priceChangeAlertRepository.findAllByGameId(game.getId());
 
-        if(optionalAlerts.isEmpty()) return;
+        if(optionalAlerts.isEmpty()){
+            log.info("No alerts for the game with id={}", game.getId());
+            return false;
+        }
 
-        List<String> emails = optionalAlerts.get().stream().map(alert -> alert.getAccount().getEmail()).toList();
-        sendEmailService.priceChangeEmail(game, result, emails);
+        if(
+            result.newPrice().initialPrice() > result.newPrice().finalPrice()
+        ){
+            List<String> emails = optionalAlerts.get().stream().map(alert -> alert.getAccount().getEmail()).toList();
+    
+            if(emails.isEmpty()) return false;
+    
+            try {
+                sendEmailService.dealEmail(game, result, emails);
+                return true;
+            } catch (Exception e) {
+                log.error("Failed to send deal notification for game with id={}", game.getId(), e);
+                return false;
+            }
+        }else{
+            log.info("No deal notification sent for game with id={}, price didn't drop", game.getId());
+            return false;
+        }
+
     }
 }

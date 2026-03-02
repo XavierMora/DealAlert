@@ -43,7 +43,7 @@ public class PriceAlertTest {
     
     @BeforeEach
     void setup(){
-        gameTest = gameRepository.save(new Game(1L, "test", null));
+        gameTest = gameRepository.save(new Game(1L, "test", ""));
         accountTest = accountRepository.save(new Account("test@test"));
     }
 

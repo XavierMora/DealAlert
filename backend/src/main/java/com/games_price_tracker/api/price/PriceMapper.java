@@ -11,7 +11,8 @@ public class PriceMapper {
             price.getId(), 
             price.getInitialPrice(), 
             price.getFinalPrice(), 
-            calcDiscount(price.getInitialPrice(), price.getFinalPrice())
+            calcDiscount(price.getInitialPrice(), price.getFinalPrice()),
+            price.getLastUpdate()
         );
     }
 
@@ -20,7 +21,8 @@ public class PriceMapper {
             null, 
             initialPrice, 
             finalPrice, 
-            calcDiscount(initialPrice, finalPrice)
+            calcDiscount(initialPrice, finalPrice),
+            null
         );
     }
 

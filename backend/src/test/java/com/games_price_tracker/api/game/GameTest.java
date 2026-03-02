@@ -71,6 +71,8 @@ public class GameTest {
 
     @Test
     void shouldMapToGameInfo(){
+        game.setId(1L);
+
         GameInfo gameInfo = gameMapper.toGameInfo(game);
         assertNull(gameInfo.priceInfo());
         
