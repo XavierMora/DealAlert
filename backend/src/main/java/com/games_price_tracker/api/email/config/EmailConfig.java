@@ -2,10 +2,10 @@ package com.games_price_tracker.api.email.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -29,10 +29,10 @@ public class EmailConfig {
     } 
 
     @Bean
-    TaskExecutor emailExecutor(){
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(2);
-        taskExecutor.setThreadNamePrefix("email-executor");
+    TaskScheduler emailScheduler(){
+        ThreadPoolTaskScheduler taskExecutor = new ThreadPoolTaskScheduler();
+        taskExecutor.setPoolSize(2);
+        taskExecutor.setThreadNamePrefix("email-schedule-executor");
         return taskExecutor;
     }
 

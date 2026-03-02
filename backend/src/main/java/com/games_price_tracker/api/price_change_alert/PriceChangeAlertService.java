@@ -88,20 +88,17 @@ public class PriceChangeAlertService {
             result.newPrice().initialPrice() > result.newPrice().finalPrice()
         ){
             List<String> emails = optionalAlerts.get().stream().map(alert -> alert.getAccount().getEmail()).toList();
-    
-            if(emails.isEmpty()) return false;
-    
+        
             try {
                 sendEmailService.dealEmail(game, result, emails);
                 return true;
             } catch (Exception e) {
-                log.error("Failed to send deal notification for game with id={}", game.getId(), e);
+                log.error("Failed to create deal notification for the game with id={}", game.getId(), e);
                 return false;
             }
         }else{
-            log.info("No deal notification sent for game with id={}, price didn't drop", game.getId());
+            log.info("No deal notification sent for the game with id={}, price didn't drop", game.getId());
             return false;
         }
-
     }
 }
