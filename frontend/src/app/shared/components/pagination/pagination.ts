@@ -31,6 +31,8 @@ export class Pagination {
         return pages;
       }
       
+      window.scroll(0,0);
+
       if(page == 1 && pages[0] > 1){ 
         // Salto a primera página
         // También resetea el array si cambia totalPages y se mantiene la longitud del anterior sino se establece en el if anterior

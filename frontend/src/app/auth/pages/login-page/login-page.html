@@ -4,6 +4,6 @@
 @if(_email === undefined){
     <app-login (codeSent)="email.set($event)"></app-login>
 }@else{
-    <app-verify-code [email]="'a@a'"></app-verify-code>
+    <app-verify-code [email]="_email"></app-verify-code>
 }
 </div>

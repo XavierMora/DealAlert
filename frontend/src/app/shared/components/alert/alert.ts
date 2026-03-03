@@ -16,8 +16,9 @@ export class Alert {
   constructor(){
     this.alertService.showAlert.subscribe(data => {
       this.alertData = data;
-      this.show.set(true);
+      this.show.set(false);
       if(this.showTimeout != undefined) clearTimeout(this.showTimeout);
+      this.show.set(true);
       this.showTimeout = setTimeout(() => this.show.set(false), 4000);
     })
   }

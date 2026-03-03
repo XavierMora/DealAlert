@@ -29,7 +29,7 @@ export class Login {
         this.codeSent.emit(this.email);
       },
       error: (err: ApiResponse<undefined | Record<string, string>>) => {
-        if(err === null || err.message === undefined){
+        if(err === null || err.message === undefined && err.error === undefined){
           this.errorSendingForm.set('Error enviando el formulario.');
           return;
         };

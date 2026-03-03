@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { catchError, EMPTY, finalize, firstValueFrom, Observable, of, tap, throwError } from 'rxjs';
+import { ApiErrorCode } from '../../shared/models/ApiErrorCode';
+import { ApiAuthErrorCode } from '../model/ApiAuthErrorCode';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +18,9 @@ export class AuthService {
   readonly currentAccount = this._currentAccount.asReadonly();
 
   signInCode(email: string): Observable<ApiResponse<undefined | Record<string, string>> | null>{
-    if(this.canSend(this.retryAfterSignInCode(), email)) return EMPTY;
+    if(this.canSend(this.retryAfterSignInCode(), email)) return throwError(() => {
+      return {error: ApiAuthErrorCode.CODE_SENT_RECENTLY}
+    });
 
     return this.http.post<ApiResponse<undefined | Record<string, string>>>(
       `${environment.apiUrl}/account/sign-in-code`, 
