@@ -41,7 +41,7 @@ public interface GameRepository extends JpaRepository<Game, Long>{
     """)
     Set<Long> getExistingSteamIdsIn(List<Long> steamIds);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("""
         update Game g
         set g.active = ?2
