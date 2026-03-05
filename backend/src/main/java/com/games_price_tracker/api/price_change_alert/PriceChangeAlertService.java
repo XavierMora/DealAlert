@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
+import com.games_price_tracker.api.account.AccountCacheService;
 import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailService;
@@ -29,8 +30,10 @@ public class PriceChangeAlertService {
     private final SendEmailService sendEmailService;
     private final PriceChangeAlertCacheService priceChangeAlertCacheService;
     private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
+    private final AccountCacheService accountCacheService;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService){
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService, AccountCacheService accountCacheService){
+        this.accountCacheService = accountCacheService;
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
         this.sendEmailService = sendEmailService;
@@ -38,7 +41,7 @@ public class PriceChangeAlertService {
     }
 
     private void verifyRateLimit(Account account){
-        Bucket bucket = priceChangeAlertCacheService.getBucket(account.getEmail());
+        Bucket bucket = accountCacheService.getBucketAccount(account.getEmail());
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);

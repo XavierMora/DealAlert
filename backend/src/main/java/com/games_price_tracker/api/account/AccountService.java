@@ -43,7 +43,7 @@ public class AccountService {
     }
 
     public void verifyCodeRateLimit(String email){
-        Bucket bucket = accountCacheService.getBucket(email);
+        Bucket bucket = accountCacheService.getBucketVerifyCode(email);
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS, "Muchos intentos. Intentar más tarde."); 

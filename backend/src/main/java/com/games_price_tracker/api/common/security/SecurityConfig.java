@@ -2,9 +2,11 @@ package com.games_price_tracker.api.common.security;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import com.games_price_tracker.api.common.security.filters.AdminFilter;
 import com.games_price_tracker.api.common.security.filters.AuthFilter;
@@ -73,6 +76,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    
     @Bean
     SecurityFilterChain generalSecurityChain(HttpSecurity http, AuthFilter authFilter){
         http
@@ -86,25 +90,32 @@ public class SecurityConfig {
         
         return http.build();
     }
-
+    
     @Bean
     FilterRegistrationBean<AuthFilter> authFilterRegistration(AuthFilter filter) { // No registra el filtro permitiendo que solo httpsecurity lo agregue
         FilterRegistrationBean<AuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }
-
+    
     @Bean
     FilterRegistrationBean<AdminFilter> adminFilterRegistrationBean(AdminFilter filter){
         FilterRegistrationBean<AdminFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
     }
+    
+    @Bean
+    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeadFilter(){
+        FilterRegistrationBean<ForwardedHeaderFilter> registration = new FilterRegistrationBean<ForwardedHeaderFilter>(new ForwardedHeaderFilter());
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return registration;
+    }
 
     @Bean
-    UrlBasedCorsConfigurationSource corsConfigurationSource(){
+    UrlBasedCorsConfigurationSource corsConfigurationSource(@Value("${app.client.url}") String client){
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedOrigins(List.of(client));
         config.setAllowedMethods(List.of("GET", "POST", "DELETE"));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));

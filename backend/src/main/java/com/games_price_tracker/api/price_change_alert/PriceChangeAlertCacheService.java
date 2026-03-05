@@ -1,14 +1,10 @@
 package com.games_price_tracker.api.price_change_alert;
 
-import java.time.Duration;
-
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import io.github.bucket4j.Bucket;
 
 @Service
 public class PriceChangeAlertCacheService {
@@ -16,11 +12,6 @@ public class PriceChangeAlertCacheService {
 
     PriceChangeAlertCacheService(PriceChangeAlertRepository priceChangeAlertRepository){
         this.priceChangeAlertRepository = priceChangeAlertRepository;
-    }
-
-    @Cacheable(cacheNames = "alerts-rate-limit", sync = true)
-    public Bucket getBucket(String email){
-        return Bucket.builder().addLimit(limit -> limit.capacity(20).refillGreedy(10, Duration.ofSeconds(30))).build();
     }
 
     @Cacheable(cacheNames = "alerts", sync = true, key = "#accountId", condition = "#pageable.getPageNumber() == 0")

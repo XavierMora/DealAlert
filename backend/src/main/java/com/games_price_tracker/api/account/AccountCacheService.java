@@ -29,7 +29,7 @@ public class AccountCacheService {
     }
 
     @Cacheable(cacheNames = "verify-code-rate-limit", sync = true)
-    public Bucket getBucket(String email){
+    public Bucket getBucketVerifyCode(String email){
         return Bucket.builder()
         .addLimit(limit -> limit.capacity(5).refillIntervally(5, Duration.ofMinutes(3)))
         .build();
@@ -65,5 +65,10 @@ public class AccountCacheService {
 
     public void evictEmailSentCache(String email){
         emailSentCache.evictIfPresent(email);
+    }
+
+    @Cacheable(cacheNames = "account-rate-limit", sync = true)
+    public Bucket getBucketAccount(String email){
+        return Bucket.builder().addLimit(limit -> limit.capacity(30).refillGreedy(30, Duration.ofSeconds(30))).build();
     }
 }
