@@ -15,12 +15,12 @@ import jakarta.mail.internet.MimeMessage;
 
 @Component
 public class EmailBuilder {
-    private final EmailConfigProperties emailConfigProperties;
+    private final String from;
     private final TemplateEngine emailTemplateEngine;
     private final SteamUrlBuilder steamUrlBuilder;
 
     EmailBuilder(EmailConfigProperties emailConfigProperties, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder){
-        this.emailConfigProperties = emailConfigProperties;
+        this.from = emailConfigProperties.getFrom();
         this.emailTemplateEngine = emailTemplateEngine;
         this.steamUrlBuilder = steamUrlBuilder; 
     }
@@ -34,7 +34,7 @@ public class EmailBuilder {
                 String template = emailTemplateEngine.process("verification.html", ctx);
 
                 MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-                messageHelper.setFrom(emailConfigProperties.getFrom());
+                messageHelper.setFrom(from);
                 messageHelper.setTo(recipient);
                 messageHelper.setSubject("Tu código de acceso es "+code);
                 messageHelper.setText(template, true);
@@ -59,7 +59,7 @@ public class EmailBuilder {
                 String template = emailTemplateEngine.process("deal-notification.html", ctx);
 
                 MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true,"UTF-8");
-                messageHelper.setFrom(emailConfigProperties.getFrom());
+                messageHelper.setFrom(from);
                 messageHelper.setSubject("El juego %s está en oferta".formatted(game.getName()));
                 messageHelper.setTo(recipient);
                 messageHelper.setText(template, true);

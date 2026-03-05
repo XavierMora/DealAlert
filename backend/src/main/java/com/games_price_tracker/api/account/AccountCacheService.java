@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.Cache.ValueWrapper;
@@ -15,17 +14,18 @@ import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
+import com.games_price_tracker.api.email.config.EmailConfigProperties;
 
 import io.github.bucket4j.Bucket;
 
 @Service
 public class AccountCacheService {
-    @Value("${app.email.sign-in-code.interval}")
-    private Duration intervalSendEmail;
+    private final Duration intervalSendEmail;
     private final Cache emailSentCache;
 
-    public AccountCacheService(CacheManager cacheManager){
+    public AccountCacheService(CacheManager cacheManager, EmailConfigProperties emailConfigProperties){
         this.emailSentCache = cacheManager.getCache("email-sent");
+        this.intervalSendEmail = emailConfigProperties.getSignInCodeInterval();
     }
 
     @Cacheable(cacheNames = "verify-code-rate-limit", sync = true)

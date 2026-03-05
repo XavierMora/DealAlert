@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
+import com.games_price_tracker.api.email.config.EmailConfigProperties;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
@@ -28,25 +28,30 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final SendEmailService sendEmailService;
     private final Duration signInCodeValidDuration = Duration.ofMinutes(10);
-    @Value("${app.email.sign-in-code.interval}")
-    private Duration intervalSendEmail;
+    private final Duration intervalSendEmail;
     private final SessionTokenService sessionTokenService;
     private final int maxTokens = 3;
     private final AccountCacheService accountCacheService;
     private final SecureRandom secureRandom = new SecureRandom();
     
-    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService){
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService, EmailConfigProperties emailConfigProperties){
         this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
         this.accountCacheService = accountCacheService;
+        this.intervalSendEmail = emailConfigProperties.getSignInCodeInterval();
     }
 
     public void verifyCodeRateLimit(String email){
         Bucket bucket = accountCacheService.getBucketVerifyCode(email);
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
-        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS, "Muchos intentos. Intentar más tarde."); 
+        if(!probe.isConsumed()) throw new TooManyRequestsException(
+            probe.getNanosToWaitForRefill(), 
+            TimeUnit.NANOSECONDS, 
+            "Muchos intentos. Probar más tarde.",
+            AuthError.MAX_ATTEMPTS_REACHED
+        ); 
     }
 
     @Transactional

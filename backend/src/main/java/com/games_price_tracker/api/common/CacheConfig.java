@@ -2,21 +2,24 @@ package com.games_price_tracker.api.common;
 
 import java.time.Duration;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.games_price_tracker.api.email.config.EmailConfigProperties;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Configuration
 @EnableCaching
 public class CacheConfig {
-    @Value("${app.email.sign-in-code.interval}")
-    private Duration intervalSendEmail;
+    private final Duration intervalSendEmail;
+
+    CacheConfig(EmailConfigProperties emailConfigProperties){
+        this.intervalSendEmail = emailConfigProperties.getSignInCodeInterval();
+    }
 
     private Cache<Object, Object> verifyCodeRateLimitCache(){
         return Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
