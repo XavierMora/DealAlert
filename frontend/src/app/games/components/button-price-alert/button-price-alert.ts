@@ -54,7 +54,7 @@ export class ButtonPriceAlert {
             type: 'success',
             text: res.message!,
             actionText: 'Ver',
-            action: () => this.router.navigateByUrl('/price-alerts')
+            action: () => this.router.navigateByUrl('/deal-alerts')
           })
           this.isInPriceAlert.set(true)
         },

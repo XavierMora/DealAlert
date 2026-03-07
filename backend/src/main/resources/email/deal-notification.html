@@ -37,7 +37,7 @@
             <p style="margin: 0;">
                 <span th:if="${oldPrice.discount() > 0}">Precio actual</span><br>
                 <span style="font-weight: bold; padding-right: 5px;">
-                    <span style="text-decoration: line-through; color:#98a5b6;">
+                    <span style="text-decoration: line-through; color:#999999;">
                         $<span th:text="${newPrice.initialPrice()}"></span> USD
                     </span>
                 </span>     
@@ -46,7 +46,7 @@
                     $<span th:text="${newPrice.finalPrice()}"></span> USD
                 </span>
 
-                <span style="color: #00c950; padding-left: 2px;">
+                <span style="color: #27ae60; padding-left: 2px;">
                     -<span th:text="${newPrice.discount()}"></span>%
                 </span>
             </p>

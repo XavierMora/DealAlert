@@ -1,16 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { PriceChangeAlertsService } from '../../services/price-change-alerts-service';
 import { AsyncPipe } from '@angular/common';
-import { SteamStoreLink } from '../../../games/components/steam-store-link/steam-store-link';
 import { Pagination } from '../../../shared/components/pagination/pagination';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, EMPTY, switchMap } from 'rxjs';
 import { AlertService } from '../../../shared/components/alert/alert-service';
 import { ApiErrorCode } from '../../../shared/models/ApiErrorCode';
+import { GameCard } from '../../../games/components/game-card/game-card';
 
 @Component({
   selector: 'app-price-change-alerts-list',
-  imports: [AsyncPipe, SteamStoreLink, Pagination],
+  imports: [AsyncPipe, GameCard, Pagination],
   templateUrl: './price-change-alerts-list.html',
   styleUrl: './price-change-alerts-list.css',
 })

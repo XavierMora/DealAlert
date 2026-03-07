@@ -29,8 +29,3 @@ tr:hover > *{
 table tr:last-child{
   border: 0;
 }
-
-.old-price{
-  color: var(--text-muted);
-  text-decoration: line-through;
-}

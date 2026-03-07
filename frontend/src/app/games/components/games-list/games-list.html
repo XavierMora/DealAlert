@@ -66,39 +66,8 @@
         </div>
     
         <div class="md:hidden grid sm:grid-cols-2 gap-6">
-            @for (game of games.data!.content; track game.id) {
-                <div class="flex flex-col bg-(--surface-1) hover:bg-(--surface-2) rounded-sm">
-                    <div >
-                        <img class="rounded-t-sm w-full" [src]="game.img" [alt]="game.name">
-                    </div>
-    
-                    <div class="flex justify-between items-end mt-1 p-3 h-full">
-                        <div class="grow flex flex-col justify-between h-full">
-                            <span class="game-name">{{game.name}}</span>
-        
-                            @if(game.priceInfo == undefined){
-                                <span>-</span>
-                            }@else{
-                                <div class="flex flex-col justify-end">
-                                    @if(game.priceInfo.discount > 0){
-                                        <span class="old-price">{{game.priceInfo.initialPrice/100 | currency}}</span>
-                                    }
-                                    <div class="flex gap-2 items-center">
-                                        <span>{{game.priceInfo.finalPrice/100 | currency}} USD</span>
-                                        <span [class.text-green-500]="game.priceInfo.discount > 0">
-                                            {{game.priceInfo.discount > 0 ? "-"+game.priceInfo.discount+"%" : ''}}
-                                        </span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-    
-                        <div class="flex flex-col justify-between items-center h-full gap-4">
-                            <app-button-price-alert [game]="game"></app-button-price-alert>
-                            <app-steam-store-link [gameSteamUrl]="game.steamUrl"></app-steam-store-link>
-                        </div>
-                    </div>
-                </div>
+            @for (game of games.data!.content; track game.id) {                
+                <app-game-card [game]="game"></app-game-card>
             }
         </div>
     

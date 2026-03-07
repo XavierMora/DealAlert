@@ -7,10 +7,11 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Pagination } from '../../../shared/components/pagination/pagination';
 import { ButtonPriceAlert } from '../button-price-alert/button-price-alert';
 import { SteamStoreLink } from '../steam-store-link/steam-store-link';
+import { GameCard } from '../game-card/game-card';
 
 @Component({
   selector: 'app-games-list',
-  imports: [AsyncPipe, CurrencyPipe, Pagination, ButtonPriceAlert, SteamStoreLink],
+  imports: [AsyncPipe, CurrencyPipe, Pagination, ButtonPriceAlert, SteamStoreLink, GameCard],
   templateUrl: './games-list.html',
   styleUrl: './games-list.css',
 })

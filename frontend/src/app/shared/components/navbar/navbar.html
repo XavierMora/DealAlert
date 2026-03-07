@@ -4,7 +4,7 @@
     <div class="w-11/12 py-4 h-fit flex sm:flex-row flex-col items-center mx-auto">
         <div class="flex justify-between sm:justify-normal w-full sm:w-fit">
             <h1 (click)="navigateHomePage()" class="text-lg font-bold tracking-wide mr-8 cursor-pointer">
-                PriceWatch
+                DealAlert
             </h1>
     
             <div (click)="toggleMenu()" class="sm:hidden cursor-pointer">
@@ -13,13 +13,13 @@
         </div>
         
         <div [class]="activeMenu() ? 'flex' : 'hidden'" class="h-full sm:flex sm:flex-row flex-col gap-4 sm:items-center self-start items-start mt-4 sm:mt-0 w-full">
-            <a routerLink="" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
-            <a routerLink="/games" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Juegos</a>
+            <a (click)="activeMenu.set(false)" routerLink="" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+            <a (click)="activeMenu.set(false)" routerLink="/games" routerLinkActive="text-(--main)" [routerLinkActiveOptions]="{exact: true}">Juegos</a>
             @if(_isAuthenticated){
-                <a routerLink="/price-alerts" routerLinkActive="text-(--main)">Mis alertas</a>
+                <a (click)="activeMenu.set(false)" routerLink="/deal-alerts" routerLinkActive="text-(--main)">Mis alertas</a>
             }
 
-            <button (click)="authAction()" class="main-button px-3! sm:ml-auto cursor-pointer">
+            <button (click)="authAction()" class="main-button px-3! sm:ml-auto cursor-pointer sm:mt-0 mt-1">
                 <div class="flex items-center gap-0.5">
                 @if(_isAuthenticated){
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e5e5e5"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>

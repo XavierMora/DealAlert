@@ -21,7 +21,7 @@ export const routes: Routes = [
         canActivate: [noAuthGuard]
     },
     {
-        path: 'price-alerts',
+        path: 'deal-alerts',
         component: PriceChangeAlertsPage,
         canActivate: [authGuard]
     },

@@ -1,8 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from "@angular/router";
+import { Component, effect, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterEvent, RouterLink, RouterLinkActive } from "@angular/router";
 import { AuthService } from '../../../auth/services/auth-service';
 import { ApiErrorCode } from '../../models/ApiErrorCode';
 import { AlertService } from '../alert/alert-service';
+import { exhaustMap, filter, map, of, switchMap, takeLast } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +19,10 @@ export class Navbar {
   activeMenu = signal<boolean>(false);
 
   isAuthenticated = this.authService.isAuthenticated;
-  navigateHomePage = () => this.router.navigateByUrl('');
+  navigateHomePage = () => {
+    this.router.navigateByUrl('');
+    this.activeMenu.set(false)
+  }
 
   toggleMenu(){
     this.activeMenu.update(value => !value);
@@ -47,5 +52,7 @@ export class Navbar {
     }else{
       this.router.navigateByUrl('/login')
     }
+
+    this.activeMenu.set(false)
   }
 }
