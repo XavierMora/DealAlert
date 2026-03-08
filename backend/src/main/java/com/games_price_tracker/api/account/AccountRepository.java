@@ -7,7 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccountRepository extends JpaRepository<Account, Long>{
     Optional<Account> findByEmail(String email);
 
-    Optional<Account> findByEmailAndSignInCode(String email, String code);
-
     boolean existsByEmail(String email);
 }

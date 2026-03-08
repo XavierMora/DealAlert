@@ -57,8 +57,6 @@ public class AccountController {
     public ResponseEntity<Void> verifyCode(
         @RequestBody @Valid VerifyCodeBody body
     ) {
-        accountService.verifyCodeRateLimit(body.email());
-
         SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code());        
 
         HttpHeaders headers = new HttpHeaders();

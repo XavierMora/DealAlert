@@ -6,7 +6,8 @@ public enum AuthError implements ApiError{
     EXPIRED_CODE,
     INCORRECT_CODE,
     CODE_SENT_RECENTLY,
-    MAX_ATTEMPTS_REACHED;
+    MAX_ATTEMPTS_REACHED,
+    EMAIL_NOT_FOUND;
     
     @Override
     public String getErrorCode() {

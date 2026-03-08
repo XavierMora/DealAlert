@@ -121,7 +121,7 @@ public class ExceptionsHandlerController{
     @ExceptionHandler(SendEmailException.class)
     public ResponseEntity<ApiResponseBody<Void>> sendEmail(SendEmailException e){
         return ResponseEntity
-        .status(HttpStatus.BAD_GATEWAY)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ApiResponseBodyBuilder.error(
             e.getMessage(), 
             ErrorCode.SENDING_EMAIL

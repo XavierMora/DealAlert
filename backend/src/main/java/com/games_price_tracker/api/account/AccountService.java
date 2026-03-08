@@ -83,12 +83,25 @@ public class AccountService {
         return maxTokens;
     }
 
+    public void verifyRateLimit(String email){
+        Bucket bucket = accountCacheService.getBucketAccount(email);
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+
+        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
+    }
+
     @CacheEvict(cacheNames = "email-sent", key = "#email")
     @Transactional
     public SessionToken verifyCode(String email, String code){
-        Account account = accountRepository.findByEmailAndSignInCode(email, code).orElseThrow(
-            () -> new AccountAuthErrorException(AuthError.INCORRECT_CODE, "Código incorrecto.")
+        verifyRateLimit(email);
+
+        Account account = accountRepository.findByEmail(email).orElseThrow(
+            () -> new AccountAuthErrorException(AuthError.EMAIL_NOT_FOUND, "Email no encontrado.")
         );
+
+        verifyCodeRateLimit(email);
+
+        if(account.getSignInCode() == null || !account.getSignInCode().equals(code)) throw new AccountAuthErrorException(AuthError.INCORRECT_CODE, "Código incorrecto.");
 
         if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException(AuthError.EXPIRED_CODE, "Código expirado.");
         

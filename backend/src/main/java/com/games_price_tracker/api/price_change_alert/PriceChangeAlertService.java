@@ -2,7 +2,6 @@ package com.games_price_tracker.api.price_change_alert;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
-import com.games_price_tracker.api.account.AccountCacheService;
+import com.games_price_tracker.api.account.AccountService;
 import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
-import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
-
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
 
 @Service
 public class PriceChangeAlertService {
@@ -30,26 +25,19 @@ public class PriceChangeAlertService {
     private final SendEmailService sendEmailService;
     private final PriceChangeAlertCacheService priceChangeAlertCacheService;
     private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
-    private final AccountCacheService accountCacheService;
+    private final AccountService accountService;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService, AccountCacheService accountCacheService){
-        this.accountCacheService = accountCacheService;
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService, AccountService accountService){
+        this.accountService = accountService;
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
         this.sendEmailService = sendEmailService;
         this.priceChangeAlertCacheService = priceChangeAlertCacheService;
     }
 
-    private void verifyRateLimit(Account account){
-        Bucket bucket = accountCacheService.getBucketAccount(account.getEmail());
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
-    }
-
     @Transactional
     public Optional<PriceChangeAlert> createAlert(Account account, Long gameId){
-        verifyRateLimit(account);
+        accountService.verifyRateLimit(account.getEmail());
         Optional<PriceChangeAlert> optionalPriceAlert = priceChangeAlertRepository.findByAccountIdAndGameId(account.getId(), gameId);
 
         if(optionalPriceAlert.isPresent()) return Optional.empty();
@@ -65,13 +53,13 @@ public class PriceChangeAlertService {
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
-        verifyRateLimit(account);
+        accountService.verifyRateLimit(account.getEmail());
         return priceChangeAlertCacheService.getAlerts(account.getId(), pageable);
     }
 
     @Transactional
     public void deleteAlert(Long gameId, Account account) throws ResourceNotFoundException{
-        verifyRateLimit(account);
+        accountService.verifyRateLimit(account.getEmail());
         boolean alertDeleted = priceChangeAlertRepository.deleteByAccountIdAndGameId(account.getId(), gameId) > 0;
         
         if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");
