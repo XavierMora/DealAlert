@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.games_price_tracker.api.game.Game;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,9 +17,13 @@ import jakarta.persistence.OneToOne;
 public class Price {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private int initialPrice;
+    @Column(nullable = false)
     private int finalPrice;
+    @Column(nullable = false)
     private Instant createdAt;
+    @Column(nullable = false)
     private Instant lastUpdate;
 
     @OneToOne(optional = false)

@@ -61,6 +61,6 @@ public class FetchAppDetailsTasksHandler {
         
         boolean failedTaskAddedToPending = pendingTasks.offer(new FetchAppDetailsTask(previousTask.getGames(), steamClient, updateGamesPricesTasksHandler, this)); // Se intenta poner de vuelta la tarea en caso de fallo.
 
-        if(!failedTaskAddedToPending) log.info("Failed task couldn't be added to pending");
+        if(!failedTaskAddedToPending) log.info("Failed fetch appdetails task couldn't be added to pending");
     }
 }

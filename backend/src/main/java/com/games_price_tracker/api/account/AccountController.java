@@ -64,7 +64,7 @@ public class AccountController {
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
         headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
 
-        return ResponseEntity.ok().headers(headers).build();
+        return ResponseEntity.noContent().headers(headers).build();
     }
 
     @GetMapping()

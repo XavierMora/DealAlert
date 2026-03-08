@@ -17,8 +17,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "account")
 public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +28,7 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(length = 6)
     private String signInCode;
     private Instant signInCodeExpectedExpiration;
     private Instant lastSignInCodeSentAt;

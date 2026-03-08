@@ -33,7 +33,6 @@ public class EnqueueGamesTaskHandler {
     }
 
     public void start(){
-        log.info("Starting enqueue of games needing price");
         taskScheduler.schedule(task, Instant.now());
     }
 

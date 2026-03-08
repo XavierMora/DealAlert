@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+
 import com.games_price_tracker.api.price.Price;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlert;
 
@@ -12,19 +15,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(
-    name = "game",
-    indexes = @Index(
-        name = "idx_game_name",
-        columnList = "search_name"
-    )
-)
 public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +28,7 @@ public class Game {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String searchName;
 
     @OneToOne(mappedBy = "game")
@@ -43,6 +37,8 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private List<PriceChangeAlert> priceAlerts = new ArrayList<PriceChangeAlert>();
     
+    @Generated
+    @ColumnDefault(value = "false")
     private boolean active;
 
     public Game(){}
@@ -51,7 +47,6 @@ public class Game {
         this.steamId = steamId;
         this.name = name;
         this.searchName = searchName;
-        this.active = true;
     }
 
     public Long getId() {

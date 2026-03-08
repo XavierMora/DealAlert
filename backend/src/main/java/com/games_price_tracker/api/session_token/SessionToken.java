@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.games_price_tracker.api.account.Account;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +20,9 @@ public class SessionToken {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private UUID token;
+    @Column(nullable = false)
     private Instant expiration;
 
     @ManyToOne(optional = false)
