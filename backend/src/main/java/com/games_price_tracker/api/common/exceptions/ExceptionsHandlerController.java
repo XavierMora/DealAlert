@@ -127,4 +127,11 @@ public class ExceptionsHandlerController{
             ErrorCode.SENDING_EMAIL
         ));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseBody<Void>> generalError(){
+        return ResponseEntity.internalServerError().body(
+            ApiResponseBodyBuilder.error("Error inesperado", ErrorCode.INTERNAL_SERVER_ERROR)
+        );
+    }
 }

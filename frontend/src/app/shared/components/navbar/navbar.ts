@@ -37,7 +37,7 @@ export class Navbar {
           this.router.navigateByUrl('/games');
           this.alertService.newAlert({
             type: 'success',
-            text: 'Sesión cerrada'
+            text: 'Sesión cerrada.'
           })
         }, 
         error: (err: ApiResponse<undefined>) => {

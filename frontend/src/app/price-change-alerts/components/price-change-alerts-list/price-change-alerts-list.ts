@@ -51,13 +51,13 @@ export class PriceChangeAlertsList {
 
         this.alertService.newAlert({
           type: 'success',
-          text: 'Alerta eliminada'
+          text: 'Alerta eliminada.'
         })
       },
       error: () => {
         this.alertService.newAlert({
           type: 'error',
-          text: 'Error al eliminar la alerta'
+          text: 'Error al eliminar la alerta.'
         })
       }
     })  

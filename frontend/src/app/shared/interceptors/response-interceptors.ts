@@ -26,3 +26,25 @@ export function TooManyRequestsInterceptor(
         })
     );
 }
+
+export function InternalServerErrorInterceptor(
+    req: HttpRequest<unknown>, 
+    next: HttpHandlerFn
+): Observable<HttpEvent<unknown>>{
+    const alertService = inject(AlertService);
+
+    return next(req).pipe(
+        catchError((err) => {
+            if(err.error.error === ApiErrorCode.INTERNAL_SERVER_ERROR){
+                alertService.newAlert({
+                    type: 'error',
+                    text: 'Error inesperado.'
+                })
+
+                return EMPTY;
+            }
+            
+            return throwError(() => err);
+        })
+    );
+}
