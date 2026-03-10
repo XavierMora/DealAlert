@@ -1,5 +1,5 @@
 @if (games$ | async; as games) {
-    @if(games.data?.numberOfElements == 0){
+    @if(games.data === undefined || games.data.numberOfElements == 0){
         <span>No se encontraron resultados</span>
     }@else{
         <div class="overflow-hidden rounded-sm">
@@ -23,7 +23,7 @@
         
                             <td>
                                 <div class="flex gap-2 items-center">
-                                    <img class="w-24 h-full mr-1" [src]="game.img" [alt]="game.name" />
+                                    <img class="mr-1" width="92" height="43" [ngSrc]="game.img" [alt]="game.name" />
         
                                     <div class="flex gap-2 game-name items-center">
                                         <span class="game-name">
@@ -53,7 +53,6 @@
                                 </td>
                             }
         
-        
                             <td>
                                 <div class="mx-auto w-fit">
                                     <app-steam-store-link [gameSteamUrl]="game.steamUrl"></app-steam-store-link>
@@ -65,7 +64,7 @@
             </table>
         </div>
     
-        <div class="md:hidden grid sm:grid-cols-2 gap-6">
+        <div class="md:hidden grid sm:grid-cols-2 gap-6 w-fit sm:w-full">
             @for (game of games.data!.content; track game.id) {                
                 <app-game-card [game]="game"></app-game-card>
             }

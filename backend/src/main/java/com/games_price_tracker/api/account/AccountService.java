@@ -49,7 +49,7 @@ public class AccountService {
         if(!probe.isConsumed()) throw new TooManyRequestsException(
             probe.getNanosToWaitForRefill(), 
             TimeUnit.NANOSECONDS, 
-            "Muchos intentos. Probar más tarde.",
+            "Muchos intentos. Intentar más tarde.",
             AuthError.MAX_ATTEMPTS_REACHED
         ); 
     }

@@ -1,13 +1,13 @@
 @let _game = game();
 
-<div class="flex flex-col bg-(--surface-1) hover:bg-(--surface-2) rounded-sm">
-    <div>
-        <img class="rounded-t-sm w-full" [src]="_game.img" [alt]="_game.name">
+<div class="flex flex-col bg-(--surface-1) hover:bg-(--surface-2) rounded-sm w-full h-fit">
+    <div class="relative h-32 w-full">
+        <img class="rounded-t-sm object-cover" fill [ngSrc]="_game.img" [alt]="_game.name">
     </div>
 
     <div class="flex justify-between items-end mt-1 p-3 h-full">
         <div class="grow flex flex-col justify-between h-full">
-            <span class="_game-name">{{_game.name}}</span>
+            <span class="game-name">{{_game.name}}</span>
 
             @if(_game.priceInfo == undefined){
             <span>-</span>

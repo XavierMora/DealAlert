@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { GameService } from '../../services/game-service';
 import { distinctUntilChanged, finalize, Observable } from 'rxjs';
-import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Pagination } from '../../../shared/components/pagination/pagination';
@@ -11,7 +11,7 @@ import { GameCard } from '../game-card/game-card';
 
 @Component({
   selector: 'app-games-list',
-  imports: [AsyncPipe, CurrencyPipe, Pagination, ButtonPriceAlert, SteamStoreLink, GameCard],
+  imports: [AsyncPipe, CurrencyPipe, Pagination, ButtonPriceAlert, SteamStoreLink, GameCard, NgOptimizedImage],
   templateUrl: './games-list.html',
   styleUrl: './games-list.css',
 })
@@ -19,7 +19,7 @@ export class GamesList {
   private gameService = inject(GameService);
   name = input.required<string | undefined>();
   page = signal<number>(1);
-  
+
   // Crea un signal que derivado de name y page
   query = computed(() => {
     return {
