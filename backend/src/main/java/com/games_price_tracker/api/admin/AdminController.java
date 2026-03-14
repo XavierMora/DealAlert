@@ -4,9 +4,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.games_price_tracker.api.common.response.ApiResponseBody;
+import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.tracking.enqueue_games.enums.CancelEnqueueResult;
+import com.games_price_tracker.api.tracking.enqueue_games.enums.StartEnqueueResult;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -25,4 +31,22 @@ public class AdminController {
 
         return ResponseEntity.accepted().build();
     }   
+
+    @PostMapping("/cancel-tracking-enqueue")
+    public ResponseEntity<ApiResponseBody<Void>> cancelTracking() {
+        CancelEnqueueResult result = adminService.cancelTrackingEnqueue();
+                
+        return result == CancelEnqueueResult.CANCELED 
+        ? ResponseEntity.noContent().build() 
+        : ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponseBodyBuilder.error(result));
+    }
+    
+    @PostMapping("/start-tracking-enqueue")
+    public ResponseEntity<ApiResponseBody<Void>> startTracking() {
+        StartEnqueueResult result = adminService.startTracking();
+        
+        return result == StartEnqueueResult.STARTED 
+        ? ResponseEntity.noContent().build() 
+        : ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponseBodyBuilder.error(result));
+    }
 }

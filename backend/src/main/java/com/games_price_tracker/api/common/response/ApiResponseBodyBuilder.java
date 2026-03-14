@@ -20,4 +20,8 @@ public class ApiResponseBodyBuilder {
     public static <T> ApiResponseBody<T> error(String message, ApiError error){
         return new ApiResponseBody<T>(false, message, null, error);
     }
+
+    public static <T> ApiResponseBody<T> error(ApiError error){
+        return new ApiResponseBody<T>(false, null, null, error);
+    }
 }

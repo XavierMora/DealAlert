@@ -13,6 +13,8 @@ import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.steam.AppSteam;
 import com.games_price_tracker.api.steam.SteamClient;
 import com.games_price_tracker.api.tracking.enqueue_games.EnqueueGamesTaskHandler;
+import com.games_price_tracker.api.tracking.enqueue_games.enums.CancelEnqueueResult;
+import com.games_price_tracker.api.tracking.enqueue_games.enums.StartEnqueueResult;
 
 @Service
 public class AdminService {
@@ -20,7 +22,6 @@ public class AdminService {
     private final TaskExecutor saveGamesTaskExecutor;
     private final GameService gameService;
     private final EnqueueGamesTaskHandler enqueueGamesTaskHandler;
-    private boolean startEnqueueGames = true;
     private final Logger log = LoggerFactory.getLogger(AdminService.class);
 
     AdminService(GameService gameService, SteamClient steamClient, TaskExecutor saveGamesTaskExecutor, EnqueueGamesTaskHandler enqueueGamesTaskHandler){
@@ -52,16 +53,19 @@ public class AdminService {
                 } catch (Exception e) {
                     failedTasks.incrementAndGet();
                 }finally{                    
-                    if(completedTasks.incrementAndGet() == totalTasks){
-                        if(startEnqueueGames){
-                            startEnqueueGames = false;
-                            enqueueGamesTaskHandler.start();
-                        }
-                        
+                    if(completedTasks.incrementAndGet() == totalTasks){                        
                         log.info("{} of {} save games tasks failed", failedTasks.get(), totalTasks);
                     }
                 }
             });
         }
+    }
+
+    public CancelEnqueueResult cancelTrackingEnqueue(){
+        return enqueueGamesTaskHandler.cancel();
+    }
+
+    public StartEnqueueResult startTracking(){
+        return enqueueGamesTaskHandler.start();
     }
 }

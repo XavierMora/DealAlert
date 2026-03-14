@@ -35,6 +35,11 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
         Page<Game> page;
 
         do {
+            try {
+                Thread.sleep(3000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             Pageable pageable = PageRequest.of(actualPage, gamesPerRequest);
             page = gameService.getGames(pageable);
             log.info("Starting enqueue of {} games from page {}", page.getContent().size(), actualPage);
