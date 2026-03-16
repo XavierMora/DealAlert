@@ -24,25 +24,22 @@ public class SteamApiProperties {
     public static class AppDetailsConfig{
         private String url;
         private Duration delayBetweenRequests;
-        private int gamesPerRequest;
         private int maxPagesPerEnqueue;
     
-        public AppDetailsConfig(String url, Duration delayBetweenRequests, int gamesPerRequest, int maxPagesPerEnqueue){
+        public AppDetailsConfig(String url, Duration delayBetweenRequests, int maxPagesPerEnqueue){
             this.url = url;
             this.delayBetweenRequests = delayBetweenRequests;
-            this.gamesPerRequest = gamesPerRequest;
             this.maxPagesPerEnqueue = maxPagesPerEnqueue;
         }
 
         public Duration getDelayBetweenRequests() {
             return delayBetweenRequests;
         }
-        public int getGamesPerRequest() {
-            return gamesPerRequest;
-        }
+        
         public String getUrl() {
             return url;
         }
+        
         public int getMaxPagesPerEnqueue() {
             return maxPagesPerEnqueue;
         }

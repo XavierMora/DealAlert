@@ -42,8 +42,8 @@ public class AdminController {
     }
     
     @PostMapping("/start-tracking-enqueue")
-    public ResponseEntity<ApiResponseBody<Void>> startTracking() {
-        StartEnqueueResult result = adminService.startTracking();
+    public ResponseEntity<ApiResponseBody<Void>> startTracking(@RequestParam @Min(1) int gamesPerRequest) {
+        StartEnqueueResult result = adminService.startTracking(gamesPerRequest);
         
         return result == StartEnqueueResult.STARTED 
         ? ResponseEntity.noContent().build() 

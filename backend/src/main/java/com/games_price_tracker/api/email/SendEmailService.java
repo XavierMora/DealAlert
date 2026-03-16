@@ -40,6 +40,7 @@ public class SendEmailService {
 
             mailSender.send(message);
         } catch (Exception e) {
+            log.error("Error sending verification email to {}", recipient, e);
             throw new SendEmailException(e);
         }
     }
@@ -50,6 +51,7 @@ public class SendEmailService {
 
             emailScheduler.schedule(new SendDealEmailTask(mailSender, messages, recipients, 1, this, game, changePriceResult), Instant.now());
         } catch (Exception e) {
+            log.error("Error creating deal email", e);
             throw new SendEmailException(e);
         }
     }    

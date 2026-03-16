@@ -65,7 +65,7 @@ public class AdminService {
         return enqueueGamesTaskHandler.cancel();
     }
 
-    public StartEnqueueResult startTracking(){
-        return enqueueGamesTaskHandler.start();
+    public StartEnqueueResult startTracking(int gamesPerRequest){
+        return enqueueGamesTaskHandler.start(gamesPerRequest);
     }
 }

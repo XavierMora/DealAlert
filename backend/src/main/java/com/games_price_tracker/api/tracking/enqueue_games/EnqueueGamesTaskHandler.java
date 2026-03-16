@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class EnqueueGamesTaskHandler {
     private final Duration minIntervalGamePriceUpdate;
     private final int maxPagesPerEnqueue; 
     private final Logger log = LoggerFactory.getLogger(EnqueueGamesTaskHandler.class);
-    private ScheduledFuture<?> currentTaskScheduled = null;
+    private AtomicReference<ScheduledFuture<?>> currentTaskScheduled = new AtomicReference<>(null);
 
     public EnqueueGamesTaskHandler(GameService gameService, FetchAppDetailsTasksHandler fetchAppDetailsTasksHandler, TaskScheduler taskScheduler, SteamApiProperties steamApiProperties, @Value("${price.min-interval-update}") Duration minIntervalGamePriceUpdate){
         this.taskScheduler = taskScheduler;
@@ -38,11 +39,12 @@ public class EnqueueGamesTaskHandler {
         this.maxPagesPerEnqueue = steamApiProperties.getAppdetails().getMaxPagesPerEnqueue();
     }
 
-    public StartEnqueueResult start(){
-        boolean canStart = currentTaskScheduled == null;
+    public StartEnqueueResult start(int gamesPerRequest){
+        boolean canStart = currentTaskScheduled.get() == null;
 
         if(canStart){
-            currentTaskScheduled = taskScheduler.schedule(task, Instant.now());
+            task.setGamesPerRequest(gamesPerRequest);
+            currentTaskScheduled.set(taskScheduler.schedule(task, Instant.now()));
         }else{
             log.error("Can't start enqueue because there is already one scheduled");
         }
@@ -51,21 +53,21 @@ public class EnqueueGamesTaskHandler {
     }
 
     public CancelEnqueueResult cancel(){
-        if(currentTaskScheduled == null){
+        if(currentTaskScheduled.get() == null){
             log.error("Cancel enqueue failed because no enqueue is scheduled");
             return CancelEnqueueResult.NO_ENQUEUE_SCHEDULED;
         }
 
-        boolean canceled = currentTaskScheduled.cancel(false);
-        
-        if(canceled){
-            currentTaskScheduled = null;
-            log.info("Enqueue canceled");
-        }else{
-            log.error("Current enqueue couldn't be canceled");
-        }
+        ScheduledFuture<?> result = currentTaskScheduled.getAndUpdate(taskScheduled -> {
+            boolean canceled = taskScheduled.cancel(false);
+            
+            if(canceled) log.info("Enqueue canceled");
+            else log.error("Current enqueue couldn't be canceled");
+            
+            return canceled ? null : taskScheduled;
+        });
 
-        return canceled ? CancelEnqueueResult.CANCELED : CancelEnqueueResult.CANCEL_FAILED;
+        return result == null ? CancelEnqueueResult.CANCELED : CancelEnqueueResult.CANCEL_FAILED;
     }
 
     public void nextExecution(boolean allGamesChecked){
@@ -84,9 +86,12 @@ public class EnqueueGamesTaskHandler {
             schedulingTime = Instant.now().plus(Duration.ofSeconds(delayNextExecution));
         }
 
-        if(!currentTaskScheduled.isCancelled()){
-            currentTaskScheduled = taskScheduler.schedule(task, schedulingTime);
-        }
+        currentTaskScheduled.getAndUpdate((taskScheduled) -> {
+            if(taskScheduled == null) return taskScheduled;
+
+            log.info("Scheduling next enqueue task");
+            return taskScheduler.schedule(task, schedulingTime);
+        });
     }
 }
     

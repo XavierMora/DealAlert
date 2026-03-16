@@ -18,7 +18,7 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
     private final FetchAppDetailsTasksHandler fetchAppDetailsTasksHandler;
     private final EnqueueGamesTaskHandler enqueueGamesTaskHandler;
     private final int maxPagesPerEnqueue; 
-    private final int gamesPerRequest;
+    private int gamesPerRequest;
     private int actualPage = 0;
     private final Logger log = LoggerFactory.getLogger(EnqueueGamesNeedingPriceUpdate.class);
 
@@ -26,8 +26,11 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
         this.enqueueGamesTaskHandler = enqueueGamesTaskHandler;
         this.gameService = gameService;
         this.fetchAppDetailsTasksHandler = fetchAppDetailsTasksHandler;
-        this.gamesPerRequest = steamApiProperties.getAppdetails().getGamesPerRequest();
         this.maxPagesPerEnqueue = steamApiProperties.getAppdetails().getMaxPagesPerEnqueue();
+    }
+
+    public void setGamesPerRequest(int gamesPerRequest) {
+        this.gamesPerRequest = gamesPerRequest;
     }
 
     @Override

@@ -27,7 +27,7 @@ public class AdminFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String key = request.getHeader("ADMIN-KEY");
+        String key = request.getHeader("Admin-Key");
 
         if(key == null || !key.equals(adminKey)){
             filterChain.doFilter(request, response);
