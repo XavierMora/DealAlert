@@ -15,8 +15,6 @@ import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlertRepository;
 
-import tools.jackson.databind.ObjectMapper;
-
 @Service
 public class SendEmailService {
     private final EmailBuilder emailBuilder;
@@ -55,7 +53,6 @@ public class SendEmailService {
         try {
             BrevoPostBody messages = emailBuilder.createDealEmail(game, changePriceResult, recipients);
 
-            System.out.println(new ObjectMapper().writeValueAsString(messages));
             brevoClient.post().body(messages).retrieve().toBodilessEntity();
         } catch (Exception e) {
             log.error("Error sending deal email to {} recipients", recipients.size(), e);

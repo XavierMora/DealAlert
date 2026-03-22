@@ -55,7 +55,6 @@ public class EnqueueGamesNeedingPriceUpdate implements Runnable{
                    
                 actualPage++;
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
                 log.error("Failed to create FetchAppDetailsTask", e);
                 enqueueGamesTaskHandler.nextExecution(false);
                 return;

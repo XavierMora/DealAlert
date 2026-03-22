@@ -48,6 +48,7 @@ public class Game {
     
     @Generated
     @ColumnDefault(value = "false")
+    @Column(nullable = false)
     private boolean active;
 
     public Game(){}

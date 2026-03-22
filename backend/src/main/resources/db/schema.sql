@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS game(
     name varchar(255) NOT NULL,
     steam_id bigint NOT NULL UNIQUE,
     search_name varchar(255) NOT NULL,
-    active boolean DEFAULT true
+    active boolean NOT NULL DEFAULT true
 );
 
 CREATE INDEX IF NOT EXISTS game_search_name_index ON game (search_name);

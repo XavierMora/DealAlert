@@ -18,7 +18,7 @@ public class BrevoPostBody {
     }
 
     class To{
-        List<Map<String, String>> to;
+        private List<Map<String, String>> to;
 
         To(String recipient){
             this.to = List.of(Map.of("email", recipient));
