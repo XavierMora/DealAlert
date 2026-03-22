@@ -8,11 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import com.games_price_tracker.api.account.AccountRepository;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlertRepository;
@@ -22,15 +20,10 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 public class SendEmailService {
     private final EmailBuilder emailBuilder;
-    PriceChangeAlertRepository alertRepository;
-    AccountRepository accountRepository;
-    TaskScheduler emailScheduler;
     private final Logger log = LoggerFactory.getLogger(SendEmailService.class);
     private final RestClient brevoClient;
 
-    public SendEmailService(EmailBuilder emailBuilder, PriceChangeAlertRepository alertRepository, TaskScheduler emailScheduler, @Value("${brevo.api.key}") String brevoApiKey){
-        this.emailScheduler = emailScheduler;
-        this.alertRepository = alertRepository;
+    public SendEmailService(EmailBuilder emailBuilder, PriceChangeAlertRepository alertRepository, @Value("${brevo.api.key}") String brevoApiKey){
         this.emailBuilder = emailBuilder;
 
         JdkClientHttpRequestFactory clientHttp = new JdkClientHttpRequestFactory(

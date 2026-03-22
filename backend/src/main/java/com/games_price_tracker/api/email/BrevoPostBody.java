@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 public class BrevoPostBody {
-    String subject;
-    Map<String, String> sender;
-    List<To> messageVersions = new LinkedList<>();
-    String htmlContent;
+    private String subject;
+    private Map<String, String> sender;
+    private List<To> messageVersions = new LinkedList<>();
+    private String htmlContent;
 
     public BrevoPostBody(String subject, String senderEmail, List<String> recipients, String htmlContent){
         this.subject = subject;
