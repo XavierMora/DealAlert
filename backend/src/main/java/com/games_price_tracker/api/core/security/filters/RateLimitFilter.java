@@ -3,6 +3,8 @@ package com.games_price_tracker.api.core.security.filters;
 import java.io.IOException;
 import java.time.Duration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ import tools.jackson.databind.ObjectMapper;
 public class RateLimitFilter extends OncePerRequestFilter{
     private final Cache<Object, Object> cacheRateLimit;
     private final ObjectMapper objectMapper;
+    private final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
 
     @SuppressWarnings("unchecked")
     RateLimitFilter(CacheManager cacheManager, ObjectMapper objectMapper){
@@ -46,6 +49,7 @@ public class RateLimitFilter extends OncePerRequestFilter{
             return;
         }
 
+        log.warn("Rate limit exceeded from ip={} and enpoint={}", request.getRemoteAddr(), request.getRequestURL());
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");

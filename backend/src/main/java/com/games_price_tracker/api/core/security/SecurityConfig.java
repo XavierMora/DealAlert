@@ -75,7 +75,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
     
     @Bean
     SecurityFilterChain generalSecurityChain(HttpSecurity http, AuthFilter authFilter){
