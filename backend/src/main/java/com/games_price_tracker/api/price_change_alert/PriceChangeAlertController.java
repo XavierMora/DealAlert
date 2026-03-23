@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.games_price_tracker.api.account.Account;
-import com.games_price_tracker.api.common.response.ApiResponseBody;
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.common.response.ErrorCode;
+import com.games_price_tracker.api.core.response.ApiResponseBody;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ErrorCode;
 import com.games_price_tracker.api.page_dto.PageDto;
 import com.games_price_tracker.api.page_dto.PageDtoMapper;
 import com.games_price_tracker.api.price_change_alert.dtos.CreatePriceChangeAlertBody;

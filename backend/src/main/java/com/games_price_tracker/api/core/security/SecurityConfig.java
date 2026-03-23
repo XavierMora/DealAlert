@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.security;
+package com.games_price_tracker.api.core.security;
 
 import java.util.List;
 
@@ -16,11 +16,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
-import com.games_price_tracker.api.common.security.filters.AdminFilter;
-import com.games_price_tracker.api.common.security.filters.AuthFilter;
-import com.games_price_tracker.api.common.security.handlers.ApiAccessDeniedHandler;
-import com.games_price_tracker.api.common.security.handlers.ApiAuthenticationEntryPointHandler;
-import com.games_price_tracker.api.common.security.handlers.ApiLogoutSuccessHandler;
+import com.games_price_tracker.api.core.security.filters.AdminFilter;
+import com.games_price_tracker.api.core.security.filters.AuthFilter;
+import com.games_price_tracker.api.core.security.handlers.ApiAccessDeniedHandler;
+import com.games_price_tracker.api.core.security.handlers.ApiAuthenticationEntryPointHandler;
+import com.games_price_tracker.api.core.security.handlers.ApiLogoutSuccessHandler;
 
 @EnableWebSecurity
 @Configuration

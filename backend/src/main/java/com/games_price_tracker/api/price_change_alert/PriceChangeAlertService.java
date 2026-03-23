@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.account.AccountService;
-import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
+import com.games_price_tracker.api.core.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameService;

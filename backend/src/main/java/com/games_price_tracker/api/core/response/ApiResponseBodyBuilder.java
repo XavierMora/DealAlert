@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.response;
+package com.games_price_tracker.api.core.response;
 
 public class ApiResponseBodyBuilder {
     public static <T> ApiResponseBody<T> success(String message, T data){

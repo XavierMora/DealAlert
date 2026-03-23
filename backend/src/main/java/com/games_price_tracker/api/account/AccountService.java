@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.account.exceptions.AuthError;
-import com.games_price_tracker.api.common.exceptions.TooManyRequestsException;
+import com.games_price_tracker.api.core.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.email.config.EmailConfigProperties;

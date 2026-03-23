@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.security.filters;
+package com.games_price_tracker.api.core.security.filters;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.common.response.ErrorCode;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ErrorCode;
 import com.github.benmanes.caffeine.cache.Cache;
 
 import io.github.bucket4j.Bucket;

@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.exceptions;
+package com.games_price_tracker.api.core.exceptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
-import com.games_price_tracker.api.common.response.ApiResponseBody;
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.common.response.ErrorCode;
+import com.games_price_tracker.api.core.response.ApiResponseBody;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ErrorCode;
 import com.games_price_tracker.api.email.SendEmailException;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;

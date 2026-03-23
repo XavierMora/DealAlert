@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.games_price_tracker.api.account.dtos.AccountDto;
 import com.games_price_tracker.api.account.dtos.SignInBody;
 import com.games_price_tracker.api.account.dtos.VerifyCodeBody;
-import com.games_price_tracker.api.common.response.ApiResponseBody;
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ApiResponseBody;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.validation.Valid;

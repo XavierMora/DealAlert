@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common;
+package com.games_price_tracker.api.core;
 
 import java.time.Duration;
 

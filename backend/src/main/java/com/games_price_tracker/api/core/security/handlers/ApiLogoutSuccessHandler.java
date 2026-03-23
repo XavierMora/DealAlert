@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.common.security.handlers;
+package com.games_price_tracker.api.core.security.handlers;
 
 import java.io.IOException;
 
@@ -8,9 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.common.response.ErrorCode;
-import com.games_price_tracker.api.common.security.SessionTokenResolver;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ErrorCode;
+import com.games_price_tracker.api.core.security.SessionTokenResolver;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 

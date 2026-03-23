@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.account.AccountRepository;
-import com.games_price_tracker.api.common.exceptions.ResourceNotFoundException;
+import com.games_price_tracker.api.core.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.game.dtos.GameData;
 import com.games_price_tracker.api.steam.AppSteam;
 

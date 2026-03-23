@@ -1,6 +1,6 @@
 package com.games_price_tracker.api.tracking.enqueue_games.enums;
 
-import com.games_price_tracker.api.common.response.ApiError;
+import com.games_price_tracker.api.core.response.ApiError;
 
 public enum StartEnqueueResult implements ApiError{
     STARTED,

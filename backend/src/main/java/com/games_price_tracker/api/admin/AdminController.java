@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.games_price_tracker.api.common.response.ApiResponseBody;
-import com.games_price_tracker.api.common.response.ApiResponseBodyBuilder;
+import com.games_price_tracker.api.core.response.ApiResponseBody;
+import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.tracking.enqueue_games.enums.CancelEnqueueResult;
 import com.games_price_tracker.api.tracking.enqueue_games.enums.StartEnqueueResult;
 
