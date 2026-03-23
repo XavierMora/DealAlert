@@ -1,0 +1,25 @@
+backend/HELP.md
+backend/.gradle
+backend/build/
+!backend/gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+.env
+backend/src/main/resources/application.properties
+backend/src/test/resources/application.properties
+backend/src/test/java/com/games_price_tracker/api/NotifiyPriceChangeTest.java
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+backend/bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### VS Code ###
+.vscode/
