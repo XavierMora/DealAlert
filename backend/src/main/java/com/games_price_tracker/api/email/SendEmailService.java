@@ -38,11 +38,11 @@ public class SendEmailService {
         .build();
     }
 
-    public void verificationEmail(String recipient, String code) throws SendEmailException{        
+    public void verificationEmail(String recipient, String code){        
         try {
             BrevoPostBody message = emailBuilder.createVerificationEmail(recipient, code);
-            brevoClient.post().body(message).retrieve().toBodilessEntity();
             
+            brevoClient.post().body(message).retrieve().toBodilessEntity();
         } catch (Exception e) {
             log.error("Error sending verification email to {}", recipient, e);
             throw new SendEmailException(e);

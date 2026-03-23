@@ -1,8 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { catchError, EMPTY, finalize, firstValueFrom, Observable, of, tap, throwError } from 'rxjs';
-import { ApiErrorCode } from '../../shared/models/ApiErrorCode';
 import { ApiAuthErrorCode } from '../model/ApiAuthErrorCode';
 
 @Injectable({
