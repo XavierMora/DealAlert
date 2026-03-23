@@ -1,0 +1,11 @@
+on:
+  schedule:
+    - cron: "10 * * * *"
+
+jobs:
+  ping-api:
+    name: Ping api
+    runs-on: ubuntu-latest
+    steps:
+    - name: curl 
+      run: curl https://api-dealalert.onrender.com/games
