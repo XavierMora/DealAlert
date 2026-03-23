@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: curl 
-      run: curl https://api-dealalert.onrender.com/games
+      run: curl https://api-dealalert.onrender.com/health
