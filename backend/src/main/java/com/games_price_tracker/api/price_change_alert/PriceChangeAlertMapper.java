@@ -17,7 +17,7 @@ public class PriceChangeAlertMapper {
         return new PriceChangeAlertInfo(
             alert.getId(),
             alert.getCreatedAt(), 
-            gameMapper.toGameInfo(alert.getGame())
+            gameMapper.toGameInfo(alert.getGame(), true)
         );
     }
 }

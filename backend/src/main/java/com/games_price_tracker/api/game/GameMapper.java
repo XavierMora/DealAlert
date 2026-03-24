@@ -45,8 +45,8 @@ public class GameMapper {
         );
     }
 
-    public GameInfo toGameInfo(Game game){
-        return createGameInfo(game, null);
+    public GameInfo toGameInfo(Game game, Boolean isInPriceAlert){
+        return createGameInfo(game, isInPriceAlert);
     }
 
     public GameInfo toGameInfo(GameData gameData){
