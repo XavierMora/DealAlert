@@ -62,7 +62,7 @@ public class AccountController {
         HttpHeaders headers = new HttpHeaders();
 
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
-        headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=Lax; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
+        headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=None; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
 
         return ResponseEntity.noContent().headers(headers).build();
     }
