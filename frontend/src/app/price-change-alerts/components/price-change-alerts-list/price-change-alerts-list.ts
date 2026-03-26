@@ -1,16 +1,15 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { PriceChangeAlertsService } from '../../services/price-change-alerts-service';
-import { AsyncPipe } from '@angular/common';
 import { Pagination } from '../../../shared/components/pagination/pagination';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, EMPTY, switchMap } from 'rxjs';
+import { catchError, debounceTime, of, switchMap } from 'rxjs';
 import { AlertService } from '../../../shared/components/alert/alert-service';
 import { ApiErrorCode } from '../../../shared/models/ApiErrorCode';
 import { GameCard } from '../../../games/components/game-card/game-card';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-price-change-alerts-list',
-  imports: [AsyncPipe, GameCard, Pagination],
+  imports: [GameCard, Pagination],
   templateUrl: './price-change-alerts-list.html',
   styleUrl: './price-change-alerts-list.css',
 })
@@ -19,47 +18,62 @@ export class PriceChangeAlertsList {
   private alertService = inject(AlertService);
 
   page = signal<number>(1);
-  delete = signal<number | undefined>(undefined)
-  private query = toObservable(computed(() => {
-    return {
-      page: this.page(),
-      delete: this.delete()
-    }
-  }));
- 
-  alerts$ = this.query.pipe(
-    debounceTime(300),
-    switchMap((query) => {
-      return this.priceChangeAlertsService.getAlerts(query.page-1).pipe(
-        catchError(err => {
-          if(err.error === ApiErrorCode.TOO_MANY_REQUESTS){
-            this.alertService.newAlert({
-              type: 'error',
-              text: 'Error obteniendo datos. Intentar más tarde.'
-            })
-          }
-          return EMPTY;
-        })
-      );
-    }) 
-  )
-  
-  deletePriceAlert(priceAlert: PriceChangeAlert){
-    this.priceChangeAlertsService.deleteAlert(priceAlert.game.id).subscribe({
-      next: () => {
-        this.delete.set(priceAlert.id)
+  reloadPage = signal<boolean>(false);
+  alerts = signal<ApiResponse<PagedContent<PriceChangeAlert>> | undefined>(undefined);
 
-        this.alertService.newAlert({
-          type: 'success',
-          text: 'Alerta eliminada.'
-        })
-      },
-      error: () => {
-        this.alertService.newAlert({
-          type: 'error',
-          text: 'Error al eliminar la alerta.'
-        })
+  constructor(){
+    toObservable(computed(() => {
+      return {page: this.page(), reloadPage: this.reloadPage()}
+    })).pipe(
+      debounceTime(150),
+      switchMap(query => this.getAlerts(query.page))
+    ).subscribe(data => this.alerts.set(data));    
+  }
+
+  getAlerts(page: number){
+    return this.priceChangeAlertsService.getAlerts(page-1).pipe(
+      catchError(err => {
+        if(err.error === ApiErrorCode.TOO_MANY_REQUESTS){
+          this.alertService.newAlert({
+            type: 'error',
+            text: 'Error obteniendo datos. Intentar más tarde.'
+          })
+        }
+        return of(undefined);
+      })
+    );
+  }
+
+  deleteAlert(gameId: number){
+    let goToPrevPage = false;
+    let reloadPage = false;
+
+    this.alerts.update(alerts => {
+      if(alerts === undefined) return alerts;
+
+      let data = alerts.data!;
+
+      if(data.numberOfElements == 1){
+        if(data.first && data.last) return undefined;
+
+        if(data.last) goToPrevPage = true;
+        else reloadPage = true;
+        
+        return alerts;
       }
-    })  
+      
+      // Listado sin alerta que se borró
+      return {
+        ...alerts,
+        data: {
+          ...data,
+          content: data.content.filter(alert => alert.game.id != gameId),
+          numberOfElements: data.numberOfElements-1
+        }
+      }
+    })
+
+    if(goToPrevPage) this.page.set(this.page()-1);
+    else if(reloadPage) this.reloadPage.update(reload => !reload)
   }
 }

@@ -1,6 +1,6 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { GameService } from '../../services/game-service';
-import { distinctUntilChanged, finalize, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Observable, tap } from 'rxjs';
 import { AsyncPipe, CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { switchMap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -19,36 +19,24 @@ export class GamesList {
   private gameService = inject(GameService);
   name = input.required<string | undefined>();
   page = signal<number>(1);
-
-  // Crea un signal que derivado de name y page
+  
+  // Crea un signal derivado de name y page
   query = computed(() => {
     return {
       name: this.name(),
       page: this.page()
     }
   });
-  
-  queryChanged$: Observable<any> = toObservable(this.query); // Emite el valor de query cuando los valores de los que depende cambian
-  
-  private firstNameRequestOnProgress = false;
 
-  games$: Observable<ApiResponse<PagedContent<Game>>> = this.queryChanged$.pipe(
-    distinctUntilChanged((prev, current) => { // Acepta los valores si la función devuelve falso
-      // Si la request es por el nombre se toma
-      if(prev.name!==current.name){ 
-        current.page = 1;
-        this.firstNameRequestOnProgress = true;
-        return false
-      }
-      // Sino se acepta si la primera request del nombre terminó y que la página haya cambiado
-      return this.firstNameRequestOnProgress || prev.page === current.page
-    }),
-    switchMap((query) => {
-      return this.gameService.getGames(20, query.page-1, query.name).pipe(
-        finalize(() => {
-          this.firstNameRequestOnProgress = false;
-        })
-      )
-    })
+  games$: Observable<ApiResponse<PagedContent<Game>>> = toObservable(this.query).pipe(
+    debounceTime(200),
+    switchMap((query) => this.gameService.getGames(20, query.page-1, query.name))
   );
+
+  constructor(){
+    effect(() => {
+      this.name();
+      this.page.set(1);
+    })
+  }
 }

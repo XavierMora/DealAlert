@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { PriceChangeAlertsService } from '../../../price-change-alerts/services/price-change-alerts-service';
 import { AlertService } from '../../../shared/components/alert/alert-service';
 import { Router } from '@angular/router';
@@ -28,6 +28,7 @@ export class ButtonPriceAlert {
   private alertService = inject(AlertService);
   private router = inject(Router);
   private authService = inject(AuthService);
+  alertDeleted = output<number>();
 
   constructor(){
     toObservable(this.authService.isAuthenticated).subscribe(auth => {
@@ -67,8 +68,10 @@ export class ButtonPriceAlert {
       });
     }else{
       this.priceChangeAlertsService.deleteAlert(this.gameId).subscribe({
-        next: () => this.isInPriceAlert.set(false),
-        error: (res) => {
+        next: () => {
+          this.isInPriceAlert.set(false);
+          this.alertDeleted.emit(this.gameId);
+        }, error: (res) => {
           this.alertService.newAlert({
             type: 'error',
             text: res.message === undefined ? 'Error eliminando alerta.' : res.message

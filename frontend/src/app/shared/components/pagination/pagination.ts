@@ -1,4 +1,4 @@
-import { Component, effect, input, InputSignal, linkedSignal, model, WritableSignal } from '@angular/core';
+import { Component, effect, input, InputSignal, linkedSignal, model, output, WritableSignal } from '@angular/core';
 import { FormsModule } from "@angular/forms";
 
 @Component({
@@ -53,13 +53,6 @@ export class Pagination {
       return pages;
     }
   });
-
-  constructor(){
-    effect(() => { // Se ejecuta cuando totalPages cambia
-      this.totalPages();
-      this.actualPage.set(1);
-    })
-  }
 
   previousPage(){
     this.actualPage.update(page => page > 1 ? page-1 : page);

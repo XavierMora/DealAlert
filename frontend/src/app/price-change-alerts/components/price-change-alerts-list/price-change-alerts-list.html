@@ -1,15 +1,16 @@
-@if(alerts$ | async; as alerts){
-    @if(alerts.data?.numberOfElements == 0){
-        <p class="text-(--text-muted)">No hay alertas</p>
-    }@else {
-        <div class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mx-auto">
-            @for (alert of alerts.data!.content; track alert.id) {
-                <app-game-card [game]="alert.game"></app-game-card>
-            }
-        </div>
-    
-        <div class="ml-auto mt-4 w-fit">
-            <app-pagination (actualPageChange)="page.set($event)" [totalPages]="alerts.data!.totalPages"></app-pagination>
-        </div>
-    }
+@let alerts$ = alerts();
+@if(alerts$ !== undefined && alerts$.data!.numberOfElements > 0){        
+    <div class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mx-auto">
+        @for (alert of alerts$.data!.content; track alert.id) {
+            <div [class]="">
+                <app-game-card (deletedFromAlert)="deleteAlert($event)" [game]="alert.game"></app-game-card>
+            </div>
+        }
+    </div>
+
+    <div class="ml-auto mt-4 w-fit">
+        <app-pagination (actualPageChange)="page.set($event)" [actualPage]="page()" [totalPages]="alerts$.data!.totalPages"></app-pagination>
+    </div>
+}@else{
+    <p class="text-(--text-muted)">No hay alertas</p>
 }

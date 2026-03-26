@@ -71,7 +71,7 @@
         </div>
     
         <div class="ml-auto w-fit mt-4">
-            <app-pagination (actualPageChange)="page.set($event)" [totalPages]="games.data!.totalPages"></app-pagination>
+            <app-pagination [actualPage]="page()" (actualPageChange)="page.set($event)" [totalPages]="games.data!.totalPages"></app-pagination>
         </div>
     }
 }

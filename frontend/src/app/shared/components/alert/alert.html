@@ -1,6 +1,6 @@
 @if (show()) {
-    <div class="w-full fixed bottom-5 left-0 z-20">
-        <div [class]="alertData.type" class="flex gap-2 p-4 bg-(--surface-1) rounded-sm mx-auto w-fit">
+    <div class="fixed bottom-5 left-1/2 -translate-x-1/2">
+        <div [class]="alertData.type" class="flex gap-2 p-4 bg-(--surface-1) rounded-sm mx-auto w-fit z-20">
             <span>{{alertData.text}}</span>
 
             @if(alertData.action !== undefined && alertData.actionText !== undefined){
