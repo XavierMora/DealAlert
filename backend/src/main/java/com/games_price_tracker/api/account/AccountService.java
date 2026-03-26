@@ -6,15 +6,16 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.account.exceptions.AuthError;
+import com.games_price_tracker.api.account.exceptions.SignInCodeEmailCooldownException;
 import com.games_price_tracker.api.core.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
-import com.games_price_tracker.api.email.config.EmailConfigProperties;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
@@ -33,13 +34,15 @@ public class AccountService {
     private final int maxTokens = 3;
     private final AccountCacheService accountCacheService;
     private final SecureRandom secureRandom = new SecureRandom();
-    
-    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService, EmailConfigProperties emailConfigProperties){
+    private final AccountEmailCooldown accountEmailCooldown;
+
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService, @Value("${account.sign-in-code-email-interval}") Duration intervalSendEmail, AccountEmailCooldown accountEmailCooldown){
         this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
         this.accountCacheService = accountCacheService;
-        this.intervalSendEmail = emailConfigProperties.getSignInCodeInterval();
+        this.intervalSendEmail = intervalSendEmail;
+        this.accountEmailCooldown = accountEmailCooldown;
     }
 
     public void verifyCodeRateLimit(String email){
@@ -69,6 +72,13 @@ public class AccountService {
         }else{
             code = String.valueOf(secureRandom.nextInt(100000, 1000000));
             account.assignSignInCode(code, signInCodeValidDuration);
+        }
+        
+        if(!accountEmailCooldown.canSendSignInCode(account.getLastSignInCodeSentAt())){
+            throw new SignInCodeEmailCooldownException(
+                accountEmailCooldown.timeUntilNextSignInCodeSend(account.getLastSignInCodeSentAt()).getSeconds(), 
+                TimeUnit.SECONDS
+            );
         }
 
         sendEmailService.verificationEmail(account.getEmail(), code);

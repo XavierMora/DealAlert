@@ -11,6 +11,7 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import com.games_price_tracker.api.email.brevo.BrevoPostBody;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.price_change_alert.PriceChangeAlertRepository;

@@ -8,7 +8,8 @@ public enum ErrorCode implements ApiError {
     RESOURCE_ALREADY_EXISTS,
     UNAUTHORIZED,
     FORBIDDEN,
-    INTERNAL_SERVER_ERROR;
+    INTERNAL_SERVER_ERROR,
+    EMAIL_COOLDOWN;
 
     @Override
     public String getErrorCode() {

@@ -2,7 +2,6 @@ package com.games_price_tracker.api.account;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -12,20 +11,19 @@ import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.games_price_tracker.api.account.exceptions.AuthError;
+import com.games_price_tracker.api.account.exceptions.SignInCodeEmailCooldownException;
 import com.games_price_tracker.api.core.exceptions.TooManyRequestsException;
-import com.games_price_tracker.api.email.config.EmailConfigProperties;
 
 import io.github.bucket4j.Bucket;
 
 @Service
 public class AccountCacheService {
-    private final Duration intervalSendEmail;
+    private final AccountEmailCooldown accountEmailCooldown;
     private final Cache emailSentCache;
 
-    public AccountCacheService(CacheManager cacheManager, EmailConfigProperties emailConfigProperties){
+    public AccountCacheService(CacheManager cacheManager, AccountEmailCooldown accountEmailCooldown){
         this.emailSentCache = cacheManager.getCache("email-sent");
-        this.intervalSendEmail = emailConfigProperties.getSignInCodeInterval();
+        this.accountEmailCooldown = accountEmailCooldown;
     }
 
     @Cacheable(cacheNames = "verify-code-rate-limit", sync = true)
@@ -47,14 +45,10 @@ public class AccountCacheService {
         
         if(optionalEmailSentAt.isEmpty()){
             throw new TooManyRequestsException();
-        }else{
-            long emailSentAgo = optionalEmailSentAt.get().until(Instant.now(), ChronoUnit.SECONDS);
-            
-            throw new TooManyRequestsException(
-                intervalSendEmail.minusSeconds(emailSentAgo).getSeconds(), 
-                TimeUnit.SECONDS, 
-                "Un código fue enviado recientemente. Intentar más tarde.", 
-                AuthError.CODE_SENT_RECENTLY
+        }else{            
+            throw new SignInCodeEmailCooldownException(
+                accountEmailCooldown.timeUntilNextSignInCodeSend(optionalEmailSentAt.get()).getSeconds(), 
+                TimeUnit.SECONDS
             );
         }
     }

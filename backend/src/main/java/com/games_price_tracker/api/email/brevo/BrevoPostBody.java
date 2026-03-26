@@ -1,4 +1,4 @@
-package com.games_price_tracker.api.email;
+package com.games_price_tracker.api.email.brevo;
 
 import java.util.LinkedList;
 import java.util.List;

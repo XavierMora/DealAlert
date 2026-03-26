@@ -2,11 +2,12 @@ package com.games_price_tracker.api.email;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import com.games_price_tracker.api.email.config.EmailConfigProperties;
+import com.games_price_tracker.api.email.brevo.BrevoPostBody;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.steam.SteamUrlBuilder;
@@ -17,8 +18,8 @@ public class EmailBuilder {
     private final TemplateEngine emailTemplateEngine;
     private final SteamUrlBuilder steamUrlBuilder;
 
-    EmailBuilder(EmailConfigProperties emailConfigProperties, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder){
-        this.from = emailConfigProperties.getFrom();
+    EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder){
+        this.from = appEmail;
         this.emailTemplateEngine = emailTemplateEngine;
         this.steamUrlBuilder = steamUrlBuilder; 
     }
