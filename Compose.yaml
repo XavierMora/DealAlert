@@ -11,7 +11,7 @@ services:
       - my-db-volume:/var/lib/postgresql
 
   pgadmin:
-    image: dpage/pgadmin4:8
+    image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: dev@dev.com
       PGADMIN_DEFAULT_PASSWORD: dev
@@ -20,11 +20,15 @@ services:
     depends_on:
       - db
 
-  mailhog:
-    image: mailhog/mailhog
+  ngrok: # expone app. Para probar con el webhook de brevo
+    image: ngrok/ngrok:latest
+    command:
+      - "http"
+      - "http://host.docker.internal:8080"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
     ports:
-      - 1025:1025
-      - 8025:8025
+      - 4040:4040
     
 volumes: 
   my-db-volume:

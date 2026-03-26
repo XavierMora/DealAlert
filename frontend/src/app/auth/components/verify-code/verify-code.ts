@@ -60,7 +60,7 @@ export class VerifyCode {
         if(err.error === ApiAuthErrorCode.CODE_SENT_RECENTLY){
           this.alertService.newAlert({
             type: 'error',
-            text: 'Un código fue enviado recientemente. Intentar más tarde.'
+            text: 'Un código fue solicitado recientemente. Intentar más tarde.'
           })
         }else{
           this.alertService.newAlert({

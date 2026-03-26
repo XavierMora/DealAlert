@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class StatusController {
     @GetMapping("/health")
     public ResponseEntity<Void> health() {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

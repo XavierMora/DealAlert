@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -21,9 +22,11 @@ public class SendEmailService {
     private final EmailBuilder emailBuilder;
     private final Logger log = LoggerFactory.getLogger(SendEmailService.class);
     private final RestClient brevoClient;
+    private final TaskExecutor sendEmailExecutor;
 
-    public SendEmailService(EmailBuilder emailBuilder, PriceChangeAlertRepository alertRepository, @Value("${brevo.api.key}") String brevoApiKey){
+    public SendEmailService(EmailBuilder emailBuilder, PriceChangeAlertRepository alertRepository, @Value("${brevo.api.key}") String brevoApiKey, TaskExecutor sendEmailExecutor){
         this.emailBuilder = emailBuilder;
+        this.sendEmailExecutor = sendEmailExecutor;
 
         JdkClientHttpRequestFactory clientHttp = new JdkClientHttpRequestFactory(
             HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build()
@@ -43,7 +46,9 @@ public class SendEmailService {
         try {
             BrevoPostBody message = emailBuilder.createVerificationEmail(recipient, code);
             
-            brevoClient.post().body(message).retrieve().toBodilessEntity();
+            sendEmailExecutor.execute(() -> {
+                brevoClient.post().body(message).retrieve().toBodilessEntity();
+            });
         } catch (Exception e) {
             log.error("Error sending verification email to {}", recipient, e);
             throw new SendEmailException(e);

@@ -73,4 +73,12 @@ public class AccountController {
             new AccountDto(account.getId(), account.getEmail()))
         );
     }
+
+    @PostMapping("/")
+    public String postMethodName(@RequestBody String entity) {
+        //TODO: process POST request
+        
+        return entity;
+    }
+    
 }

@@ -89,6 +89,12 @@ public class AccountService {
         return account.getLastSignInCodeSentAt();
     }
 
+    @Transactional
+    public void clearLastSignInCodeSentAt(String email){
+        accountCacheService.evictEmailSentCache(email);
+        accountRepository.updateLastSignInCodeSentAtByEmail(email, null); 
+    }
+
     public int getMaxTokens() {
         return maxTokens;
     }

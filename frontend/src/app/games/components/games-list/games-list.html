@@ -1,6 +1,6 @@
 @if (games$ | async; as games) {
     @if(games.data === undefined || games.data.numberOfElements == 0){
-        <span>No se encontraron resultados</span>
+        <span class="text-(--text-muted)">No se encontraron resultados</span>
     }@else{
         <div class="overflow-hidden rounded-sm">
             <table class="hidden md:table md:table-fixed w-full border-collapse">
