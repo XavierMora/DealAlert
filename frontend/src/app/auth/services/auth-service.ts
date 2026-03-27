@@ -97,7 +97,6 @@ export class AuthService {
     ).pipe(
       catchError((err: ApiResponse<undefined>) => throwError(() => err.error)),
       // Se actualiza el estado del auth
-      // también el token csrf se borra asi que se usa el setAuthentication para establecerlo
       finalize(() => this.setAuthentication()), 
     )
   }

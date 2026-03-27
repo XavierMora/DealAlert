@@ -54,7 +54,7 @@ export class PriceChangeAlertsList {
       let data = alerts.data!;
 
       if(data.numberOfElements == 1){
-        if(data.first && data.last) return undefined;
+        if(data.first && data.last) return undefined; // última alerta
 
         if(data.last) goToPrevPage = true;
         else reloadPage = true;

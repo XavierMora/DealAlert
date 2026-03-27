@@ -3,16 +3,14 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { XsrfTokenInterceptor } from './shared/interceptors/request-interceptors';
 import { AuthService } from './auth/services/auth-service';
-import { firstValueFrom } from 'rxjs';
 import { InternalServerErrorInterceptor, TooManyRequestsInterceptor } from './shared/interceptors/response-interceptors';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([XsrfTokenInterceptor, TooManyRequestsInterceptor, InternalServerErrorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([TooManyRequestsInterceptor, InternalServerErrorInterceptor])),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       return authService.setAuthentication();

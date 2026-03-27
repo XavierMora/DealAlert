@@ -12,8 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.ForwardedHeaderFilter;
@@ -27,23 +25,12 @@ import com.games_price_tracker.api.core.security.handlers.ApiLogoutSuccessHandle
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-    private final CookieCsrfTokenRepository cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
-    private final CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
-
-    SecurityConfig(){
-        cookieCsrfTokenRepository.setCookieCustomizer(c -> c.sameSite("None").secure(true).httpOnly(false));
-        csrfTokenRequestHandler.setCsrfRequestAttributeName(null); // Para que se envie el token también en requests con safe-methods como get
-    }
-
     @Bean
     SecurityFilterChain priceChangeAlertSecurityChain(HttpSecurity http, AuthFilter authFilter, ApiAuthenticationEntryPointHandler authEntryPointHandler){
         http
         .securityMatcher("/price-change-alerts/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf
-            .csrfTokenRepository(cookieCsrfTokenRepository)
-            .csrfTokenRequestHandler(csrfTokenRequestHandler)
-        )
+        .csrf(csrf -> csrf.disable())
         .addFilterAfter(authFilter, ExceptionTranslationFilter.class)
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .httpBasic(httpBasic -> httpBasic.disable())
@@ -58,11 +45,8 @@ public class SecurityConfig {
         http
         .securityMatcher("/account/**")
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf(csrf -> csrf
-            .ignoringRequestMatchers("/account/sign-in-code", "/account/verify-code") // No valida el token csrf para los endpoints en ignoringRequestMatchers
-            .csrfTokenRepository(cookieCsrfTokenRepository)
-            .csrfTokenRequestHandler(csrfTokenRequestHandler) 
-        ).logout(logout -> logout
+        .csrf(csrf -> csrf.disable())
+        .logout(logout -> logout
             .logoutUrl("/account/logout")
             .logoutSuccessHandler(logoutSuccessHandler)
         )
