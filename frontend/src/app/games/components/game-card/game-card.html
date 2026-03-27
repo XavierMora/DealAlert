@@ -1,32 +1,32 @@
 @let _game = game();
 
-<div class="flex flex-col bg-(--surface-1) hover:bg-(--surface-2) rounded-sm w-full h-fit">
+<div class="flex flex-col bg-(--surface-1) hover:bg-(--surface-2) rounded-sm w-full h-full">
     <div class="relative h-32 w-full">
         <img class="rounded-t-sm object-cover" fill [ngSrc]="_game.img" [alt]="_game.name">
     </div>
 
-    <div class="flex justify-between mt-1 p-3 h-full">
+    <div class="flex justify-between mt-1 p-3 flex-1">
         <div class="flex flex-col justify-between">
             <span class="game-name">{{_game.name}}</span>
         
-                @if(_game.priceInfo == undefined){
-                <span>-</span>
-                }@else{
-                <div class="flex flex-col justify-end">
-                    @if(_game.priceInfo.discount > 0){
-                    <span class="old-price">{{_game.priceInfo.initialPrice/100 | currency}}</span>
-                    }
-                    <div class="flex gap-2 items-center">
-                        <span>{{_game.priceInfo.finalPrice/100 | currency}} USD</span>
-                        <span [class.text-green-500]="_game.priceInfo.discount > 0">
-                            {{_game.priceInfo.discount > 0 ? "-"+_game.priceInfo.discount+"%" : ''}}
-                        </span>
-                    </div>
-                </div>
+            @if(_game.priceInfo == undefined){
+            <span>-</span>
+            }@else{
+            <div class="flex flex-col justify-end">
+                @if(_game.priceInfo.discount > 0){
+                <span class="old-price">{{_game.priceInfo.initialPrice/100 | currency}}</span>
                 }
+                <div class="flex gap-2 items-center">
+                    <span>{{_game.priceInfo.finalPrice/100 | currency}} USD</span>
+                    <span [class.text-green-500]="_game.priceInfo.discount > 0">
+                        {{_game.priceInfo.discount > 0 ? "-"+_game.priceInfo.discount+"%" : ''}}
+                    </span>
+                </div>
+            </div>
+            }
         </div>
 
-        <div class="flex flex-col justify-between items-center h-full gap-4">
+        <div class="flex flex-col justify-between items-center py-1 gap-4">
             <app-button-price-alert [game]="_game" (alertDeleted)="deletedFromAlert.emit($event)"></app-button-price-alert>
             <app-steam-store-link [gameSteamUrl]="_game.steamUrl"></app-steam-store-link>
         </div>
