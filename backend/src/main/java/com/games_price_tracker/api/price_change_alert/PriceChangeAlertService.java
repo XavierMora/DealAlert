@@ -23,16 +23,14 @@ public class PriceChangeAlertService {
     private final PriceChangeAlertRepository priceChangeAlertRepository;
     private final GameService gameService;
     private final SendEmailService sendEmailService;
-    private final PriceChangeAlertCacheService priceChangeAlertCacheService;
     private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
     private final AccountService accountService;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, PriceChangeAlertCacheService priceChangeAlertCacheService, AccountService accountService){
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, AccountService accountService){
         this.accountService = accountService;
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
         this.sendEmailService = sendEmailService;
-        this.priceChangeAlertCacheService = priceChangeAlertCacheService;
     }
 
     @Transactional
@@ -47,14 +45,12 @@ public class PriceChangeAlertService {
         PriceChangeAlert priceAlert = new PriceChangeAlert(account, game);
         Optional<PriceChangeAlert> newAlert = Optional.of(priceChangeAlertRepository.save(priceAlert));
 
-        priceChangeAlertCacheService.evictAlertsCache(account.getId());
-
         return newAlert;
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
         accountService.verifyRateLimit(account.getEmail());
-        return priceChangeAlertCacheService.getAlerts(account.getId(), pageable);
+        return priceChangeAlertRepository.findAllByAccountId(account.getId(), pageable);
     }
 
     @Transactional
@@ -62,34 +58,30 @@ public class PriceChangeAlertService {
         accountService.verifyRateLimit(account.getEmail());
         boolean alertDeleted = priceChangeAlertRepository.deleteByAccountIdAndGameId(account.getId(), gameId) > 0;
         
-        if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");
-        
-        priceChangeAlertCacheService.evictAlertsCache(account.getId());
+        if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");        
     }
 
     public boolean notifyPriceChange(Game game, ChangePriceResult result){
-        Optional<List<PriceChangeAlert>> optionalAlerts = priceChangeAlertRepository.findAllByGameId(game.getId());
+        List<PriceChangeAlert> alerts = priceChangeAlertRepository.findAllByGameId(game.getId());
 
-        if(optionalAlerts.isEmpty()){
-            log.info("No alerts for the game with id={}", game.getId());
-            return false;
-        }
-
-        if(
-            result.newPrice().initialPrice() > result.newPrice().finalPrice()
-        ){
-            List<String> emails = optionalAlerts.get().stream().map(alert -> alert.getAccount().getEmail()).toList();
+        if(alerts.isEmpty()) return false;
         
+        boolean notify = false;
+        if(result.newPrice().initialPrice() > result.newPrice().finalPrice()){
+            List<String> emails = alerts.stream().map(alert -> alert.getAccount().getEmail()).toList();
+            
             try {
+                log.info("Starting send of deal notification for game with id={} to {} recipients", game.getId(), emails.size());
+
                 sendEmailService.dealEmail(game, result, emails);
-                return true;
+                notify = true;
             } catch (Exception e) {
                 log.error("Failed to create deal notification for the game with id={}", game.getId(), e);
-                return false;
             }
         }else{
             log.info("No deal notification sent for the game with id={}, price didn't drop", game.getId());
-            return false;
         }
+
+        return notify;
     }
 }

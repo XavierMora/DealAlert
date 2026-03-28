@@ -58,7 +58,7 @@ public class EnqueueGamesTaskHandler {
             return CancelEnqueueResult.NO_ENQUEUE_SCHEDULED;
         }
 
-        ScheduledFuture<?> result = currentTaskScheduled.getAndUpdate(taskScheduled -> {
+        currentTaskScheduled.getAndUpdate(taskScheduled -> {
             boolean canceled = taskScheduled.cancel(false);
             
             if(canceled) log.info("Enqueue canceled");
@@ -67,7 +67,7 @@ public class EnqueueGamesTaskHandler {
             return canceled ? null : taskScheduled;
         });
 
-        return result == null ? CancelEnqueueResult.CANCELED : CancelEnqueueResult.CANCEL_FAILED;
+        return currentTaskScheduled.get() == null ? CancelEnqueueResult.CANCELED : CancelEnqueueResult.CANCEL_FAILED;
     }
 
     public void nextExecution(boolean allGamesChecked){
