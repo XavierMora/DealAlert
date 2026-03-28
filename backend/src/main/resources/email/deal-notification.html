@@ -20,12 +20,12 @@
                     Precio anterior<br>
                     <span style="font-weight: bold; padding-right: 5px;">
                         <span style="text-decoration: line-through; color:#999999;">
-                            $<span th:text="${oldPrice.initialPrice()}"></span> USD
+                            <span th:text="${oldPrice.initialPriceFormatted()}"></span>
                         </span>
                     </span>     
     
                     <span style="font-weight: bold;">
-                        $<span th:text="${oldPrice.finalPrice()}"></span> USD
+                        <span th:text="${oldPrice.finalPriceFormatted()}"></span>
                     </span>
     
                     <span style="color: #27ae60; padding-left: 2px;">
@@ -38,12 +38,12 @@
                 <span th:if="${oldPrice.discount() > 0}">Precio actual</span><br>
                 <span style="font-weight: bold; padding-right: 5px;">
                     <span style="text-decoration: line-through; color:#999999;">
-                        $<span th:text="${newPrice.initialPrice()}"></span> USD
+                        <span th:text="${newPrice.initialPriceFormatted()}"></span>
                     </span>
                 </span>     
 
                 <span style="font-weight: bold;">
-                    $<span th:text="${newPrice.finalPrice()}"></span> USD
+                    <span th:text="${newPrice.finalPriceFormatted()}"></span>
                 </span>
 
                 <span style="color: #27ae60; padding-left: 2px;">

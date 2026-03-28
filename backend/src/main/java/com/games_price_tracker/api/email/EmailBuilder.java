@@ -9,6 +9,7 @@ import org.thymeleaf.context.Context;
 
 import com.games_price_tracker.api.email.brevo.BrevoPostBody;
 import com.games_price_tracker.api.game.Game;
+import com.games_price_tracker.api.price.PriceMapper;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.steam.SteamUrlBuilder;
 
@@ -17,11 +18,13 @@ public class EmailBuilder {
     private final String from;
     private final TemplateEngine emailTemplateEngine;
     private final SteamUrlBuilder steamUrlBuilder;
+    private final PriceMapper priceMapper;
 
-    EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder){
+    EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder, PriceMapper priceMapper){
         this.from = appEmail;
         this.emailTemplateEngine = emailTemplateEngine;
         this.steamUrlBuilder = steamUrlBuilder; 
+        this.priceMapper = priceMapper;
     }
 
     public BrevoPostBody createVerificationEmail(String recipient, String code){
@@ -41,8 +44,14 @@ public class EmailBuilder {
         // Se carga y establece la plantilla con los datos
         Context ctx = new Context();
         ctx.setVariable("gameName", game.getName());
-        ctx.setVariable("oldPrice", changePriceResult.oldPrice());
-        ctx.setVariable("newPrice", changePriceResult.newPrice());
+        ctx.setVariable(
+            "oldPrice", 
+            priceMapper.fromPriceInfoToPriceInfoEmail(changePriceResult.oldPrice())
+        );
+        ctx.setVariable(
+            "newPrice", 
+            priceMapper.fromPriceInfoToPriceInfoEmail(changePriceResult.newPrice())
+        );
         ctx.setVariable("gameSteamUrl", steamUrlBuilder.appUrl(
             game.getSteamId(), 
             game.getName()

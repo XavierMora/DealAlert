@@ -1,8 +1,11 @@
 package com.games_price_tracker.api.price;
 
+import java.text.DecimalFormat;
+
 import org.springframework.stereotype.Component;
 
 import com.games_price_tracker.api.price.dtos.PriceInfo;
+import com.games_price_tracker.api.price.dtos.PriceInfoEmail;
 
 @Component
 public class PriceMapper {
@@ -24,6 +27,20 @@ public class PriceMapper {
             calcDiscount(initialPrice, finalPrice),
             null
         );
+    }
+
+    public PriceInfoEmail fromPriceInfoToPriceInfoEmail(PriceInfo priceInfo){
+        return new PriceInfoEmail(
+            priceInfo.initialPrice(), 
+            formatPrice(priceInfo.initialPrice()), 
+            priceInfo.finalPrice(), 
+            formatPrice(priceInfo.finalPrice()),
+            priceInfo.discount()
+        );
+    }
+
+    private String formatPrice(int price){
+        return new DecimalFormat("$##.## USD").format(price/100.0);
     }
 
     private static int calcDiscount(int initialPrice, int finalPrice){
