@@ -59,7 +59,7 @@ public class EmailBuilder {
         String template = emailTemplateEngine.process("deal-notification.html", ctx);
 
         return new BrevoPostBody(
-            "El juego %s está en oferta".formatted(game.getName()), 
+            "Alerta del juego %s".formatted(game.getName()), 
             from, 
             recipients, 
             template

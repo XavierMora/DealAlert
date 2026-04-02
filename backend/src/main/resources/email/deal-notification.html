@@ -3,70 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oferta</title>
+    <title>Alerta</title>
 </head>
 <body style="font-family: Helvetica, Arial, sans-serif;  margin: 0; padding: 0 0 0 10px;">
     <p style="font-size: 20px; color:#333333; margin: 0; padding: 15px 0; font-weight:bold;">Oferta detectada</p>
             
-    <div style="color:#555555; font-size:14px;">
-        <p style="padding-bottom: 0px; margin: 0; line-height: 20px;">
-            Hola,<br>
-            el juego <strong th:text="${gameName}"></strong> está en oferta:
-        </p>
+    <p style="margin-bottom: 10px; margin-top: 0;">
+        Hola,<br>
+        el juego <strong th:text="${gameName}"></strong> está en oferta:
+    </p>
 
-        <div style="padding-bottom: 10px; height: fit-content;">
-            <div th:if="${oldPrice.discount() > 0}" style="margin-top: 10px; margin-bottom: 3px;">
-                <p style="margin: 0; line-height: 20px; padding-bottom: 5px;">
-                    Precio anterior<br>
-                    <span style="font-weight: bold; padding-right: 5px;">
-                        <span style="text-decoration: line-through; color:#999999;">
-                            <span th:text="${oldPrice.initialPriceFormatted()}"></span>
-                        </span>
-                    </span>     
-    
-                    <span style="font-weight: bold;">
-                        <span th:text="${oldPrice.finalPriceFormatted()}"></span>
-                    </span>
-    
-                    <span style="color: #27ae60; padding-left: 2px;">
-                        -<span th:text="${oldPrice.discount()}"></span>%
-                    </span>
-                </p>
-            </div>
+    <p th:if="${oldPrice.discount() > 0}" style="margin: 0; padding-bottom: 15px;">
+        <span style="display: block;">Precio anterior</span>
+        <span style="font-weight: bold; padding-right: 5px;">
+            <span style="text-decoration: line-through; color:#999999;">
+                <span th:text="${oldPrice.initialPriceFormatted()}"></span>
+            </span>
+        </span>     
 
-            <p style="margin: 0;">
-                <span th:if="${oldPrice.discount() > 0}">Precio actual</span><br>
-                <span style="font-weight: bold; padding-right: 5px;">
-                    <span style="text-decoration: line-through; color:#999999;">
-                        <span th:text="${newPrice.initialPriceFormatted()}"></span>
-                    </span>
-                </span>     
+        <span style="font-weight: bold;">
+            <span th:text="${oldPrice.finalPriceFormatted()}"></span>
+        </span>
 
-                <span style="font-weight: bold;">
-                    <span th:text="${newPrice.finalPriceFormatted()}"></span>
-                </span>
+        <span style="color: #27ae60; padding-left: 2px;">
+            -<span th:text="${oldPrice.discount()}"></span>%
+        </span>
+    </p>
 
-                <span style="color: #27ae60; padding-left: 2px;">
-                    -<span th:text="${newPrice.discount()}"></span>%
-                </span>
-            </p>
-        </div>
-    </div>
+    <p style="margin: 0; padding: 0;">
+        <span style="display: block;" th:if="${oldPrice.discount() > 0}">Precio actual</span>
+        <span style="font-weight: bold; padding-right: 5px;">
+            <span style="text-decoration: line-through; color:#999999;">
+                <span th:text="${newPrice.initialPriceFormatted()}"></span>
+            </span>
+        </span>     
 
-    <div style="padding-top:20px;">
-        <a role="link" th:href="${gameSteamUrl}"
-            style="
-            background-color:#347bb9;
-            color:#ffffff;
-            text-decoration:none;
-            padding:12px 24px;
-            border-radius:4px;
-            font-weight:bold;
-            display:inline-block;
-            cursor: pointer;
-            ">
-        Ver en Steam
-        </a>
-    </div>
+        <span style="font-weight: bold;">
+            <span th:text="${newPrice.finalPriceFormatted()}"></span>
+        </span>
+
+        <span style="color: #27ae60; padding-left: 2px;">
+            -<span th:text="${newPrice.discount()}"></span>%
+        </span>
+    </p>
+
+    <a style="margin-top:25px; background-color:#347bb9;
+        color:#ffffff;
+        text-decoration:none;
+        padding:12px 24px;
+        border-radius:4px;
+        font-weight:bold;
+        display:inline-block;
+        cursor: pointer;" role="link" th:href="${gameSteamUrl}">
+    Ver en Steam
+    </a>
 </body>
 </html>
