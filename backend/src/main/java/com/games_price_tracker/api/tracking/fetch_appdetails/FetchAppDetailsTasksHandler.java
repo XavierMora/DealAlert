@@ -53,14 +53,17 @@ public class FetchAppDetailsTasksHandler {
         log.info("Fetch appdetails task scheduled");
     }
 
-    public void nextTask(FetchAppDetailsTask previousTask){        
+    void nextTask(FetchAppDetailsTask previousTask){        
+        if(!previousTask.getSuccess()){ // La tarea no tuvo éxito
+            // Intentar volver a poner la tarea en pendiente
+            boolean failedTaskAddedToPending = pendingTasks.offer(new FetchAppDetailsTask(previousTask.getGames(), steamClient, updateGamesPricesTasksHandler, this));
+    
+            if(!failedTaskAddedToPending){
+                log.info("Failed fetch appdetails task couldn't be added to pending");
+            }
+        }
+
         canStartTask.set(true);
         startTask();
-
-        if(previousTask.getSuccess()) return; 
-        
-        boolean failedTaskAddedToPending = pendingTasks.offer(new FetchAppDetailsTask(previousTask.getGames(), steamClient, updateGamesPricesTasksHandler, this)); // Se intenta poner de vuelta la tarea en caso de fallo.
-
-        if(!failedTaskAddedToPending) log.info("Failed fetch appdetails task couldn't be added to pending");
     }
 }
