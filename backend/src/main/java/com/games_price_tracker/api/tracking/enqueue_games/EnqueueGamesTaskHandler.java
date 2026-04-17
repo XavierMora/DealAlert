@@ -40,16 +40,22 @@ public class EnqueueGamesTaskHandler {
     }
 
     public StartEnqueueResult start(int gamesPerRequest){
-        boolean canStart = currentTaskScheduled.get() == null;
+        // AtomicReference para setear dentro del getAndUpdate
+        AtomicReference<StartEnqueueResult> result = new AtomicReference<>();
 
-        if(canStart){
-            task.setGamesPerRequest(gamesPerRequest);
-            currentTaskScheduled.set(taskScheduler.schedule(task, Instant.now()));
-        }else{
-            log.error("Can't start enqueue because there is already one scheduled");
-        }
+        currentTaskScheduled.getAndUpdate((taskScheduled) -> {
+            if(taskScheduled == null){
+                task.setGamesPerRequest(gamesPerRequest);
+                result.set(StartEnqueueResult.STARTED);
+                return taskScheduler.schedule(task, Instant.now());
+            }else{
+                log.error("Can't start enqueue because there is already one scheduled");
+                result.set(StartEnqueueResult.ENQUEUE_ALREADY_SCHEDULED);
+                return taskScheduled;
+            }
+        });
 
-        return canStart ? StartEnqueueResult.STARTED : StartEnqueueResult.ENQUEUE_ALREADY_SCHEDULED;
+        return result.get();
     }
 
     public CancelEnqueueResult cancel(){
@@ -58,16 +64,22 @@ public class EnqueueGamesTaskHandler {
             return CancelEnqueueResult.NO_ENQUEUE_SCHEDULED;
         }
 
+        AtomicReference<CancelEnqueueResult> result = new AtomicReference<>();
+
         currentTaskScheduled.getAndUpdate(taskScheduled -> {
             boolean canceled = taskScheduled.cancel(false);
             
-            if(canceled) log.info("Enqueue canceled");
-            else log.error("Current enqueue couldn't be canceled");
-            
+            if(canceled){
+                result.set(CancelEnqueueResult.CANCELED);
+                log.info("Enqueue canceled");
+            }else{
+                result.set(CancelEnqueueResult.CANCEL_FAILED);
+                log.error("Current enqueue couldn't be canceled");
+            }
             return canceled ? null : taskScheduled;
         });
 
-        return currentTaskScheduled.get() == null ? CancelEnqueueResult.CANCELED : CancelEnqueueResult.CANCEL_FAILED;
+        return result.get();
     }
 
     public void nextExecution(boolean allGamesChecked){
