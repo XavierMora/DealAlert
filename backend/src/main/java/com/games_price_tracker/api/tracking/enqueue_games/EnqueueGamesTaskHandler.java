@@ -2,7 +2,6 @@ package com.games_price_tracker.api.tracking.enqueue_games;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -88,13 +87,19 @@ public class EnqueueGamesTaskHandler {
         if(allGamesChecked){
             task.resetActualPage();
 
-            ZonedDateTime dateEnqueue = LocalDateTime.now().plus(minIntervalGamePriceUpdate).withHour(6).withMinute(0).atZone(ZoneId.of("America/Argentina/Buenos_Aires"));
+            ZonedDateTime dateEnqueue = ZonedDateTime
+                .now(ZoneId.of("America/Argentina/Buenos_Aires"))
+                .plus(minIntervalGamePriceUpdate.plusDays(1))
+                .withHour(6)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
 
             schedulingTime = dateEnqueue.toInstant();
 
             log.info("Enqueue completed. Next: {}", dateEnqueue.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         }else{
-            long delayNextExecution = delayBetweenRequests.getSeconds()*maxPagesPerEnqueue+20;
+            long delayNextExecution = delayBetweenRequests.getSeconds()*maxPagesPerEnqueue+10;
             schedulingTime = Instant.now().plus(Duration.ofSeconds(delayNextExecution));
         }
 
