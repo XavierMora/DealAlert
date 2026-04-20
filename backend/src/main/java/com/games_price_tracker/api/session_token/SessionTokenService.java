@@ -12,7 +12,7 @@ import com.games_price_tracker.api.session_token.exceptions.InvalidStatus;
 
 @Service
 public class SessionTokenService {
-    private final Duration durationValidToken = Duration.ofDays(7);
+    private final Duration durationValidToken = Duration.ofDays(2);
     private final SessionTokenRepository sessionTokenRepository;
 
     public SessionTokenService(SessionTokenRepository sessionTokenRepository){
