@@ -57,7 +57,7 @@ export class VerifyCode {
         text: 'Código reenviado.'
       }),
       error: (err) => {
-        if(err.error === ApiAuthErrorCode.CODE_SENT_RECENTLY){
+        if(err.error === ApiErrorCode.EMAIL_COOLDOWN){
           this.alertService.newAlert({
             type: 'error',
             text: 'Un código fue solicitado recientemente. Intentar más tarde.'

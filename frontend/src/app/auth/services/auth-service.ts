@@ -3,6 +3,7 @@ import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { catchError, EMPTY, finalize, firstValueFrom, Observable, of, tap, throwError } from 'rxjs';
 import { ApiAuthErrorCode } from '../model/ApiAuthErrorCode';
+import { ApiErrorCode } from '../../shared/models/ApiErrorCode';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class AuthService {
 
   signInCode(email: string): Observable<ApiResponse<undefined | Record<string, string>> | null>{
     if(this.canSend(this.retryAfterSignInCode(), email)) return throwError(() => {
-      return {error: ApiAuthErrorCode.CODE_SENT_RECENTLY}
+      return {error: ApiErrorCode.EMAIL_COOLDOWN}
     });
 
     return this.http.post<ApiResponse<undefined | Record<string, string>>>(

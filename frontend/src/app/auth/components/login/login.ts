@@ -35,7 +35,7 @@ export class Login {
         };
 
         switch(err.error){
-          case ApiAuthErrorCode.CODE_SENT_RECENTLY:
+          case ApiErrorCode.EMAIL_COOLDOWN:
             this.errorSendingForm.set(undefined);
             this.codeSent.emit(this.email)
             break;
