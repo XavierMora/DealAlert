@@ -1,10 +1,13 @@
 package com.games_price_tracker.api.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +23,7 @@ import com.games_price_tracker.api.session_token.SessionTokenService;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -66,5 +70,35 @@ public class AccountServiceTest {
         assertNull(account.getLastSignInCodeSentAt());
         assertNotNull(account.getSignInCode());
         verify(accountEmailCooldown).cleanSignInEmailCooldown(eq(emailTest));
+    }
+
+    @Test
+    void shouldCreateNewSignInCodeWhenSignInCodeIsRequestedAfterLastExpectedSend(){
+        Account account = new Account(emailTest);
+        String testCode = "0";
+        account.setSignInCode(testCode);
+        given(accountEmailCooldown.getSignInEmailInterval()).willReturn(Duration.ofMinutes(2));
+        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailInterval().dividedBy(2)));
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+
+        accountService.sendSignInCode(emailTest);
+        
+        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), notNull());
+        assertNotEquals(testCode, account.getSignInCode());
+    }
+
+    @Test
+    void shouldNotCreateNewSignInCodeWhenSignInCodeIsRequestedBeforeLastExpectedSend(){
+        Account account = new Account(emailTest);
+        String testCode = "123456";
+        account.setSignInCode(testCode);
+        given(accountEmailCooldown.getSignInEmailInterval()).willReturn(Duration.ofMinutes(2));
+        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailInterval().plusSeconds(2)));
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+
+        accountService.sendSignInCode(emailTest);
+        
+        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), notNull());
+        assertEquals(testCode, account.getSignInCode());
     }
 }
