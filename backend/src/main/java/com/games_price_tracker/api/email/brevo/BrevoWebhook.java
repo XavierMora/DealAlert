@@ -3,7 +3,6 @@ package com.games_price_tracker.api.email.brevo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.games_price_tracker.api.account.AccountCacheService;
 import com.games_price_tracker.api.account.AccountService;
 import com.games_price_tracker.api.core.response.ApiResponseBody;
 import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
@@ -25,7 +24,7 @@ public class BrevoWebhook {
     private final String token;
     private final ObjectMapper objectMapper;
 
-    BrevoWebhook(@Value("${brevo.webhook.token}") String token, AccountService accountService, AccountCacheService accountCacheService, ObjectMapper objectMapper){
+    BrevoWebhook(@Value("${brevo.webhook.token}") String token, AccountService accountService, ObjectMapper objectMapper){
         this.token = token;
         this.accountService = accountService;
         this.objectMapper = objectMapper;

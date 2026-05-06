@@ -4,23 +4,15 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.account.exceptions.AuthError;
-import com.games_price_tracker.api.account.exceptions.SignInCodeEmailCooldownException;
-import com.games_price_tracker.api.core.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
-
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,97 +21,89 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final SendEmailService sendEmailService;
     private final Duration signInCodeValidDuration = Duration.ofMinutes(10);
-    private final Duration intervalSendEmail;
     private final SessionTokenService sessionTokenService;
     private final int maxTokens = 3;
-    private final AccountCacheService accountCacheService;
+    private final AccountRateLimit accountRateLimit;
     private final SecureRandom secureRandom = new SecureRandom();
     private final AccountEmailCooldown accountEmailCooldown;
 
-    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountCacheService accountCacheService, @Value("${account.sign-in-code-email-interval}") Duration intervalSendEmail, AccountEmailCooldown accountEmailCooldown){
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountRateLimit accountRateLimit, AccountEmailCooldown accountEmailCooldown){
         this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
-        this.accountCacheService = accountCacheService;
-        this.intervalSendEmail = intervalSendEmail;
+        this.accountRateLimit = accountRateLimit;
         this.accountEmailCooldown = accountEmailCooldown;
     }
 
-    public void verifyCodeRateLimit(String email){
-        Bucket bucket = accountCacheService.getBucketVerifyCode(email);
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if(!probe.isConsumed()) throw new TooManyRequestsException(
-            probe.getNanosToWaitForRefill(), 
-            TimeUnit.NANOSECONDS, 
-            "Muchos intentos. Intentar más tarde.",
-            AuthError.MAX_ATTEMPTS_REACHED
-        ); 
-    }
-
     @Transactional
-    public Instant sendSignInCode(String email) throws SendEmailException{
+    public void sendSignInCode(String email){
+        accountRateLimit.checkAccountRequestLimit(email);
+        
         Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Account account;
         
         if(optionalAccount.isEmpty()) account = new Account(email);
         else account = optionalAccount.get();
 
-        String code;
-        // Se recupera el codigo si no expiro
-        if(!account.signInCodeExpired(intervalSendEmail)){
-            code = account.getSignInCode();
-        }else{
-            code = String.valueOf(secureRandom.nextInt(100000, 1000000));
-            account.assignSignInCode(code, signInCodeValidDuration);
-        }
-        
-        if(!accountEmailCooldown.canSendSignInCode(account.getLastSignInCodeSentAt())){
-            throw new SignInCodeEmailCooldownException(
-                accountEmailCooldown.timeUntilNextSignInCodeSend(account.getLastSignInCodeSentAt()).getSeconds(), 
-                TimeUnit.SECONDS
-            );
-        }
+        accountEmailCooldown.checkSignInEmailCanBeSent(email, account.getLastSignInCodeSentAt());
 
-        sendEmailService.verificationEmail(account.getEmail(), code);
+        try {
+            sendEmailService.verificationEmail(account.getEmail(), getOrCreateSignInCode(account));
+        } catch (SendEmailException e) {
+            accountEmailCooldown.cleanSignInEmailCooldown(email);
+            throw e;
+        }
 
         account.setLastSignInCodeSentAt(Instant.now());
+        accountEmailCooldown.updateSignInEmailSentAt(email, account.getLastSignInCodeSentAt());
+        
         accountRepository.save(account);
+    }
 
-        return account.getLastSignInCodeSentAt();
+    private String getOrCreateSignInCode(Account account){
+        if(!shouldGenerateNewSignInCode(account)) return account.getSignInCode();
+        
+        String code = String.valueOf(secureRandom.nextInt(100000, 1000000));
+        account.assignSignInCode(code, signInCodeValidDuration);
+        
+        return code;
+    }
+
+    private boolean shouldGenerateNewSignInCode(Account account){
+        if(account.getSignInCodeExpectedExpiration() == null) return true;
+
+        if(account.signInCodeExpired()) return true;
+        
+        Instant expectedLastSignInEmailSendTime = account.getSignInCodeExpectedExpiration().minus(accountEmailCooldown.getSignInEmailInterval());
+
+        // Se genera un nuevo código si el email que se quiere enviar está despues de 
+        // expiración código - intervalo de envío de email
+        return Instant.now().isAfter(expectedLastSignInEmailSendTime);         
     }
 
     @Transactional
     public void clearLastSignInCodeSentAt(String email){
-        accountCacheService.evictEmailSentCache(email);
-        accountRepository.updateLastSignInCodeSentAtByEmail(email, null); 
+        accountEmailCooldown.cleanSignInEmailCooldown(email);
+        accountRepository.updateLastSignInCodeSentAtByEmail(email, null);
     }
 
     public int getMaxTokens() {
         return maxTokens;
     }
 
-    public void verifyRateLimit(String email){
-        Bucket bucket = accountCacheService.getBucketAccount(email);
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if(!probe.isConsumed()) throw new TooManyRequestsException(probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
-    }
-
-    @CacheEvict(cacheNames = "email-sent", key = "#email")
     @Transactional
     public SessionToken verifyCode(String email, String code){
-        verifyRateLimit(email);
+        accountRateLimit.checkAccountRequestLimit(email);
 
         Account account = accountRepository.findByEmail(email).orElseThrow(
             () -> new AccountAuthErrorException(AuthError.EMAIL_NOT_FOUND, "Email no encontrado.")
         );
 
-        verifyCodeRateLimit(email);
+        accountRateLimit.checkVerificationCodeAttemptLimit(email);
 
         if(account.getSignInCode() == null || !account.getSignInCode().equals(code)) throw new AccountAuthErrorException(AuthError.INCORRECT_CODE, "Código incorrecto.");
 
-        if(account.signInCodeExpired(intervalSendEmail)) throw new AccountAuthErrorException(AuthError.EXPIRED_CODE, "Código expirado.");
+        if(account.signInCodeExpired()) throw new AccountAuthErrorException(AuthError.EXPIRED_CODE, "Código expirado.");
         
         SessionToken token = sessionTokenService.createSessionToken(account);
         account.addToken(token, maxTokens);

@@ -59,17 +59,8 @@ public class Account {
         sessionTokens.add(token);
     }
 
-    public boolean signInCodeExpired(Duration intervalSendEmail){
-        if(signInCodeExpectedExpiration == null) return true;
-        
-        Instant expectedTimeLastEmail = signInCodeExpectedExpiration.minus(intervalSendEmail);
-        Instant expiration = signInCodeExpectedExpiration;
-
-        if(lastSignInCodeSentAt != null && lastSignInCodeSentAt.isAfter(expectedTimeLastEmail)){
-            expiration = lastSignInCodeSentAt.plus(intervalSendEmail);
-        }
-
-        return expiration.isBefore(Instant.now());
+    public boolean signInCodeExpired(){
+        return signInCodeExpectedExpiration == null || signInCodeExpectedExpiration.isBefore(Instant.now());
     }
 
     public String getEmail() {

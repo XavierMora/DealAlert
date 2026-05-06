@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 import com.games_price_tracker.api.core.exceptions.TooManyRequestsException;
 import com.games_price_tracker.api.core.response.ErrorCode;
 
-public class SignInCodeEmailCooldownException extends TooManyRequestsException {
-    public SignInCodeEmailCooldownException(Long retryAfter, TimeUnit timeUnit){
+public class SignInEmailCooldownException extends TooManyRequestsException {
+    public SignInEmailCooldownException(Long retryAfter, TimeUnit timeUnit){
         super(
             retryAfter, 
             timeUnit,

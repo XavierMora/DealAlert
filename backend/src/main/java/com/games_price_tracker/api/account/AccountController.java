@@ -27,26 +27,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("/account")
 public class AccountController {
     private final AccountService accountService;
-    private AccountCacheService accountCacheService;
 
-    public AccountController(AccountService accountService, AccountCacheService accountCacheService){
+    public AccountController(AccountService accountService){
         this.accountService = accountService;
-        this.accountCacheService = accountCacheService;
     }
 
     @PostMapping("/sign-in-code")
     public ResponseEntity<ApiResponseBody<Void>> signInCode(
         @RequestBody @Valid SignInBody body
     ) {
-        accountCacheService.setEmailSentCache(body.email());
-        
-        try {
-            Instant sentAt = accountService.sendSignInCode(body.email());
-            accountCacheService.updateEmailSentCache(body.email(), sentAt);
-        } catch (RuntimeException e) {
-            accountCacheService.evictEmailSentCache(body.email());
-            throw e;
-        }
+        accountService.sendSignInCode(body.email());
 
         return ResponseEntity
         .status(HttpStatus.OK)

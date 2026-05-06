@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.games_price_tracker.api.account.Account;
-import com.games_price_tracker.api.account.AccountService;
+import com.games_price_tracker.api.account.AccountRateLimit;
 import com.games_price_tracker.api.core.exceptions.ResourceNotFoundException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
@@ -24,10 +24,10 @@ public class PriceChangeAlertService {
     private final GameService gameService;
     private final SendEmailService sendEmailService;
     private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
-    private final AccountService accountService;
+    private final AccountRateLimit accountRateLimit;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, AccountService accountService){
-        this.accountService = accountService;
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, AccountRateLimit accountRateLimit){
+        this.accountRateLimit = accountRateLimit;
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
         this.sendEmailService = sendEmailService;
@@ -35,7 +35,7 @@ public class PriceChangeAlertService {
 
     @Transactional
     public Optional<PriceChangeAlert> createAlert(Account account, Long gameId){
-        accountService.verifyRateLimit(account.getEmail());
+        accountRateLimit.checkAccountRequestLimit(account.getEmail());
         Optional<PriceChangeAlert> optionalPriceAlert = priceChangeAlertRepository.findByAccountIdAndGameId(account.getId(), gameId);
 
         if(optionalPriceAlert.isPresent()) return Optional.empty();
@@ -49,13 +49,13 @@ public class PriceChangeAlertService {
     }
 
     public Page<PriceChangeAlert> getAlerts(Account account, Pageable pageable){
-        accountService.verifyRateLimit(account.getEmail());
+        accountRateLimit.checkAccountRequestLimit(account.getEmail());
         return priceChangeAlertRepository.findAllByAccountId(account.getId(), pageable);
     }
 
     @Transactional
     public void deleteAlert(Long gameId, Account account) throws ResourceNotFoundException{
-        accountService.verifyRateLimit(account.getEmail());
+        accountRateLimit.checkAccountRequestLimit(account.getEmail());
         boolean alertDeleted = priceChangeAlertRepository.deleteByAccountIdAndGameId(account.getId(), gameId) > 0;
         
         if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");        
