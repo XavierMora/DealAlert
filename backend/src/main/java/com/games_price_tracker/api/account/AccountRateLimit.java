@@ -3,6 +3,7 @@ package com.games_price_tracker.api.account;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AuthError;
@@ -17,10 +18,12 @@ import io.github.bucket4j.ConsumptionProbe;
 public class AccountRateLimit {
     private final Cache<String,Bucket> accountRateLimitCache;
     private final Cache<String,Bucket> verifyCodeCache;
+    private final Duration bucketAccountRefillDuration;
 
-    public AccountRateLimit(){
+    public AccountRateLimit(@Value("${account.rate-limit.bucket-refill-duration}") Duration bucketAccountRefillDuration){
         this.accountRateLimitCache = Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
         this.verifyCodeCache = Caffeine.newBuilder().maximumSize(5_000).expireAfterAccess(Duration.ofMinutes(5)).build();
+        this.bucketAccountRefillDuration = bucketAccountRefillDuration;
     }
 
     public void checkVerificationCodeAttemptLimit(String email) throws TooManyRequestsException{
@@ -55,8 +58,8 @@ public class AccountRateLimit {
         return Bucket.builder()
         .addLimit(limit -> limit
             .capacity(30)
-            .refillGreedy(30, Duration.ofSeconds(30))
+            .refillGreedy(30, bucketAccountRefillDuration)
         )
-        .build();
+        .build();   
     }
 }
