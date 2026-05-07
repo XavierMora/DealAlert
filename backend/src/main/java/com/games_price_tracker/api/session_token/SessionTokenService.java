@@ -20,10 +20,7 @@ public class SessionTokenService {
     }
 
     public SessionToken createSessionToken(Account account){
-        SessionToken sessionToken = new SessionToken(account);
-        sessionToken.assignToken(UUID.randomUUID(), durationValidToken);
-        
-        return sessionToken;
+        return new SessionToken(account, durationValidToken);
     }
 
     @Transactional

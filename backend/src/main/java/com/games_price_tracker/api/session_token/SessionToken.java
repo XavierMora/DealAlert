@@ -31,13 +31,10 @@ public class SessionToken {
 
     public SessionToken(){}
 
-    public SessionToken(Account account){
+    public SessionToken(Account account, Duration duration){
         this.account = account;
-    }
-
-    public void assignToken(UUID token, Duration durationValidToken){
-        this.token = token;
-        this.expiration = Instant.now().plus(durationValidToken);
+        this.token = UUID.randomUUID();
+        this.expiration = Instant.now().plus(duration);
     }
 
     public boolean expired(){
