@@ -48,7 +48,7 @@ public class AccountEmailCooldownTest {
 
     @Test
     void shouldAllowSendSignInEmailWhenCooldownHasPassed(){
-        Instant a = Instant.now().minus(accountEmailCooldown.getSignInEmailInterval()).minusSeconds(1);
+        Instant a = Instant.now().minus(accountEmailCooldown.getSignInEmailCooldown()).minusSeconds(1);
         accountEmailCooldown.updateSignInEmailSentAt(emailTest, a);
 
         assertDoesNotThrow(() -> {

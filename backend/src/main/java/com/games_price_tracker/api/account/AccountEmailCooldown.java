@@ -16,12 +16,12 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Component
 public class AccountEmailCooldown {
-    private final Duration signInEmailInterval;
+    private final Duration signInEmailCooldown;
     private final Cache<String, Optional<Instant>> signInEmailCache;
 
-    AccountEmailCooldown(@Value("${account.sign-in-code-email-interval}") Duration signInEmailInterval){
-        this.signInEmailInterval = signInEmailInterval;
-        this.signInEmailCache = Caffeine.newBuilder().expireAfterWrite(signInEmailInterval).maximumSize(10_000).build();
+    AccountEmailCooldown(@Value("${account.sign-in-email-cooldown}") Duration signInEmailCooldown){
+        this.signInEmailCooldown = signInEmailCooldown;
+        this.signInEmailCache = Caffeine.newBuilder().expireAfterWrite(signInEmailCooldown).maximumSize(10_000).build();
     }
     
     private boolean canSendSignInCode(Instant lastSignInCodeSentAt){
@@ -29,7 +29,7 @@ public class AccountEmailCooldown {
 
         long secondsSinceLastEmail = lastSignInCodeSentAt.until(Instant.now(), ChronoUnit.SECONDS);
 
-        return secondsSinceLastEmail > signInEmailInterval.getSeconds();
+        return secondsSinceLastEmail > signInEmailCooldown.getSeconds();
     }
 
     private Duration timeUntilNextSignInEmailSend(Instant lastSignInCodeSentAt){
@@ -37,11 +37,11 @@ public class AccountEmailCooldown {
 
         long secondsSinceLastEmail = lastSignInCodeSentAt.until(Instant.now(), ChronoUnit.SECONDS);
 
-        return signInEmailInterval.minusSeconds(secondsSinceLastEmail);
+        return signInEmailCooldown.minusSeconds(secondsSinceLastEmail);
     }
 
-    public Duration getSignInEmailInterval() {
-        return signInEmailInterval;
+    public Duration getSignInEmailCooldown() {
+        return signInEmailCooldown;
     }
 
     public void checkSignInEmailCanBeSent(String email, Instant lastSent) throws TooManyRequestsException, SignInEmailCooldownException{

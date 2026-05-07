@@ -80,8 +80,8 @@ public class AccountServiceTest {
         Account account = new Account(emailTest);
         String testCode = "0";
         account.setSignInCode(testCode);
-        given(accountEmailCooldown.getSignInEmailInterval()).willReturn(Duration.ofMinutes(2));
-        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailInterval().dividedBy(2)));
+        given(accountEmailCooldown.getSignInEmailCooldown()).willReturn(Duration.ofMinutes(2));
+        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailCooldown().dividedBy(2)));
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
 
         accountService.sendSignInCode(emailTest);
@@ -95,8 +95,8 @@ public class AccountServiceTest {
         Account account = new Account(emailTest);
         String testCode = "123456";
         account.setSignInCode(testCode);
-        given(accountEmailCooldown.getSignInEmailInterval()).willReturn(Duration.ofMinutes(2));
-        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailInterval().plusSeconds(2)));
+        given(accountEmailCooldown.getSignInEmailCooldown()).willReturn(Duration.ofMinutes(2));
+        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailCooldown().plusSeconds(2)));
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
 
         accountService.sendSignInCode(emailTest);

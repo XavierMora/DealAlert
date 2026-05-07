@@ -74,7 +74,7 @@ public class AccountService {
 
         if(account.signInCodeExpired()) return true;
         
-        Instant expectedLastSignInEmailSendTime = account.getSignInCodeExpectedExpiration().minus(accountEmailCooldown.getSignInEmailInterval());
+        Instant expectedLastSignInEmailSendTime = account.getSignInCodeExpectedExpiration().minus(accountEmailCooldown.getSignInEmailCooldown());
 
         // Se genera un nuevo código si el email que se quiere enviar está despues de 
         // expiración código - intervalo de envío de email
