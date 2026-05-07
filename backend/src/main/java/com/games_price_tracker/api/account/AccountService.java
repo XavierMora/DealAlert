@@ -110,7 +110,6 @@ public class AccountService {
 
         account.setSignInCode(null);
         account.setSignInCodeExpectedExpiration(null);
-        account.setLastSignInCodeSentAt(null);
         
         // Se tiene cascade persist en el onetomany entonces cuando se persiste account, que es la entidad padre, tambien se persiste/guarda el token en la bd
         return token;

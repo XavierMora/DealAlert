@@ -17,8 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
+import com.games_price_tracker.api.account.exceptions.AuthError;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
+import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -100,5 +103,63 @@ public class AccountServiceTest {
         
         verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), notNull());
         assertEquals(testCode, account.getSignInCode());
+    }
+
+    @Test
+    void shouldReturnSessionTokenWhenCodeIsCorrect(){
+        Account account = new Account(emailTest);
+        String code = "123456";
+        account.setSignInCode(code);
+        account.setSignInCodeExpectedExpiration(Instant.now().plusSeconds(120));
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+        SessionToken token = new SessionToken(account, Duration.ofMinutes(10));
+        given(sessionTokenService.createSessionToken(account)).willReturn(token);
+
+        SessionToken tokenReturned = accountService.verifyCode(emailTest, code);
+        assertEquals(token, tokenReturned);
+        assertEquals(1, account.getSessionTokens().size());
+        assertEquals(tokenReturned, account.getSessionTokens().get(0));
+        assertNull(account.getSignInCode());
+        assertNull(account.getSignInCodeExpectedExpiration());
+    }
+
+    @Test
+    void shouldThrowAccountAuthErrorExceptionEmailNotFound(){
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.empty());
+
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "123456"));
+        assertEquals(AuthError.EMAIL_NOT_FOUND, ex.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowAccountAuthErrorExceptionIncorrectCodeWhenCodeIsNull(){
+        Account account = new Account(emailTest);
+
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "999999"));
+        assertEquals(AuthError.INCORRECT_CODE, ex.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowAccountAuthErrorExceptionIncorrectCodeWhenCodeIsNotEqual(){
+        Account account = new Account(emailTest);
+        account.setSignInCode("123456");
+
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+        
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "999999"));
+        assertEquals(AuthError.INCORRECT_CODE, ex.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowAccountAuthErrorExceptionExpiredCode(){
+        Account account = new Account(emailTest);
+        account.setSignInCode("123456");
+        account.setSignInCodeExpectedExpiration(Instant.now().minusSeconds(1));
+        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, account.getSignInCode()));
+        assertEquals(AuthError.EXPIRED_CODE, ex.getErrorCode());
     }
 }
