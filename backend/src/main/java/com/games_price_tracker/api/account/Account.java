@@ -26,6 +26,8 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String email;
 
+    private Long telegramUserId;
+
     @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
     @OrderBy("expiration DESC")
     private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
@@ -63,6 +65,14 @@ public class Account {
         return priceAlerts;
     }
 
+    public Long getTelegramUserId() {
+        return telegramUserId;
+    }
+
+    public void setTelegramUserId(Long telegramUserId) {
+        this.telegramUserId = telegramUserId;
+    }
+    
     public void setPriceAlerts(List<PriceChangeAlert> priceAlerts) {
         this.priceAlerts = priceAlerts;
     }
