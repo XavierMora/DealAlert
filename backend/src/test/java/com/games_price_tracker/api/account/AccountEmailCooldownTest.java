@@ -22,18 +22,11 @@ public class AccountEmailCooldownTest {
     }
 
     @Test
-    void shouldThrowSignInCodeEmailCooldownExceptionWhenLastSentArgumentHasCooldown(){
-        assertThrows(SignInEmailCooldownException.class, () -> {
-            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest, Instant.now().minusSeconds(2));
-        });
-    }
-
-    @Test
     void shouldThrowTooManyRequestException(){
-        accountEmailCooldown.checkSignInEmailCanBeSent(emailTest, null);
+        accountEmailCooldown.checkSignInEmailCanBeSent(emailTest);
 
         assertThrows(TooManyRequestsException.class, () -> {
-            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest, null);
+            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest);
         });
     }
 
@@ -42,17 +35,17 @@ public class AccountEmailCooldownTest {
         accountEmailCooldown.updateSignInEmailSentAt(emailTest, Instant.now());
 
         assertThrows(SignInEmailCooldownException.class, () -> {
-            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest, null);
+            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest);
         });
     }
 
     @Test
     void shouldAllowSendSignInEmailWhenCooldownHasPassed(){
-        Instant a = Instant.now().minus(accountEmailCooldown.getSignInEmailCooldown()).minusSeconds(1);
-        accountEmailCooldown.updateSignInEmailSentAt(emailTest, a);
+        Instant time = Instant.now().minus(accountEmailCooldown.getSignInEmailCooldown()).minusSeconds(1);
+        accountEmailCooldown.updateSignInEmailSentAt(emailTest, time);
 
         assertDoesNotThrow(() -> {
-            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest, null);
+            accountEmailCooldown.checkSignInEmailCanBeSent(emailTest);
         });
     }
 }

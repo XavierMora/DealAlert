@@ -47,7 +47,7 @@ public class AccountController {
     public ResponseEntity<Void> verifyCode(
         @RequestBody @Valid VerifyCodeBody body
     ) {
-        SessionToken sessionToken =  accountService.verifyCode(body.email(), body.code());        
+        SessionToken sessionToken =  accountService.verifySignInCode(body.email(), body.code());        
 
         HttpHeaders headers = new HttpHeaders();
 

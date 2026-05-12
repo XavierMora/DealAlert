@@ -44,25 +44,21 @@ public class AccountEmailCooldown {
         return signInEmailCooldown;
     }
 
-    public void checkSignInEmailCanBeSent(String email, Instant lastSent) throws TooManyRequestsException, SignInEmailCooldownException{
+    public void checkSignInEmailCanBeSent(String email) throws TooManyRequestsException, SignInEmailCooldownException{
         // Marca con un optional vacío la cache para rechazar otras requests
         Optional<Instant> sentAt = signInEmailCache.asMap().putIfAbsent(email, Optional.empty());
         
-        // Si encuentra el optional vacío se lanza la excepción
-        if(sentAt != null && sentAt.isEmpty()) throw new TooManyRequestsException();
+        // Si es nulo es porque no habia valor cacheado entonces se permite enviar email
+        if(sentAt == null) return;
+        
+        if(sentAt.isEmpty()) throw new TooManyRequestsException();
 
-        if(sentAt == null){
-            if(lastSent != null) signInEmailCache.put(email, Optional.of(lastSent));
-        }else{
-            lastSent = sentAt.get(); // usa el valor cacheado
-        }
+        if(canSendSignInCode(sentAt.get())) return;
 
-        if(!canSendSignInCode(lastSent)){
-            throw new SignInEmailCooldownException(
-                timeUntilNextSignInEmailSend(lastSent).getSeconds(), 
-                TimeUnit.SECONDS
-            );
-        }
+        throw new SignInEmailCooldownException(
+            timeUntilNextSignInEmailSend(sentAt.get()).getSeconds(), 
+            TimeUnit.SECONDS
+        );
     }
     
     public void updateSignInEmailSentAt(String email, Instant emailSentAt){

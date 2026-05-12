@@ -1,7 +1,5 @@
 package com.games_price_tracker.api.account;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,11 +26,6 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(length = 6)
-    private String signInCode;
-    private Instant signInCodeExpectedExpiration;
-    private Instant lastSignInCodeSentAt;
-
     @OneToMany(mappedBy = "account", cascade = {CascadeType.PERSIST}, orphanRemoval = true) // orphanRemoval hace que si se elimina una entidad de la lista se borre tambien de la bd
     @OrderBy("expiration DESC")
     private List<SessionToken> sessionTokens = new ArrayList<SessionToken>();
@@ -46,11 +39,6 @@ public class Account {
         this.email = email;
     }
     
-    public void assignSignInCode(String code, Duration validDuration){
-        this.signInCode = code;
-        this.signInCodeExpectedExpiration = Instant.now().plus(validDuration);
-    }
-
     public void addToken(SessionToken token, int maxTokens){
         if(sessionTokens.size() >= maxTokens){
             sessionTokens.removeLast();
@@ -59,28 +47,12 @@ public class Account {
         sessionTokens.add(token);
     }
 
-    public boolean signInCodeExpired(){
-        return signInCodeExpectedExpiration == null || signInCodeExpectedExpiration.isBefore(Instant.now());
-    }
-
     public String getEmail() {
         return email;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getSignInCode() {
-        return signInCode;
-    }
-
-    public Instant getSignInCodeExpectedExpiration() {
-        return signInCodeExpectedExpiration;
-    }
-
-    public Instant getLastSignInCodeSentAt() {
-        return lastSignInCodeSentAt;
     }
 
     public List<SessionToken> getSessionTokens() {
@@ -105,18 +77,6 @@ public class Account {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setSignInCode(String signInCode) {
-        this.signInCode = signInCode;
-    }
-
-    public void setSignInCodeExpectedExpiration(Instant signInCodeExpectedExpiration) {
-        this.signInCodeExpectedExpiration = signInCodeExpectedExpiration;
-    }
-
-    public void setLastSignInCodeSentAt(Instant lastSignInCodeSentAt) {
-        this.lastSignInCodeSentAt = lastSignInCodeSentAt;
     }
 
     @Override

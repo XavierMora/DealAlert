@@ -1,9 +1,6 @@
 package com.games_price_tracker.api.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
@@ -24,9 +21,9 @@ import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -37,6 +34,7 @@ public class AccountServiceTest {
     @Mock private AccountRateLimit accountRateLimit;
     @Mock private AccountEmailCooldown accountEmailCooldown;
     @Mock private SendEmailService sendEmailService;
+    @Mock private SignInCodeHandler signInCodeHandler;
     @InjectMocks private AccountService accountService;
     private final String emailTest = "test";
 
@@ -48,18 +46,15 @@ public class AccountServiceTest {
     @Test
     void shouldSendSignInCodeWhenAccountIsNotRegistered(){        
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.empty());
-        
+        given(signInCodeHandler.getOrCreate(emailTest)).willReturn("123456");
+
         accountService.sendSignInCode(emailTest);
         ArgumentCaptor<Account> accountArg = ArgumentCaptor.forClass(Account.class);
         verify(accountRepository).save(accountArg.capture());
-        verify(sendEmailService).verificationEmail(eq(emailTest), anyString());
-        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), eq(accountArg.getValue().getLastSignInCodeSentAt()));
+        verify(sendEmailService).verificationEmail(eq(emailTest), eq("123456"));
+        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), any(Instant.class));
 
-        Account account = accountArg.getValue();
-        assertNotNull(account.getSignInCode());
-        assertNotNull(account.getSignInCodeExpectedExpiration());
-        assertNotNull(account.getLastSignInCodeSentAt());
-        assertEquals(emailTest, account.getEmail());
+        assertEquals(emailTest, accountArg.getValue().getEmail());
     }
 
     @Test
@@ -67,99 +62,45 @@ public class AccountServiceTest {
         Account account = new Account(emailTest);
         
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+        given(signInCodeHandler.getOrCreate(emailTest)).willReturn("");
         doThrow(SendEmailException.class).when(sendEmailService).verificationEmail(eq(emailTest), anyString());
 
         assertThrows(SendEmailException.class, () -> accountService.sendSignInCode(emailTest));
-        assertNull(account.getLastSignInCodeSentAt());
-        assertNotNull(account.getSignInCode());
         verify(accountEmailCooldown).cleanSignInEmailCooldown(eq(emailTest));
     }
 
     @Test
-    void shouldCreateNewSignInCodeWhenSignInCodeIsRequestedAfterLastExpectedSend(){
-        Account account = new Account(emailTest);
-        String testCode = "0";
-        account.setSignInCode(testCode);
-        given(accountEmailCooldown.getSignInEmailCooldown()).willReturn(Duration.ofMinutes(2));
-        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailCooldown().dividedBy(2)));
-        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
-
-        accountService.sendSignInCode(emailTest);
-        
-        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), notNull());
-        assertNotEquals(testCode, account.getSignInCode());
-    }
-
-    @Test
-    void shouldNotCreateNewSignInCodeWhenSignInCodeIsRequestedBeforeLastExpectedSend(){
-        Account account = new Account(emailTest);
-        String testCode = "123456";
-        account.setSignInCode(testCode);
-        given(accountEmailCooldown.getSignInEmailCooldown()).willReturn(Duration.ofMinutes(2));
-        account.setSignInCodeExpectedExpiration(Instant.now().plus(accountEmailCooldown.getSignInEmailCooldown().plusSeconds(2)));
-        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
-
-        accountService.sendSignInCode(emailTest);
-        
-        verify(accountEmailCooldown).updateSignInEmailSentAt(eq(emailTest), notNull());
-        assertEquals(testCode, account.getSignInCode());
-    }
-
-    @Test
-    void shouldReturnSessionTokenWhenCodeIsCorrect(){
+    void shouldReturnSessionTokenWhenCodeIsValid(){
         Account account = new Account(emailTest);
         String code = "123456";
-        account.setSignInCode(code);
-        account.setSignInCodeExpectedExpiration(Instant.now().plusSeconds(120));
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
+        given(signInCodeHandler.codeIsValid(emailTest, code)).willReturn(true);
         SessionToken token = new SessionToken(account, Duration.ofMinutes(10));
         given(sessionTokenService.createSessionToken(account)).willReturn(token);
 
-        SessionToken tokenReturned = accountService.verifyCode(emailTest, code);
+        SessionToken tokenReturned = accountService.verifySignInCode(emailTest, code);
         assertEquals(token, tokenReturned);
         assertEquals(1, account.getSessionTokens().size());
         assertEquals(tokenReturned, account.getSessionTokens().get(0));
-        assertNull(account.getSignInCode());
-        assertNull(account.getSignInCodeExpectedExpiration());
+        verify(signInCodeHandler).deleteCode(eq(emailTest));
     }
 
     @Test
-    void shouldThrowAccountAuthErrorExceptionEmailNotFound(){
+    void shouldThrowAccountAuthErrorExceptionWhenEmailNotFound(){
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.empty());
 
-        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "123456"));
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifySignInCode(emailTest, "123456"));
         assertEquals(AuthError.EMAIL_NOT_FOUND, ex.getErrorCode());
     }
 
     @Test
-    void shouldThrowAccountAuthErrorExceptionIncorrectCodeWhenCodeIsNull(){
+    void shouldThrowAccountAuthErrorExceptionInvalidCodeWhenCodeIsNotValid(){
         Account account = new Account(emailTest);
-
+        String code = "123456";
+        given(signInCodeHandler.codeIsValid(emailTest, code)).willReturn(false);
         given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
 
-        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "999999"));
-        assertEquals(AuthError.INCORRECT_CODE, ex.getErrorCode());
-    }
-
-    @Test
-    void shouldThrowAccountAuthErrorExceptionIncorrectCodeWhenCodeIsNotEqual(){
-        Account account = new Account(emailTest);
-        account.setSignInCode("123456");
-
-        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
-        
-        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, "999999"));
-        assertEquals(AuthError.INCORRECT_CODE, ex.getErrorCode());
-    }
-
-    @Test
-    void shouldThrowAccountAuthErrorExceptionExpiredCode(){
-        Account account = new Account(emailTest);
-        account.setSignInCode("123456");
-        account.setSignInCodeExpectedExpiration(Instant.now().minusSeconds(1));
-        given(accountRepository.findByEmail(emailTest)).willReturn(Optional.of(account));
-
-        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifyCode(emailTest, account.getSignInCode()));
-        assertEquals(AuthError.EXPIRED_CODE, ex.getErrorCode());
+        AccountAuthErrorException ex = assertThrows(AccountAuthErrorException.class, () -> accountService.verifySignInCode(emailTest, code));
+        assertEquals(AuthError.INVALID_CODE, ex.getErrorCode());
     }
 }
