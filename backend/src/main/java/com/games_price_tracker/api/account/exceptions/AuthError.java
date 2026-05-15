@@ -6,9 +6,4 @@ public enum AuthError implements ApiError{
     INVALID_CODE,
     MAX_ATTEMPTS_REACHED,
     EMAIL_NOT_FOUND;
-    
-    @Override
-    public String getErrorCode() {
-        return toString();
-    }
 }

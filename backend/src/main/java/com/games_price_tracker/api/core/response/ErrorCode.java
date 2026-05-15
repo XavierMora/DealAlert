@@ -10,9 +10,4 @@ public enum ErrorCode implements ApiError {
     FORBIDDEN,
     INTERNAL_SERVER_ERROR,
     EMAIL_COOLDOWN;
-
-    @Override
-    public String getErrorCode() {
-        return toString();
-    }
 }
