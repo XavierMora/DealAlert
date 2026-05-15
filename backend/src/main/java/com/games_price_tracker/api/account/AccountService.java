@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.games_price_tracker.api.account.exceptions.AccountAuthErrorException;
 import com.games_price_tracker.api.account.exceptions.AuthError;
+import com.games_price_tracker.api.account.sign_in_code.SignInCodeHandler;
 import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
