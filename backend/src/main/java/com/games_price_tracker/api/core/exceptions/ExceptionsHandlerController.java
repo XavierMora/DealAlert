@@ -24,6 +24,8 @@ import com.games_price_tracker.api.core.response.ApiResponseBody;
 import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.core.response.ErrorCode;
 import com.games_price_tracker.api.email.SendEmailException;
+import com.games_price_tracker.api.telegram_bot.TelegramError;
+import com.games_price_tracker.api.telegram_bot.TelegramException;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -125,6 +127,21 @@ public class ExceptionsHandlerController{
         .body(ApiResponseBodyBuilder.error(
             e.getMessage(), 
             ErrorCode.SENDING_EMAIL
+        ));
+    }
+
+    @ExceptionHandler(TelegramException.class)
+    public ResponseEntity<ApiResponseBody<Void>> telegram(TelegramException e){
+        HttpStatus status;
+
+        if(e.getErrorCode() == TelegramError.TELEGRAM_ALREADY_LINKED) status = HttpStatus.CONFLICT;
+        else status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        return ResponseEntity
+        .status(status)
+        .body(ApiResponseBodyBuilder.error(
+            e.getMessage(), 
+            e.getErrorCode()
         ));
     }
 

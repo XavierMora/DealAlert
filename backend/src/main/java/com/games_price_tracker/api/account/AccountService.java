@@ -12,6 +12,9 @@ import com.games_price_tracker.api.email.SendEmailException;
 import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.session_token.SessionToken;
 import com.games_price_tracker.api.session_token.SessionTokenService;
+import com.games_price_tracker.api.telegram_bot.TelegramError;
+import com.games_price_tracker.api.telegram_bot.TelegramException;
+import com.games_price_tracker.api.telegram_bot.TelegramTokenHandler;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +27,16 @@ public class AccountService {
     private final AccountRateLimit accountRateLimit;
     private final AccountEmailCooldown accountEmailCooldown;
     private final SignInCodeHandler signInCodeHandler;
+    private final TelegramTokenHandler telegramTokenHandler;
 
-    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountRateLimit accountRateLimit, AccountEmailCooldown accountEmailCooldown, SignInCodeHandler signInCodeHandler){
+    public AccountService(AccountRepository accountRepository, SendEmailService sendEmailService, SessionTokenService sessionTokenService, AccountRateLimit accountRateLimit, AccountEmailCooldown accountEmailCooldown, SignInCodeHandler signInCodeHandler, TelegramTokenHandler telegramTokenHandler){
         this.accountRepository = accountRepository;
         this.sendEmailService = sendEmailService;
         this.sessionTokenService = sessionTokenService;
         this.accountRateLimit = accountRateLimit;
         this.accountEmailCooldown = accountEmailCooldown;
         this.signInCodeHandler = signInCodeHandler;
+        this.telegramTokenHandler = telegramTokenHandler;
     }
 
     @Transactional
@@ -88,6 +93,16 @@ public class AccountService {
         signInCodeHandler.deleteCode(email);
 
         // Se tiene cascade persist en el onetomany entonces cuando se persiste account, que es la entidad padre, tambien se persiste/guarda el token en la bd
+        return token;
+    }
+
+    public String generateTelegramToken(Account account){
+        if(account.getTelegramUserId() != null) throw new TelegramException(TelegramError.TELEGRAM_ALREADY_LINKED, "Ya existe una vinculación a una cuenta de telegram.");
+            
+        String token = telegramTokenHandler.getToken(account.getId());
+
+        if(token == null) throw new TelegramException(TelegramError.TELEGRAM_TOKEN_CREATION_FAILED, "Error generando token.");
+
         return token;
     }
 }

@@ -27,23 +27,30 @@ public class TelegramTokenHandlerTest {
 
     @Test
     void shouldCreateAndReturnToken(){
-        assertEquals("123", telegramTokenHandler.create("email"));
+        assertEquals("123", telegramTokenHandler.getToken(1L));
     }
 
     @Test
     void shouldReturnNullWhenTokenAlreadyExisted(){
-        telegramTokenHandler.create("");
-        assertNull(telegramTokenHandler.create(""));
+        telegramTokenHandler.getToken(1L);
+        assertNull(telegramTokenHandler.getToken(2L));
     }
 
     @Test 
-    void shouldReturnEmailLinkedToToken(){
-        String token = telegramTokenHandler.create("email");
-        assertEquals("email", telegramTokenHandler.getEmail(token));
+    void shouldReturnAccountIdLinkedToToken(){
+        String token = telegramTokenHandler.getToken(1L);
+        assertEquals(1L, telegramTokenHandler.getAccountId(token));
     }
 
     @Test 
-    void shouldReturnNullWhenGettingEmail(){
-        assertNull(telegramTokenHandler.getEmail("token"));
+    void shouldReturnNullWhenGettingAccountId(){
+        assertNull(telegramTokenHandler.getAccountId(""));
+    }
+
+    @Test
+    void shouldReturnSameTokenForSameAccountId(){
+        String t1 = telegramTokenHandler.getToken(1L);
+        String t2 = telegramTokenHandler.getToken(1L);
+        assertEquals(t1, t2);
     }
 }

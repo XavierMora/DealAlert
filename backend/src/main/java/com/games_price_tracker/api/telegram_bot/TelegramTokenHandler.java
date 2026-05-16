@@ -11,21 +11,28 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Component
 public class TelegramTokenHandler {
-    private final Cache<String, String> store;
+    private final Cache<String, Long> tokenToAccountCache;
+    private final Cache<Long, String> accountToTokenCache;
     private final TokenGenerator<String> tokenGenerator;
 
     TelegramTokenHandler(@Value("${account.telegram-token-duration}") Duration tokenDuration, TokenGenerator<String> telegramTokenGenerator){
-        this.store = Caffeine.newBuilder().expireAfterWrite(tokenDuration).maximumSize(10_000).build();
+        this.tokenToAccountCache = Caffeine.newBuilder().expireAfterWrite(tokenDuration).maximumSize(10_000).build();
+        this.accountToTokenCache = Caffeine.newBuilder().expireAfterWrite(tokenDuration).maximumSize(10_000).build();
         this.tokenGenerator = telegramTokenGenerator;
     }
 
-    public String create(String email){
-        String token = tokenGenerator.generate();
-        
-        return store.asMap().putIfAbsent(token, email) == null ? token : null;
+    public String getToken(Long accountId){
+        String token = accountToTokenCache.get(accountId, (k) -> {
+            String t = tokenGenerator.generate();
+            
+            if(tokenToAccountCache.asMap().putIfAbsent(t, accountId) == null) return t;
+            else return null; // devuelve null si el token generado ya existe
+        });
+
+        return token;
     }
 
-    public String getEmail(String token){
-        return store.getIfPresent(token);
+    public Long getAccountId(String token){
+        return tokenToAccountCache.getIfPresent(token);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -62,5 +63,12 @@ public class AccountController {
         return ResponseEntity.ok(ApiResponseBodyBuilder.success(
             new AccountDto(account.getId(), account.getEmail()))
         );
+    }
+
+    @PostMapping("/telegram-token")
+    public ResponseEntity<ApiResponseBody<Map<String, String>>> telegramToken(@AuthenticationPrincipal Account account) {
+        String token = accountService.generateTelegramToken(account);
+        
+        return ResponseEntity.ok(ApiResponseBodyBuilder.success(Map.of("token", token)));
     }
 }
