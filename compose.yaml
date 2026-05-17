@@ -22,9 +22,10 @@ services:
 
   ngrok: # expone app. Para probar con el webhook de brevo
     image: ngrok/ngrok:latest
+    network_mode: host
     command:
       - "http"
-      - "http://host.docker.internal:8080"
+      - "http://localhost:8080"
     environment:
       NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
     ports:

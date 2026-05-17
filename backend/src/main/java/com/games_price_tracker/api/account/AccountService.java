@@ -105,4 +105,8 @@ public class AccountService {
 
         return token;
     }
+
+    public void linkTelegramAccount(String token, Long telegramUserId){
+
+    }
 }
