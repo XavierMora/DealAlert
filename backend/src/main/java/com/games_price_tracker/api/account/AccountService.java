@@ -39,22 +39,15 @@ public class AccountService {
         this.telegramTokenHandler = telegramTokenHandler;
     }
 
-    @Transactional
     public void sendSignInCode(String email){
         accountRateLimit.checkAccountRequestLimit(email);
-        
-        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
-        Account account;
-        
-        if(optionalAccount.isEmpty()) account = new Account(email);
-        else account = optionalAccount.get();
 
         accountEmailCooldown.checkSignInEmailCanBeSent(email);
 
         try {
             sendEmailService.verificationEmail(
-                account.getEmail(), 
-                signInCodeHandler.getOrCreate(account.getEmail())
+                email, 
+                signInCodeHandler.getOrCreate(email)
             );
         } catch (SendEmailException e) {
             accountEmailCooldown.cleanSignInEmailCooldown(email);
@@ -62,8 +55,6 @@ public class AccountService {
         }
 
         accountEmailCooldown.updateSignInEmailSentAt(email, Instant.now());
-        
-        accountRepository.save(account);
     }
 
     @Transactional
@@ -79,17 +70,20 @@ public class AccountService {
     public SessionToken verifySignInCode(String email, String code){
         accountRateLimit.checkAccountRequestLimit(email);
 
-        Account account = accountRepository.findByEmail(email).orElseThrow(
-            () -> new AccountAuthErrorException(AuthError.EMAIL_NOT_FOUND, "Email no encontrado.")
-        );
-
         accountRateLimit.checkVerificationCodeAttemptLimit(email);
 
         if(!signInCodeHandler.codeIsValid(email, code)) throw new AccountAuthErrorException(AuthError.INVALID_CODE, "Código inválido.");
         
+        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
+        Account account;
+        
+        if(optionalAccount.isEmpty()) account = new Account(email);
+        else account = optionalAccount.get();
+
         SessionToken token = sessionTokenService.createSessionToken(account);
         account.addToken(token, maxTokens);
 
+        if(optionalAccount.isEmpty()) accountRepository.save(account);
         signInCodeHandler.deleteCode(email);
 
         // Se tiene cascade persist en el onetomany entonces cuando se persiste account, que es la entidad padre, tambien se persiste/guarda el token en la bd

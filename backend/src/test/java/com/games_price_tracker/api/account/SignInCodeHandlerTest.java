@@ -58,5 +58,6 @@ public class SignInCodeHandlerTest {
     void shouldReturnInvalidCode(){
         signInCodeHandler.getOrCreate("email");
         assertFalse(signInCodeHandler.codeIsValid("email", "000000"));
+        assertFalse(signInCodeHandler.codeIsValid("invalidEmail", "")); // email que no existe, no solicitó código
     }
 }
