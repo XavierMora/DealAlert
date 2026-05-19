@@ -1,18 +1,14 @@
 package com.games_price_tracker.api.steam;
 
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.games_price_tracker.api.game.GameService;
-import com.games_price_tracker.api.steam.config.SteamApiProperties;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
@@ -26,24 +22,11 @@ public class SteamClient {
     private final Logger log = LoggerFactory.getLogger(SteamClient.class);
     private final GameService gameService;
 
-    public SteamClient(ObjectMapper objectMapper, SteamApiProperties steamApiProperties, GameService gameService){
+    public SteamClient(ObjectMapper objectMapper, RestClient steamAppListRestClient, RestClient steamAppDetailsRestClient, GameService gameService){
         this.gameService = gameService;
         this.objectMapper = objectMapper;
-
-        JdkClientHttpRequestFactory clientHttpRequestFactory = new JdkClientHttpRequestFactory(
-            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build()
-        );
-        clientHttpRequestFactory.setReadTimeout(Duration.ofSeconds(8));
-
-        restAppListClient = RestClient.builder()
-            .requestFactory(clientHttpRequestFactory)
-            .baseUrl(steamApiProperties.getApplist().getUrl())
-            .build();
-
-        restAppDetailsClient = RestClient.builder()
-            .requestFactory(clientHttpRequestFactory)
-            .baseUrl(steamApiProperties.getAppdetails().getUrl())
-            .build();
+        restAppListClient = steamAppListRestClient;
+        restAppDetailsClient = steamAppDetailsRestClient;
     }
 
     private List<AppSteam> parseSteamApps(String response){
