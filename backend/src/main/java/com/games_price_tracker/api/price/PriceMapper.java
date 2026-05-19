@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import org.springframework.stereotype.Component;
 
 import com.games_price_tracker.api.price.dtos.PriceInfo;
-import com.games_price_tracker.api.price.dtos.PriceInfoEmail;
+import com.games_price_tracker.api.price.dtos.PriceInfoTemplate;
 
 @Component
 public class PriceMapper {
@@ -29,8 +29,8 @@ public class PriceMapper {
         );
     }
 
-    public PriceInfoEmail fromPriceInfoToPriceInfoEmail(PriceInfo priceInfo){
-        return new PriceInfoEmail(
+    public PriceInfoTemplate fromPriceInfoToPriceInfoTemplate(PriceInfo priceInfo){
+        return new PriceInfoTemplate(
             priceInfo.initialPrice(), 
             formatPrice(priceInfo.initialPrice()), 
             priceInfo.finalPrice(), 

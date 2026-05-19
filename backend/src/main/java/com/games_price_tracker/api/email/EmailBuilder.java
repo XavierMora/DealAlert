@@ -16,13 +16,13 @@ import com.games_price_tracker.api.steam.SteamUrlBuilder;
 @Component
 public class EmailBuilder {
     private final String from;
-    private final TemplateEngine emailTemplateEngine;
+    private final TemplateEngine htmlTemplateEngine;
     private final SteamUrlBuilder steamUrlBuilder;
     private final PriceMapper priceMapper;
 
-    EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine emailTemplateEngine, SteamUrlBuilder steamUrlBuilder, PriceMapper priceMapper){
+    EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine htmlTemplateEngine, SteamUrlBuilder steamUrlBuilder, PriceMapper priceMapper){
         this.from = appEmail;
-        this.emailTemplateEngine = emailTemplateEngine;
+        this.htmlTemplateEngine = htmlTemplateEngine;
         this.steamUrlBuilder = steamUrlBuilder; 
         this.priceMapper = priceMapper;
     }
@@ -30,7 +30,7 @@ public class EmailBuilder {
     public BrevoPostBody createVerificationEmail(String recipient, String code){
         Context ctx = new Context();
         ctx.setVariable("code", code);
-        String template = emailTemplateEngine.process("verification.html", ctx);
+        String template = htmlTemplateEngine.process("verification.html", ctx);
 
         return new BrevoPostBody(
             "Tu código de acceso es "+code, 
@@ -46,17 +46,17 @@ public class EmailBuilder {
         ctx.setVariable("gameName", game.getName());
         ctx.setVariable(
             "oldPrice", 
-            priceMapper.fromPriceInfoToPriceInfoEmail(changePriceResult.oldPrice())
+            priceMapper.fromPriceInfoToPriceInfoTemplate(changePriceResult.oldPrice())
         );
         ctx.setVariable(
             "newPrice", 
-            priceMapper.fromPriceInfoToPriceInfoEmail(changePriceResult.newPrice())
+            priceMapper.fromPriceInfoToPriceInfoTemplate(changePriceResult.newPrice())
         );
         ctx.setVariable("gameSteamUrl", steamUrlBuilder.appUrl(
             game.getSteamId(), 
             game.getName()
         ).toString());
-        String template = emailTemplateEngine.process("deal-notification.html", ctx);
+        String template = htmlTemplateEngine.process("deal-notification.html", ctx);
 
         return new BrevoPostBody(
             "Alerta del juego %s".formatted(game.getName()), 
