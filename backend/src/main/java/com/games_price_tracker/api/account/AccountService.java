@@ -100,8 +100,17 @@ public class AccountService {
         return token;
     }
 
+    @Transactional
     public boolean linkTelegramAccount(String token, Long telegramUserId){
+        Long accountId = telegramTokenHandler.getAccountId(token);
+
+        if(accountId==null) return false;
+
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
         
+        if(optionalAccount.isEmpty()) return false;
+
+        optionalAccount.get().setTelegramUserId(telegramUserId);
         return true;
     }
 }

@@ -1,7 +1,9 @@
 package com.games_price_tracker.api.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -122,7 +124,7 @@ public class AccountServiceTest {
     }
 
     @Test
-    void shouldThrowWhenTokenCreationFail(){
+    void shouldThrowWhenTelegramTokenCreationFail(){
         Account account = new Account();
         account.setId(1L);
         given(telegramTokenHandler.getToken(account.getId())).willReturn(null);
@@ -130,5 +132,30 @@ public class AccountServiceTest {
         TelegramException ex = assertThrows(TelegramException.class, () -> accountService.generateTelegramToken(account));
         assertEquals(TelegramError.TELEGRAM_TOKEN_CREATION_FAILED, ex.getErrorCode());
         verify(telegramTokenHandler).getToken(eq(account.getId()));
+    }
+
+    @Test
+    void shouldReturnFalseWhenTelegramTokenHandlerReturnsNull(){
+        given(telegramTokenHandler.getAccountId("token")).willReturn(null);
+
+        assertFalse(accountService.linkTelegramAccount("token", null));
+    }
+
+    @Test
+    void shouldReturnFalseWhenAccountIdDoesNotExist(){
+        given(telegramTokenHandler.getAccountId("token")).willReturn(1L);
+        given(accountRepository.findById(1L)).willReturn(Optional.empty());
+
+        assertFalse(accountService.linkTelegramAccount("token", null));
+    }
+
+    @Test
+    void shouldReturnTrueAndLinkTelegramAccount(){
+        Account account = new Account();
+        given(telegramTokenHandler.getAccountId("token")).willReturn(1L);
+        given(accountRepository.findById(1L)).willReturn(Optional.of(account));
+
+        assertTrue(accountService.linkTelegramAccount("token", 1L));
+        assertEquals(1L, account.getTelegramUserId());
     }
 }
