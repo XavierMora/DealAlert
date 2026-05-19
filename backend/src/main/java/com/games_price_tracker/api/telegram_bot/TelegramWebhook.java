@@ -5,9 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import com.games_price_tracker.api.account.AccountService;
-import com.games_price_tracker.api.core.response.ApiResponseBody;
-import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
-import com.games_price_tracker.api.core.response.ErrorCode;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,9 +25,9 @@ public class TelegramWebhook {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseBody<Void>> verifyToken(@RequestBody() Update update, @RequestHeader(name = "X-Telegram-Bot-Api-Secret-Token") String secretToken) {
+    public ResponseEntity<TelegramWebhookResponse> verifyToken(@RequestBody() Update update, @RequestHeader(name = "X-Telegram-Bot-Api-Secret-Token") String secretToken) {
         if(!tokenWebhook.equals(secretToken)){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponseBodyBuilder.error(ErrorCode.FORBIDDEN));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         String msg = update.getMessage().getText();
@@ -38,8 +35,14 @@ public class TelegramWebhook {
         if(!msg.startsWith("/start ")) return ResponseEntity.noContent().build();
 
         String accountToken = msg.replace("/start ", "");
-        accountService.linkTelegramAccount(accountToken, update.getMessage().getFrom().getId());
 
-        return ResponseEntity.ok().build();
+        Long telegramUserId = update.getMessage().getFrom().getId();
+        boolean success = accountService.linkTelegramAccount(accountToken, telegramUserId);
+
+        return ResponseEntity.ok(new TelegramWebhookResponse(
+            "sendMessage", 
+            telegramUserId, 
+            success ? "Se vinculo la cuenta." : "No se pudo vincular la cuenta."
+        ));
     }   
 }

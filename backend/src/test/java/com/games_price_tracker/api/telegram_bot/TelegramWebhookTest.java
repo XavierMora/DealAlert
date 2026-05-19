@@ -12,6 +12,7 @@ import com.games_price_tracker.api.account.AccountService;
 import com.games_price_tracker.api.core.exceptions.ExceptionsHandlerController;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,9 +45,7 @@ public class TelegramWebhookTest {
             .content(objectMapper.writeValueAsString(new Update()))
             .header("X-Telegram-Bot-Api-Secret-Token", "0")
         ).andExpectAll(
-            status().isForbidden(),
-            content().contentType(MediaType.APPLICATION_JSON),
-            jsonPath("$.success").value(false)
+            status().isForbidden()
         );
     }
 
@@ -68,7 +67,7 @@ public class TelegramWebhookTest {
     }
 
     @Test
-    void shouldVerifyToken() throws Exception{
+    void shouldReturnSuccessMsgWhenVerifyTokenSuccess() throws Exception{
         Update update = new Update();
         Message msg = new Message();
         msg.setText("/start 123");
@@ -77,13 +76,47 @@ public class TelegramWebhookTest {
         msg.setFrom(user);
         update.setMessage(msg);
 
+        given(accountService.linkTelegramAccount("123", 1L)).willReturn(true);
+
         mockMvc.perform(
             post("/telegram/webhook")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(update))
             .header("X-Telegram-Bot-Api-Secret-Token", "123")
         ).andExpectAll(
-            status().isOk()
+            status().isOk(),
+            content().contentType(MediaType.APPLICATION_JSON),
+            jsonPath("$.method").value("sendMessage"),
+            jsonPath("$.chat_id").value(1L),
+            jsonPath("$.text").value("Se vinculo la cuenta.")
+        );
+
+        verify(accountService).linkTelegramAccount(eq("123"), eq(1L));
+    }
+
+    @Test
+    void shouldReturnFailMsgWhenVerifyTokenFails() throws Exception{
+        Update update = new Update();
+        Message msg = new Message();
+        msg.setText("/start 123");
+        User user = new User();
+        user.setId(1L);
+        msg.setFrom(user);
+        update.setMessage(msg);
+
+        given(accountService.linkTelegramAccount(eq("123"), eq(1L))).willReturn(false);
+
+        mockMvc.perform(
+            post("/telegram/webhook")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(update))
+            .header("X-Telegram-Bot-Api-Secret-Token", "123")
+        ).andExpectAll(
+            status().isOk(),
+            content().contentType(MediaType.APPLICATION_JSON),
+            jsonPath("$.method").value("sendMessage"),
+            jsonPath("$.chat_id").value(1L),
+            jsonPath("$.text").value("No se pudo vincular la cuenta.")
         );
 
         verify(accountService).linkTelegramAccount(eq("123"), eq(1L));

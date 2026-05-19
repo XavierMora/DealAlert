@@ -100,7 +100,8 @@ public class AccountService {
         return token;
     }
 
-    public void linkTelegramAccount(String token, Long telegramUserId){
-
+    public boolean linkTelegramAccount(String token, Long telegramUserId){
+        
+        return true;
     }
 }
