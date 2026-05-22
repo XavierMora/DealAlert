@@ -55,7 +55,14 @@ public class AccountController {
         HttpHeaders headers = new HttpHeaders();
 
         Long maxAge = Instant.now().until(sessionToken.getExpiration(), ChronoUnit.SECONDS);
-        headers.set("Set-Cookie", ("SESSION=%s; HttpOnly; SameSite=None; Max-Age=%d; Secure; Path=/").formatted(sessionToken.getToken().toString(), maxAge.intValue()));
+        headers.set(
+            "Set-Cookie", 
+            String.format(
+                "SESSION=%s; HttpOnly; SameSite=None; Max-Age=%d; Secure; Path=/", 
+                sessionToken.getToken().toString(), 
+                maxAge.intValue()
+            )
+        );
 
         return ResponseEntity.noContent().headers(headers).build();
     }
@@ -63,7 +70,7 @@ public class AccountController {
     @GetMapping()
     public ResponseEntity<ApiResponseBody<AccountDto>> getAccount(@AuthenticationPrincipal Account account) {
         return ResponseEntity.ok(ApiResponseBodyBuilder.success(
-            new AccountDto(account.getId(), account.getEmail()))
+            new AccountDto(account.getId(), account.getEmail(), account.getTelegramUserId()))
         );
     }
 
