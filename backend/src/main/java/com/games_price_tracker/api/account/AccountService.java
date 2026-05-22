@@ -57,7 +57,6 @@ public class AccountService {
         accountEmailCooldown.updateSignInEmailSentAt(email, Instant.now());
     }
 
-    @Transactional
     public void clearLastSignInCodeSentAt(String email){
         accountEmailCooldown.cleanSignInEmailCooldown(email);
     }
@@ -112,5 +111,13 @@ public class AccountService {
 
         optionalAccount.get().setTelegramUserId(telegramUserId);
         return true;
+    }
+
+    @Transactional
+    public void unlinkTelegramAccount(Account account){
+        if(account.getTelegramUserId() == null) return;
+        
+        account.setTelegramUserId(null);
+        accountRepository.save(account);
     }
 }

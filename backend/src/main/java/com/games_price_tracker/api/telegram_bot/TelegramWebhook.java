@@ -42,7 +42,7 @@ public class TelegramWebhook {
         return ResponseEntity.ok(new TelegramWebhookResponse(
             "sendMessage", 
             telegramUserId, 
-            success ? "Se vinculo la cuenta." : "No se pudo vincular la cuenta."
+            success ? "Se vinculó la cuenta." : "No se pudo vincular la cuenta."
         ));
     }   
 }

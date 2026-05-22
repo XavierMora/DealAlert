@@ -22,6 +22,8 @@ import com.games_price_tracker.api.core.response.ApiResponseBodyBuilder;
 import com.games_price_tracker.api.session_token.SessionToken;
 
 import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
@@ -70,5 +72,12 @@ public class AccountController {
         String token = accountService.generateTelegramToken(account);
         
         return ResponseEntity.ok(ApiResponseBodyBuilder.success(Map.of("token", token)));
+    }
+
+    @DeleteMapping("/telegram")
+    public ResponseEntity<ApiResponseBody<Void>> unlinkTelegramAccount(@AuthenticationPrincipal Account account) {
+        accountService.unlinkTelegramAccount(account);
+        
+        return ResponseEntity.noContent().build();
     }
 }
