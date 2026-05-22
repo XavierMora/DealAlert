@@ -110,13 +110,14 @@ public class AccountService {
         if(optionalAccount.isEmpty()) return false;
 
         optionalAccount.get().setTelegramUserId(telegramUserId);
+        telegramTokenHandler.clearToken(token);
         return true;
     }
 
     @Transactional
     public void unlinkTelegramAccount(Account account){
         if(account.getTelegramUserId() == null) return;
-        
+
         account.setTelegramUserId(null);
         accountRepository.save(account);
     }

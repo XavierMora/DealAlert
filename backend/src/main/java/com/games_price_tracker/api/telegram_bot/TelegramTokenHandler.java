@@ -35,4 +35,13 @@ public class TelegramTokenHandler {
     public Long getAccountId(String token){
         return tokenToAccountCache.getIfPresent(token);
     }
+
+    public void clearToken(String token){
+        Long accountId = tokenToAccountCache.getIfPresent(token);
+
+        if(accountId != null){
+            accountToTokenCache.invalidate(accountId);
+            tokenToAccountCache.invalidate(token);
+        }
+    }
 }

@@ -157,5 +157,6 @@ public class AccountServiceTest {
 
         assertTrue(accountService.linkTelegramAccount("token", 1L));
         assertEquals(1L, account.getTelegramUserId());
+        verify(telegramTokenHandler).clearToken("token");
     }
 }
