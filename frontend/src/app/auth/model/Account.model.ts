@@ -1,4 +1,5 @@
 interface Account{
     id: number,
-    email: string
+    email: string,
+    telegramUserId: number | null
 }

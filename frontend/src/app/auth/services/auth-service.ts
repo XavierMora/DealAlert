@@ -72,6 +72,16 @@ export class AuthService {
     )
   }
 
+  telegramToken(){
+    return this.http.post<ApiResponse<{token: string}>>(
+      `${environment.apiUrl}/account/telegram-token`,
+      null,
+      {credentials: 'include'}
+    ).pipe(
+      catchError((err: HttpErrorResponse) => throwError(() => err.error))
+    )
+  }
+
   setAuthentication(){ 
     // Se llama desde el provideAppInitializer para que se establezca en el inicio
     // antes de los guards
