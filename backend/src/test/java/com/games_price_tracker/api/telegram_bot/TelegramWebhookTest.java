@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.games_price_tracker.api.account.AccountService;
 import com.games_price_tracker.api.core.exceptions.ExceptionsHandlerController;
 
