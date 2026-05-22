@@ -13,24 +13,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.games_price_tracker.api.account.Account;
 import com.games_price_tracker.api.account.AccountRateLimit;
 import com.games_price_tracker.api.core.exceptions.ResourceNotFoundException;
-import com.games_price_tracker.api.email.SendEmailService;
 import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.game.GameService;
 import com.games_price_tracker.api.price.dtos.ChangePriceResult;
+import com.games_price_tracker.api.telegram_bot.client.TelegramClient;
 
 @Service
 public class PriceChangeAlertService {
     private final PriceChangeAlertRepository priceChangeAlertRepository;
     private final GameService gameService;
-    private final SendEmailService sendEmailService;
+    private final TelegramClient telegramClient;
     private final Logger log = LoggerFactory.getLogger(PriceChangeAlertService.class);
     private final AccountRateLimit accountRateLimit;
 
-    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, SendEmailService sendEmailService, AccountRateLimit accountRateLimit){
+    PriceChangeAlertService(PriceChangeAlertRepository priceChangeAlertRepository, GameService gameService, TelegramClient telegramClient, AccountRateLimit accountRateLimit){
         this.accountRateLimit = accountRateLimit;
         this.priceChangeAlertRepository = priceChangeAlertRepository;
         this.gameService = gameService;
-        this.sendEmailService = sendEmailService;
+        this.telegramClient = telegramClient;
     }
 
     @Transactional
@@ -61,27 +61,32 @@ public class PriceChangeAlertService {
         if(!alertDeleted) throw new ResourceNotFoundException("La alerta no existe.");        
     }
 
-    public boolean notifyPriceChange(Game game, ChangePriceResult result){
+    public void notifyPriceChange(Game game, ChangePriceResult result){
         List<PriceChangeAlert> alerts = priceChangeAlertRepository.findAllByGameId(game.getId());
 
-        if(alerts.isEmpty()) return false;
+        if(alerts.isEmpty()) return;
         
-        boolean notify = false;
-        if(result.newPrice().initialPrice() > result.newPrice().finalPrice()){
-            List<String> emails = alerts.stream().map(alert -> alert.getAccount().getEmail()).toList();
-            
-            try {
-                log.info("Starting send of deal notification for game with id={} to {} recipients", game.getId(), emails.size());
-
-                sendEmailService.dealEmail(game, result, emails);
-                notify = true;
-            } catch (Exception e) {
-                log.error("Failed to create deal notification for the game with id={}", game.getId(), e);
-            }
-        }else{
-            log.info("No deal notification sent for the game with id={}, price didn't drop", game.getId());
+        if(result.newPrice().initialPrice() <= result.newPrice().finalPrice()){
+            log.info("No game deal notification with id={} sent because price didn't drop", game.getId());
+            return;
         }
 
-        return notify;
+        List<Long> recipients = alerts.stream()
+        .filter(alert -> alert.getAccount().getTelegramUserId() != null)
+        .map(alert -> alert.getAccount().getTelegramUserId())
+        .toList();
+        
+        if(recipients.isEmpty()){
+            log.info("Recipients for game deal notification with id={} don't have telegram account linked", game.getId());
+            return;
+        }
+
+        try {
+            log.info("Starting send of game deal notification with id={} to {} recipients", game.getId(), recipients.size());
+
+            telegramClient.sendDealNotification(game, result, recipients);
+        } catch (Exception e) {
+            log.error("Failed to create game deal notification with id={}", game.getId(), e);
+        }
     }
 }

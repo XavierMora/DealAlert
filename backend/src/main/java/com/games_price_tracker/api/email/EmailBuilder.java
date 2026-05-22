@@ -8,23 +8,17 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.games_price_tracker.api.email.brevo.BrevoPostBody;
-import com.games_price_tracker.api.game.Game;
 import com.games_price_tracker.api.price.PriceMapper;
-import com.games_price_tracker.api.price.dtos.ChangePriceResult;
 import com.games_price_tracker.api.steam.SteamUrlBuilder;
 
 @Component
 public class EmailBuilder {
     private final String from;
     private final TemplateEngine htmlTemplateEngine;
-    private final SteamUrlBuilder steamUrlBuilder;
-    private final PriceMapper priceMapper;
 
     EmailBuilder(@Value("${app.email}") String appEmail, TemplateEngine htmlTemplateEngine, SteamUrlBuilder steamUrlBuilder, PriceMapper priceMapper){
         this.from = appEmail;
         this.htmlTemplateEngine = htmlTemplateEngine;
-        this.steamUrlBuilder = steamUrlBuilder; 
-        this.priceMapper = priceMapper;
     }
 
     public BrevoPostBody createVerificationEmail(String recipient, String code){
@@ -36,32 +30,6 @@ public class EmailBuilder {
             "Tu código de acceso es "+code, 
             from, 
             List.of(recipient), 
-            template
-        );
-    }
-
-    public BrevoPostBody createDealEmail(Game game, ChangePriceResult changePriceResult, List<String> recipients){
-        // Se carga y establece la plantilla con los datos
-        Context ctx = new Context();
-        ctx.setVariable("gameName", game.getName());
-        ctx.setVariable(
-            "oldPrice", 
-            priceMapper.fromPriceInfoToPriceInfoTemplate(changePriceResult.oldPrice())
-        );
-        ctx.setVariable(
-            "newPrice", 
-            priceMapper.fromPriceInfoToPriceInfoTemplate(changePriceResult.newPrice())
-        );
-        ctx.setVariable("gameSteamUrl", steamUrlBuilder.appUrl(
-            game.getSteamId(), 
-            game.getName()
-        ).toString());
-        String template = htmlTemplateEngine.process("deal-notification.html", ctx);
-
-        return new BrevoPostBody(
-            "Alerta del juego %s".formatted(game.getName()), 
-            from, 
-            recipients, 
             template
         );
     }
