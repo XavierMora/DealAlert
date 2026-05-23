@@ -81,6 +81,25 @@ export class AuthService {
     )
   }
 
+  unlinkTelegram(){
+    return this.http.delete(
+      `${environment.apiUrl}/account/telegram`,
+      {credentials: 'include'}
+    ).pipe(
+      tap(() => {
+        this._currentAccount.update((account) => {
+          if(account === null) return account;
+          
+          return {
+            ...account!,
+            telegramUserId: null
+          }
+        });
+      }),
+      catchError(err => throwError(() => err.error))
+    )
+  }
+
   refreshAccount(){
     return this.setAuthentication();
   }

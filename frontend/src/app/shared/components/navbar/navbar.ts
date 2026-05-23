@@ -5,10 +5,11 @@ import { ApiErrorCode } from '../../models/ApiErrorCode';
 import { AlertService } from '../alert/alert-service';
 import { exhaustMap, filter, map, of, switchMap, takeLast } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { TelegramLink } from '../../../auth/components/telegram-link/telegram-link';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TelegramLink],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -17,15 +18,25 @@ export class Navbar {
   private router = inject(Router);
   private alertService = inject(AlertService);
   activeMenu = signal<boolean>(false);
+  activeAccountMenu = signal<boolean>(false);
+  showTelegramLink = signal<boolean>(false);
 
   isAuthenticated = this.authService.isAuthenticated;
+  currentAccount = this.authService.currentAccount;
+
   navigateHomePage = () => {
     this.router.navigateByUrl('');
     this.activeMenu.set(false)
+    this.activeAccountMenu.set(false);
   }
 
   toggleMenu(){
     this.activeMenu.update(value => !value);
+    this.activeAccountMenu.set(false);
+  }
+
+  toggleAccountMenu(){
+    this.activeAccountMenu.update(value => !value);
   }
 
   authAction(){
@@ -54,5 +65,22 @@ export class Navbar {
     }
 
     this.activeMenu.set(false)
+    this.activeAccountMenu.set(false);
+  }
+
+  telegramUnlinked(){
+    this.authService.unlinkTelegram().subscribe({
+      next: () => {
+        this.alertService.newAlert({
+          type: 'success',
+          text: 'Se desvinculó telegram.'
+        })
+      }, error: () => {
+        this.alertService.newAlert({
+          type: 'error',
+          text: 'Error inesperado.'
+        })
+      }
+    });
   }
 }
