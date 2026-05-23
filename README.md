@@ -1,6 +1,6 @@
 # DealAlert
 
-Aplicación web orientada al seguimiento de precios de juegos en Steam. Permite a los usuarios agregar juegos a una lista de alertas y recibir una notificación mediante email cuando se detecta una oferta para alguno de ellos.
+Aplicación web orientada al seguimiento de precios de juegos en Steam. Permite a los usuarios agregar juegos a una lista de alertas y recibir una notificación mediante telegram cuando se detecta una oferta para alguno de ellos.
 
 **App web:** https://xaviermora.github.io/DealAlert/
 
