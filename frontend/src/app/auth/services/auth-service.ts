@@ -45,8 +45,7 @@ export class AuthService {
       catchError((err:HttpErrorResponse) => {
         if(err.status == 429) this.setRetryAfterResponse(this.retryAfterVerifyCode, err, email);
         return throwError(() => err.error)
-      }),
-      tap(() => this.setAuthentication()) // Se ejecuta si no hay error
+      })
     );
   }
 

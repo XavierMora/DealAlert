@@ -1,11 +1,9 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { AuthService } from '../../services/auth-service';
 import { FormsModule, NgForm } from '@angular/forms';
-import { finalize, Subject } from 'rxjs';
+import { finalize } from 'rxjs';
 import { ApiErrorCode } from '../../../shared/models/ApiErrorCode';
-import { Router } from '@angular/router';
 import { AlertService } from '../../../shared/components/alert/alert-service';
-import { ApiAuthErrorCode } from '../../model/ApiAuthErrorCode';
 
 @Component({
   selector: 'app-verify-code',
@@ -18,9 +16,8 @@ export class VerifyCode {
   email = input.required<string>();
   code: string = '';
   sending = signal<boolean>(false);
-  loginSuccess = output<boolean>();
+  loginSuccess = output<Account>();
   errorSendingForm = signal<string | undefined>(undefined);
-  private router = inject(Router);
   private alertService = inject(AlertService);
 
   verifyCode(form: NgForm){
@@ -30,8 +27,16 @@ export class VerifyCode {
     this.authService.verifyCode(this.email(), this.code).pipe(
       finalize(() => this.sending.set(false))
     ).subscribe({
-      next: () => {
-        this.router.navigateByUrl('/games');
+      next: async () => {
+        try {
+          await this.authService.refreshAccount();
+          
+          let account = this.authService.currentAccount();
+          if(account === null) this.errorSendingForm.set("Error inesperado");
+          else this.loginSuccess.emit(account);
+        } catch (error) {
+          this.errorSendingForm.set("Error inesperado");
+        }
       },
       error: (err: ApiResponse<undefined | Record<string, string>>) => {
         if(err.error === ApiErrorCode.INVALID_DATA){
