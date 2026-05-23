@@ -1,0 +1,26 @@
+<div class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4 text-center">
+    <div class="bg-(--surface-1) mx-auto mt-12 rounded-sm p-6 flex flex-col gap-4 sm:w-fit w-11/12 relative">
+        <button type="button" class="close-button" title="Cerrar" aria-label="Cerrar" (click)="close()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+        </button>
+
+        <h1 class="text-center text-2xl">Vincular Telegram</h1>
+
+        <p>Recibí las alertas de ofertas en Telegram.</p>
+
+        @if(token() === undefined){
+            <button type="button" class="main-button sm:w-fit w-full mx-auto" (click)="linkTelegram()" [disabled]="loadingToken()">
+                Vincular
+            </button>
+        }@else {
+            <button type="button" class="main-button sm:w-fit w-full mx-auto" [disabled]="checking()" (click)="checkLink()">
+                {{checking() ? 'Verificando' : 'Ya lo vinculé'}}
+            </button>
+            <p class="text-(--text-muted) text-sm">Una vez vinculado confirmar haciendo click en el botón.</p>
+        }
+
+        @if(error() !== undefined){
+            <p class="text-red-500">{{error()}}</p>
+        }
+    </div>
+</div>

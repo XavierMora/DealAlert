@@ -82,6 +82,10 @@ export class AuthService {
     )
   }
 
+  refreshAccount(){
+    return this.setAuthentication();
+  }
+
   setAuthentication(){ 
     // Se llama desde el provideAppInitializer para que se establezca en el inicio
     // antes de los guards

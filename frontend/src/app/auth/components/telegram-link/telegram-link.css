@@ -1,0 +1,17 @@
+.close-button{
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.close-button:hover{
+    color: var(--text-main);
+}
